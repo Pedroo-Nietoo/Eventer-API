@@ -1,0 +1,102 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      Role     @default(USER)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  Tickets Ticket[]
+
+  @@map("users")
+}
+
+model Event {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  address     String
+  latitude    Float
+  longitude   Float
+  date        DateTime
+  phone       String?
+  ticketCount BigInt   @map("ticket_count")
+  categoryId  String   @map("category_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  Category Category @relation(fields: [categoryId], references: [id])
+  Tickets  Ticket[]
+
+  @@map("events")
+}
+
+model Category {
+  id        String   @id @default(uuid())
+  name      String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  Events Event[]
+
+  @@map("categories")
+}
+
+model Ticket {
+  id        String    @id @default(uuid())
+  userId    String    @map("user_id")
+  eventId   String    @map("event_id")
+  type      String
+  price     Float
+  voucherId String?   @map("voucher_id")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  Event   Event    @relation(fields: [eventId], references: [id])
+  User    User     @relation(fields: [userId], references: [id])
+  Voucher Voucher? @relation(fields: [voucherId], references: [id])
+
+  @@map("tickets")
+}
+
+model Voucher {
+  id        String   @id @default(uuid())
+  code      String   @unique
+  discount  Float
+  validFrom DateTime @map("valid_from")
+  validTo   DateTime @map("valid_to")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  Tickets Ticket[]
+
+  @@map("vouchers")
+}
+
+// TODO: Add DiscountProof model for the user to prove that they are eligible for a discount
+
+enum Role {
+  USER  @map("user")
+  ADMIN @map("admin")
+
+  @@map("roles")
+}
+
+enum TicketType {
+  FREE       @map("free")
+  PAID       @map("paid")
+  HALF_PRICE @map("half_price")
+
+  @@map("ticket_types")
+}
