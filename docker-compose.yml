@@ -1,0 +1,15 @@
+services:
+  database:
+    image: bitnami/postgresql
+    container_name: postgres
+    environment:
+      POSTGRES_USER: eventer-admin
+      POSTGRES_PASSWORD: Eventer@2025
+      POSTGRES_DB: eventer
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:

@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -12,6 +12,7 @@ model User {
   name      String
   email     String   @unique
   password  String
+  birthDate DateTime @map("birth_date")
   role      Role     @default(USER)
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -24,18 +25,19 @@ model User {
 model Event {
   id          String   @id @default(uuid())
   name        String
+  slug        String?  @unique
   description String?
   address     String
   latitude    Float
   longitude   Float
   date        DateTime
   phone       String?
-  ticketCount BigInt   @map("ticket_count")
-  categoryId  String   @map("category_id")
+  ticketCount Int      @map("ticket_count")
+  categoryId  String?  @map("category_id")
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
 
-  Category Category @relation(fields: [categoryId], references: [id])
+  Category Category? @relation(fields: [categoryId], references: [id])
   Tickets  Ticket[]
 
   @@map("events")
