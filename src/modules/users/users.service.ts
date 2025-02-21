@@ -149,4 +149,23 @@ export class UsersService {
       throw new InternalServerErrorException(error);
     }
   }
+
+  async findOneByEmail(email: string) {
+    try {
+      const user = await this.prismaService.user.findUnique({
+        where: { email },
+      });
+
+      if (!user) {
+        throw new NotFoundException(
+          'User with the specified email was not found',
+          'User not found',
+        );
+      }
+
+      return { user };
+    } catch (error) {
+      throw new InternalServerErrorException(error);
+    }
+  }
 }
