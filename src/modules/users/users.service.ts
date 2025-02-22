@@ -3,10 +3,11 @@ import {
   Injectable,
   InternalServerErrorException,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { PrismaService } from 'src/database/prisma/prisma.service';
+import { PrismaService } from '@database/prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
@@ -92,6 +93,18 @@ export class UsersService {
         throw new NotFoundException(
           'User with the specified ID was not found',
           'User not found',
+        );
+      }
+
+      const isValidPassword = await bcrypt.compare(
+        updateUserDto.password,
+        user.password,
+      );
+
+      if (!isValidPassword) {
+        throw new UnauthorizedException(
+          'Invalid password provided.',
+          'Unauthorized',
         );
       }
 

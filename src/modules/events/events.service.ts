@@ -6,8 +6,8 @@ import {
 } from '@nestjs/common';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
-import { PrismaService } from 'src/database/prisma/prisma.service';
-import generateSlug from 'src/utils/generate-slug';
+import { PrismaService } from '@database/prisma/prisma.service';
+import generateSlug from '@utils/generate-slug';
 
 @Injectable()
 export class EventsService {
