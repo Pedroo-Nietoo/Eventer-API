@@ -8,6 +8,7 @@ import { UsersModule } from '@modules/users/users.module';
 import { EventsModule } from '@modules/events/events.module';
 import { CategoriesModule } from '@modules/categories/categories.module';
 import { AuthModule } from '@modules/auth/auth.module';
+import { TicketsModule } from '@modules/tickets/tickets.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { AuthModule } from '@modules/auth/auth.module';
     UsersModule,
     EventsModule,
     CategoriesModule,
+    TicketsModule,
     AuthModule,
   ],
   controllers: [AppController],

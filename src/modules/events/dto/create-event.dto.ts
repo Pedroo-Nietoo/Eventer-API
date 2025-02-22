@@ -1,4 +1,5 @@
 import {
+  IsBoolean,
   IsDateString,
   IsNotEmpty,
   IsNumber,
@@ -42,6 +43,14 @@ export class CreateEventDto {
 
   @IsNotEmpty()
   ticketCount: number;
+
+  @IsOptional()
+  @IsBoolean()
+  customTickets: boolean;
+
+  @IsOptional()
+  @IsNumber()
+  ticketDefaultPrice: number;
 
   @IsOptional()
   @IsUUID()

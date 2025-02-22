@@ -17,30 +17,45 @@ model User {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  Tickets Ticket[]
+  tickets Ticket[]
 
   @@map("users")
 }
 
 model Event {
-  id          String   @id @default(uuid())
-  name        String
-  slug        String?  @unique
-  description String?
-  address     String
-  latitude    Float
-  longitude   Float
-  date        DateTime
-  phone       String?
-  ticketCount Int      @map("ticket_count")
-  categoryId  String?  @map("category_id")
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  id                 String   @id @default(uuid())
+  name               String
+  slug               String?  @unique
+  description        String?
+  address            String
+  latitude           Float
+  longitude          Float
+  date               DateTime
+  phone              String?
+  ticketCount        Int      @map("ticket_count")
+  customTickets      Boolean  @default(false) @map("custom_tickets")
+  ticketDefaultPrice Float?   @map("ticket_default_price")
+  categoryId         String?  @map("category_id")
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @updatedAt @map("updated_at")
 
-  Category Category? @relation(fields: [categoryId], references: [id])
-  Tickets  Ticket[]
+  category    Category?         @relation(fields: [categoryId], references: [id])
+  tickets     Ticket[]
+  ticketTypes EventTicketType[]
 
   @@map("events")
+}
+
+model EventTicketType {
+  id          String @id @default(uuid())
+  eventId     String @map("event_id")
+  name        String @map("ticket_name")
+  price       Float  @map("ticket_price")
+  ticketCount Int    @map("ticket_count")
+
+  events Event @relation(fields: [eventId], references: [id])
+
+  @@map("event_ticket_types")
 }
 
 model Category {
@@ -49,21 +64,21 @@ model Category {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  Events Event[]
+  events Event[]
 
   @@map("categories")
 }
 
 model Ticket {
-  id        String    @id @default(uuid())
-  userId    String    @map("user_id")
-  eventId   String    @map("event_id")
-  type      String
-  price     Float
-  voucherId String?   @map("voucher_id")
-  createdAt DateTime  @default(now()) @map("created_at")
-  updatedAt DateTime  @updatedAt @map("updated_at")
-  deletedAt DateTime? @map("deleted_at")
+  id         String     @id @default(uuid())
+  userId     String     @map("user_id")
+  eventId    String     @map("event_id")
+  ticketType TicketType @map("ticket_type")
+  price      Float
+  voucherId  String?    @map("voucher_id")
+  createdAt  DateTime   @default(now()) @map("created_at")
+  updatedAt  DateTime   @updatedAt @map("updated_at")
+  deletedAt  DateTime?  @map("deleted_at")
 
   Event   Event    @relation(fields: [eventId], references: [id])
   User    User     @relation(fields: [userId], references: [id])
@@ -73,13 +88,14 @@ model Ticket {
 }
 
 model Voucher {
-  id        String   @id @default(uuid())
-  code      String   @unique
+  id        String    @id @default(uuid())
+  code      String    @unique
   discount  Float
-  validFrom DateTime @map("valid_from")
-  validTo   DateTime @map("valid_to")
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  validFrom DateTime  @map("valid_from")
+  validTo   DateTime  @map("valid_to")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
 
   Tickets Ticket[]
 

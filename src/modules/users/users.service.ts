@@ -51,6 +51,14 @@ export class UsersService {
       const users = await this.prismaService.user.findMany({
         take: page === 0 ? undefined : pageSize,
         skip: page > 0 ? (page - 1) * pageSize : 0,
+        include: {
+          _count: {
+            select: {
+              tickets: true,
+            },
+          },
+          tickets: true,
+        },
       });
 
       return { users };
@@ -63,6 +71,14 @@ export class UsersService {
     try {
       const user = await this.prismaService.user.findUnique({
         where: { id },
+        include: {
+          _count: {
+            select: {
+              tickets: true,
+            },
+          },
+          tickets: true,
+        },
       });
 
       if (!user) {

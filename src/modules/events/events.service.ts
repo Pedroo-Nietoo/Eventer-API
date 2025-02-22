@@ -13,8 +13,6 @@ import generateSlug from '@utils/generate-slug';
 export class EventsService {
   constructor(private readonly prismaService: PrismaService) {}
 
-  //TODO validate ticketCount logic
-
   async create(createEventDto: CreateEventDto) {
     try {
       const slug = generateSlug(createEventDto.name);
@@ -40,6 +38,15 @@ export class EventsService {
           throw new NotFoundException(
             'Category with the specified ID was not found',
             'Category not found',
+          );
+        }
+      }
+
+      if (!createEventDto.customTickets) {
+        if (!createEventDto.ticketDefaultPrice) {
+          throw new ConflictException(
+            'Ticket default price is required',
+            'Ticket default price required',
           );
         }
       }
@@ -171,5 +178,54 @@ export class EventsService {
     } catch (error) {
       throw new InternalServerErrorException(error);
     }
+  }
+
+  async updateEventAvaliableTickets(
+    eventId: string,
+    customEventTicket: {
+      previousValue: number;
+      newValue: number;
+    } | null = null,
+  ) {
+    const event = await this.prismaService.event.findUnique({
+      where: { id: eventId },
+    });
+
+    if (!event) {
+      throw new NotFoundException(
+        'Event with the specified ID was not found',
+        'Event not found',
+      );
+    }
+
+    if (event.ticketCount <= 0) {
+      throw new ConflictException(
+        'No tickets available for this event',
+        'No tickets available',
+      );
+    }
+
+    if (customEventTicket && customEventTicket.newValue !== 0) {
+      const newTicketCountValue =
+        event.ticketCount -
+        customEventTicket.previousValue +
+        customEventTicket.newValue;
+
+      await this.prismaService.event.update({
+        where: { id: eventId },
+        data: {
+          ticketCount: newTicketCountValue,
+        },
+      });
+    } else {
+      await this.prismaService.event.update({
+        where: { id: eventId },
+        data: {
+          ticketCount: event.ticketCount - 1,
+        },
+      });
+    }
+
+    return { message: 'Ticket count updated successfully', status: 200 };
   }
 }
