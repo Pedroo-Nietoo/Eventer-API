@@ -9,13 +9,28 @@ import { UpdateTicketDto } from './dto/update-ticket.dto';
 import { PrismaService } from '@database/prisma/prisma.service';
 import { EventsService } from '../events/events.service';
 
+/**
+ * Service responsible for handling ticket-related operations.
+ */
 @Injectable()
 export class TicketsService {
+  /**
+   * Constructs a new instance of the TicketsService.
+   * @param prismaService - The Prisma service for database operations.
+   * @param eventService - The Events service for event-related operations.
+   */
   constructor(
     private readonly prismaService: PrismaService,
     private eventService: EventsService,
   ) {}
 
+  /**
+   * Creates a new ticket.
+   * @param createTicketDto - The data transfer object containing ticket creation details.
+   * @returns A success message and status code.
+   * @throws NotFoundException if the user or event is not found.
+   * @throws ConflictException if no tickets are available for the event.
+   */
   async create(createTicketDto: CreateTicketDto) {
     const user = await this.prismaService.user.findUnique({
       where: {
@@ -71,6 +86,12 @@ export class TicketsService {
     return { message: 'Ticket created successfully.', status: 201 };
   }
 
+  /**
+   * Retrieves all tickets with pagination.
+   * @param page - The page number for pagination.
+   * @returns An object containing the list of tickets.
+   * @throws InternalServerErrorException if an error occurs during retrieval.
+   */
   async findAll(page: number) {
     try {
       const pageSize = 25;
@@ -85,6 +106,13 @@ export class TicketsService {
     }
   }
 
+  /**
+   * Retrieves a single ticket by its ID.
+   * @param id - The ID of the ticket to retrieve.
+   * @returns An object containing the ticket details.
+   * @throws NotFoundException if the ticket is not found.
+   * @throws InternalServerErrorException if an error occurs during retrieval.
+   */
   async findOne(id: string) {
     try {
       const ticket = await this.prismaService.ticket.findUnique({
@@ -104,6 +132,13 @@ export class TicketsService {
     }
   }
 
+  /**
+   * Updates an existing ticket.
+   * @param id - The ID of the ticket to update.
+   * @param updateTicketDto - The data transfer object containing updated ticket details.
+   * @returns A success message and status code.
+   * @throws NotFoundException if the ticket is not found.
+   */
   async update(id: string, updateTicketDto: UpdateTicketDto) {
     const ticket = await this.prismaService.ticket.findUnique({
       where: { id },
@@ -126,6 +161,12 @@ export class TicketsService {
     return { message: 'Ticket updates successfully.', status: 200 };
   }
 
+  /**
+   * Deletes a ticket by its ID.
+   * @param id - The ID of the ticket to delete.
+   * @returns A success message and status code.
+   * @throws NotFoundException if the ticket is not found.
+   */
   async remove(id: string) {
     const ticket = await this.prismaService.ticket.findUnique({
       where: { id },
@@ -145,6 +186,10 @@ export class TicketsService {
     return { message: 'Ticket deleted successfully.', status: 204 };
   }
 
+  /**
+   * Generates a list of all tickets in JSON format.
+   * @returns A JSON string containing all tickets.
+   */
   async generateTicket(): Promise<string> {
     const a = await this.prismaService.ticket.findMany();
     return JSON.stringify(a);

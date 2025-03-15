@@ -9,10 +9,26 @@ import { UpdateEventDto } from './dto/update-event.dto';
 import { PrismaService } from '@database/prisma/prisma.service';
 import generateSlug from '@utils/generate-slug';
 
+/**
+ * Service responsible for handling event-related operations.
+ */
 @Injectable()
 export class EventsService {
+  /**
+   * Constructs an instance of EventsService.
+   * @param prismaService - The Prisma service used for database operations.
+   */
   constructor(private readonly prismaService: PrismaService) {}
 
+  /**
+   * Creates a new event.
+   * @param createEventDto - The data transfer object containing event details.
+   * @returns A message indicating the event was created successfully.
+   * @throws ConflictException if an event with the specified slug already exists.
+   * @throws NotFoundException if the specified category ID does not exist.
+   * @throws ConflictException if the ticket default price is not provided when custom tickets are not used.
+   * @throws InternalServerErrorException if an error occurs during the creation process.
+   */
   async create(createEventDto: CreateEventDto) {
     try {
       const slug = generateSlug(createEventDto.name);
@@ -64,6 +80,12 @@ export class EventsService {
     }
   }
 
+  /**
+   * Retrieves a paginated list of all events.
+   * @param page - The page number for pagination.
+   * @returns An object containing the list of events.
+   * @throws InternalServerErrorException if an error occurs during the retrieval process.
+   */
   async findAll(page: number) {
     try {
       const pageSize = 25;
@@ -78,6 +100,13 @@ export class EventsService {
     }
   }
 
+  /**
+   * Retrieves a single event by its ID.
+   * @param id - The ID of the event to retrieve.
+   * @returns An object containing the event details.
+   * @throws NotFoundException if the event with the specified ID does not exist.
+   * @throws InternalServerErrorException if an error occurs during the retrieval process.
+   */
   async findOne(id: string) {
     try {
       const event = await this.prismaService.event.findUnique({
@@ -97,6 +126,16 @@ export class EventsService {
     }
   }
 
+  /**
+   * Updates an existing event.
+   * @param id - The ID of the event to update.
+   * @param updateEventDto - The data transfer object containing updated event details.
+   * @returns A message indicating the event was updated successfully.
+   * @throws NotFoundException if the event with the specified ID does not exist.
+   * @throws NotFoundException if the specified category ID does not exist.
+   * @throws ConflictException if an event with the specified slug already exists.
+   * @throws InternalServerErrorException if an error occurs during the update process.
+   */
   async update(id: string, updateEventDto: UpdateEventDto) {
     try {
       if (!Object.keys(updateEventDto).length) {
@@ -157,6 +196,13 @@ export class EventsService {
     }
   }
 
+  /**
+   * Deletes an event by its ID.
+   * @param id - The ID of the event to delete.
+   * @returns A message indicating the event was deleted successfully.
+   * @throws NotFoundException if the event with the specified ID does not exist.
+   * @throws InternalServerErrorException if an error occurs during the deletion process.
+   */
   async remove(id: string) {
     try {
       const event = await this.prismaService.event.findUnique({
@@ -180,6 +226,15 @@ export class EventsService {
     }
   }
 
+  /**
+   * Updates the available ticket count for an event.
+   * @param eventId - The ID of the event to update.
+   * @param customEventTicket - An optional object containing the previous and new ticket values.
+   * @returns A message indicating the ticket count was updated successfully.
+   * @throws NotFoundException if the event with the specified ID does not exist.
+   * @throws ConflictException if no tickets are available for the event.
+   * @throws InternalServerErrorException if an error occurs during the update process.
+   */
   async updateEventAvaliableTickets(
     eventId: string,
     customEventTicket: {

@@ -10,10 +10,24 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from '@database/prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
 
+/**
+ * Service responsible for handling user-related operations.
+ */
 @Injectable()
 export class UsersService {
+  /**
+   * Constructs a new instance of UsersService.
+   * @param prismaService - The Prisma service used for database operations.
+   */
   constructor(private readonly prismaService: PrismaService) {}
 
+  /**
+   * Creates a new user.
+   * @param createUserDto - The data transfer object containing user creation details.
+   * @returns A message indicating the user was created successfully.
+   * @throws ConflictException if a user with the specified email already exists.
+   * @throws InternalServerErrorException if an error occurs during the operation.
+   */
   async create(createUserDto: CreateUserDto) {
     try {
       const user = await this.prismaService.user.findUnique({
@@ -45,6 +59,12 @@ export class UsersService {
     }
   }
 
+  /**
+   * Retrieves a paginated list of users.
+   * @param page - The page number to retrieve.
+   * @returns An object containing the list of users.
+   * @throws InternalServerErrorException if an error occurs during the operation.
+   */
   async findAll(page: number) {
     try {
       const pageSize = 25;
@@ -67,6 +87,13 @@ export class UsersService {
     }
   }
 
+  /**
+   * Retrieves a user by their ID.
+   * @param id - The ID of the user to retrieve.
+   * @returns An object containing the user details.
+   * @throws NotFoundException if the user with the specified ID is not found.
+   * @throws InternalServerErrorException if an error occurs during the operation.
+   */
   async findOne(id: string) {
     try {
       const user = await this.prismaService.user.findUnique({
@@ -94,8 +121,16 @@ export class UsersService {
     }
   }
 
+  /**
+   * Updates a user's details.
+   * @param id - The ID of the user to update.
+   * @param updateUserDto - The data transfer object containing user update details.
+   * @returns A message indicating the user was updated successfully.
+   * @throws NotFoundException if the user with the specified ID is not found.
+   * @throws UnauthorizedException if the provided password is invalid.
+   * @throws InternalServerErrorException if an error occurs during the operation.
+   */
   async update(id: string, updateUserDto: UpdateUserDto) {
-    //TODO validate user password before updating
     try {
       if (!Object.keys(updateUserDto).length) {
         return { message: 'No data to update', status: 200 };
@@ -144,6 +179,13 @@ export class UsersService {
     }
   }
 
+  /**
+   * Deletes a user by their ID.
+   * @param id - The ID of the user to delete.
+   * @returns A message indicating the user was deleted successfully.
+   * @throws NotFoundException if the user with the specified ID is not found.
+   * @throws InternalServerErrorException if an error occurs during the operation.
+   */
   async remove(id: string) {
     try {
       const user = await this.prismaService.user.findUnique({
@@ -167,6 +209,12 @@ export class UsersService {
     }
   }
 
+  /**
+   * Hashes a password.
+   * @param password - The password to hash.
+   * @returns The hashed password.
+   * @throws InternalServerErrorException if an error occurs during the operation.
+   */
   async hashPassword(password: string): Promise<string> {
     try {
       const hashedPassword: string = await bcrypt.hash(
@@ -179,6 +227,13 @@ export class UsersService {
     }
   }
 
+  /**
+   * Retrieves a user by their email.
+   * @param email - The email of the user to retrieve.
+   * @returns An object containing the user details.
+   * @throws NotFoundException if the user with the specified email is not found.
+   * @throws InternalServerErrorException if an error occurs during the operation.
+   */
   async findOneByEmail(email: string) {
     try {
       const user = await this.prismaService.user.findUnique({
