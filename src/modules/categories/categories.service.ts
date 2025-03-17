@@ -45,7 +45,7 @@ export class CategoriesService {
 
       return { message: 'Category created successfully', status: 201 };
     } catch (error) {
-      throw new InternalServerErrorException(error.message);
+      throw new InternalServerErrorException(error);
     }
   }
 

@@ -27,7 +27,9 @@ export class CloudWatchService {
    * Initializes the CloudWatch Logs client with the specified AWS region.
    */
   constructor(private configService: ConfigService) {
-    this.client = new CloudWatchLogsClient({ region: configService.get<string>('AWS_REGION') });
+    this.client = new CloudWatchLogsClient({
+      region: configService.get<string>('AWS_REGION'),
+    });
   }
 
   /**
@@ -61,4 +63,3 @@ export class CloudWatchService {
     }
   }
 }
-

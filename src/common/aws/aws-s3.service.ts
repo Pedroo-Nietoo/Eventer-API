@@ -1,4 +1,8 @@
-import { Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+} from '@nestjs/common';
 import {
   S3Client,
   PutObjectCommand,
@@ -34,7 +38,9 @@ export class S3Service {
     const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY;
 
     if (!region || !accessKeyId || !secretAccessKey) {
-      throw new InternalServerErrorException('Missing AWS configuration on ENV file');
+      throw new InternalServerErrorException(
+        'Missing AWS configuration on ENV file',
+      );
     }
 
     this.s3Client = new S3Client({

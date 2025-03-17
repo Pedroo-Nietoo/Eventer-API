@@ -9,6 +9,8 @@ import { EventsModule } from '@modules/events/events.module';
 import { CategoriesModule } from '@modules/categories/categories.module';
 import { AuthModule } from '@modules/auth/auth.module';
 import { TicketsModule } from '@modules/tickets/tickets.module';
+import { NotificationsGateway } from './modules/notifications/notifications.gateway';
+import { NotificationsModule } from './modules/notifications/notifications.module';
 
 @Module({
   imports: [
@@ -21,6 +23,7 @@ import { TicketsModule } from '@modules/tickets/tickets.module';
     CategoriesModule,
     TicketsModule,
     AuthModule,
+    NotificationsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
