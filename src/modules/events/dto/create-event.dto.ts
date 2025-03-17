@@ -103,6 +103,14 @@ export class CreateEventDto {
   ticketDefaultPrice: number;
 
   /**
+   * The ID of the user to which the event belongs.
+   * @type {string}
+   * @optional
+   */
+  @IsUUID()
+  userId: string;
+
+  /**
    * The ID of the category to which the event belongs.
    * @type {string}
    * @optional

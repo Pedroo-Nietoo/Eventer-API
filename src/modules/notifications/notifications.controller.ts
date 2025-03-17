@@ -3,6 +3,9 @@ import { Public } from '../auth/decorators/public.decorator';
 import { NotificationsService } from './notifications.service';
 import { CreateNotificationDto } from './dto/create-notification.dto';
 
+/**
+ * NotificationsController handles all notification-related HTTP requests.
+ */
 @Controller('notifications')
 export class NotificationsController {
   constructor(private readonly notificationsService: NotificationsService) {}

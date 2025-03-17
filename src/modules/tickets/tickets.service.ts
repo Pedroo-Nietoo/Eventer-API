@@ -38,54 +38,54 @@ export class TicketsService {
           id: createTicketDto.userId,
         },
       });
-  
+
       if (!user) {
         throw new NotFoundException(
           'User with the specified ID was not found',
           'User not found',
         );
       }
-  
+
       const event = await this.prismaService.event.findUnique({
         where: {
           id: createTicketDto.eventId,
         },
       });
-  
+
       if (!event) {
         throw new NotFoundException(
           'Event with the specified ID was not found',
           'Event not found',
         );
       }
-  
+
       if (event.ticketCount <= 0) {
         throw new ConflictException(
           'No tickets available for this event',
           'No tickets available',
         );
       }
-  
+
       if (!event.ticketDefaultPrice) {
         throw new NotFoundException(
           'No default ticket price found for this event',
           'No default ticket price found',
         );
       }
-  
+
       await this.prismaService.ticket.create({
         data: {
           ...createTicketDto,
           price: event.ticketDefaultPrice,
         },
       });
-  
+
       await this.eventService.updateEventAvaliableTickets(
         createTicketDto.eventId,
       );
-  
+
       return { message: 'Ticket created successfully.', status: 201 };
-    } catch(error) {
+    } catch (error) {
       throw new InternalServerErrorException(error);
     }
   }
@@ -148,54 +148,53 @@ export class TicketsService {
       const ticket = await this.prismaService.ticket.findUnique({
         where: { id },
       });
-  
+
       if (!ticket) {
         throw new NotFoundException(
           'Ticket with the specified ID was not found',
           'Ticket not found',
         );
       }
-  
+
       await this.prismaService.ticket.update({
         where: { id },
         data: {
           ...updateTicketDto,
         },
       });
-  
+
       return { message: 'Ticket updates successfully.', status: 200 };
-    } catch(error) {
+    } catch (error) {
       throw new InternalServerErrorException(error);
     }
   }
-  
-    /**
-     * Deletes a ticket by its ID.
-     * @param id - The ID of the ticket to delete.
-     * @returns A success message and status code.
-     * @throws NotFoundException if the ticket is not found.
-     */
-    async remove(id: string) {
-      
-      try {
-        const ticket = await this.prismaService.ticket.findUnique({
-          where: { id },
-        });
-    
-        if (!ticket) {
-          throw new NotFoundException(
-            'Ticket with the specified ID was not found',
-            'Ticket not found',
-          );
-        }
-    
-        await this.prismaService.ticket.delete({
-          where: { id },
-        });
-    
-        return { message: 'Ticket deleted successfully.', status: 204 };
-      } catch(error) {
-        throw new InternalServerErrorException(error);
+
+  /**
+   * Deletes a ticket by its ID.
+   * @param id - The ID of the ticket to delete.
+   * @returns A success message and status code.
+   * @throws NotFoundException if the ticket is not found.
+   */
+  async remove(id: string) {
+    try {
+      const ticket = await this.prismaService.ticket.findUnique({
+        where: { id },
+      });
+
+      if (!ticket) {
+        throw new NotFoundException(
+          'Ticket with the specified ID was not found',
+          'Ticket not found',
+        );
       }
+
+      await this.prismaService.ticket.delete({
+        where: { id },
+      });
+
+      return { message: 'Ticket deleted successfully.', status: 204 };
+    } catch (error) {
+      throw new InternalServerErrorException(error);
     }
+  }
 }

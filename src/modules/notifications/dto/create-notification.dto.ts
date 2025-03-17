@@ -1,5 +1,8 @@
 import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
+/**
+ * Data Transfer Object for creating a notification.
+ */
 export class CreateNotificationDto {
   /**
    * The title of the notification.

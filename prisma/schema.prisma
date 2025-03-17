@@ -19,6 +19,7 @@ model User {
 
   tickets       Ticket[]
   notifications Notification[]
+  Event         Event[]
 
   @@map("users")
 }
@@ -49,10 +50,12 @@ model Event {
   ticketCount        Int      @map("ticket_count")
   customTickets      Boolean  @default(false) @map("custom_tickets")
   ticketDefaultPrice Float?   @map("ticket_default_price")
+  userId             String   @map("user_id")
   categoryId         String?  @map("category_id")
   createdAt          DateTime @default(now()) @map("created_at")
   updatedAt          DateTime @updatedAt @map("updated_at")
 
+  user        User              @relation(fields: [userId], references: [id])
   category    Category?         @relation(fields: [categoryId], references: [id])
   tickets     Ticket[]
   ticketTypes EventTicketType[]

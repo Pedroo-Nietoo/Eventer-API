@@ -2,8 +2,17 @@ import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { NotificationsGateway } from './notifications.gateway';
 import { PrismaService } from '@src/database/prisma/prisma.service';
 
+/**
+ * Service responsible for handling notification-related operations.
+ */
 @Injectable()
 export class NotificationsService {
+  /**
+   * Constructs a new instance of the NotificationsService.
+   *
+   * @param {NotificationsGateway} notificationsGateway - The gateway for handling notifications.
+   * @param {PrismaService} prisma - The Prisma service for database interactions.
+   */
   constructor(
     private readonly notificationsGateway: NotificationsGateway,
     private readonly prisma: PrismaService,
