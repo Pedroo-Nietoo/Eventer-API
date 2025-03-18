@@ -11,6 +11,7 @@ import {
 import { EventsService } from './events.service';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
+import { Public } from '../auth/decorators/public.decorator';
 
 /**
  * Controller for handling event-related operations.
@@ -34,13 +35,15 @@ export class EventsController {
   }
 
   /**
-   * Retrieves a paginated list of all events.
+   * Retrieves a paginated list of all events, optionally filtered by category ID.
    * @param page - The page number to retrieve (default is 1).
+   * @param categoryId - The optional category ID to filter events by.
    * @returns A paginated list of events.
    */
+  @Public()
   @Get()
-  findAll(@Query('page') page: number = 1) {
-    return this.eventsService.findAll(page);
+  findAll(@Query('page') page: number = 1, @Query('categoryId') categoryId?: string) {
+    return this.eventsService.findAll(page, categoryId);
   }
 
   /**

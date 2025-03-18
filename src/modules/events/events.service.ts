@@ -86,10 +86,11 @@ export class EventsService {
    * @returns An object containing the list of events.
    * @throws InternalServerErrorException if an error occurs during the retrieval process.
    */
-  async findAll(page: number) {
+  async findAll(page: number, categoryId?: string) {
     try {
       const pageSize = 25;
       const events = await this.prismaService.event.findMany({
+        where: categoryId ? { categoryId } : undefined,
         take: page === 0 ? undefined : pageSize,
         skip: page > 0 ? (page - 1) * pageSize : 0,
       });
