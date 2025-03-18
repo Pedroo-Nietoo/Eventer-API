@@ -90,16 +90,17 @@ model Ticket {
   id         String     @id @default(uuid())
   userId     String     @map("user_id")
   eventId    String     @map("event_id")
-  ticketType TicketType @map("ticket_type")
   price      Float
+  ticketType TicketType @map("ticket_type")
+  checkedIn  Boolean    @default(false) @map("checked_in")
   voucherId  String?    @map("voucher_id")
   createdAt  DateTime   @default(now()) @map("created_at")
   updatedAt  DateTime   @updatedAt @map("updated_at")
   deletedAt  DateTime?  @map("deleted_at")
 
-  Event   Event    @relation(fields: [eventId], references: [id])
-  User    User     @relation(fields: [userId], references: [id])
-  Voucher Voucher? @relation(fields: [voucherId], references: [id])
+  event   Event    @relation(fields: [eventId], references: [id])
+  user    User     @relation(fields: [userId], references: [id])
+  voucher Voucher? @relation(fields: [voucherId], references: [id])
 
   @@map("tickets")
 }
@@ -114,7 +115,7 @@ model Voucher {
   updatedAt DateTime  @updatedAt @map("updated_at")
   deletedAt DateTime? @map("deleted_at")
 
-  Tickets Ticket[]
+  tickets Ticket[]
 
   @@map("vouchers")
 }

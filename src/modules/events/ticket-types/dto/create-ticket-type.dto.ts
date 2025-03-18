@@ -1,9 +1,9 @@
 import { IsNotEmpty, IsNumber, IsString, IsUUID } from 'class-validator';
 
 /**
- * Data Transfer Object for creating an event ticket type.
+ * Data Transfer Object for creating an ticket type.
  */
-export class CreateEventTicketTypeDto {
+export class CreateTicketTypeDto {
   /**
    * The ID of the event for which the ticket type is being created.
    * @type {string}

@@ -76,7 +76,7 @@ export class EventsService {
 
       return { message: 'Event created successfully', status: 201 };
     } catch (error) {
-      throw new InternalServerErrorException(error);
+      throw new InternalServerErrorException(error.message);
     }
   }
 
@@ -97,7 +97,7 @@ export class EventsService {
 
       return { events };
     } catch (error) {
-      throw new InternalServerErrorException(error);
+      throw new InternalServerErrorException(error.message);
     }
   }
 
@@ -123,7 +123,7 @@ export class EventsService {
 
       return { event };
     } catch (error) {
-      throw new InternalServerErrorException(error);
+      throw new InternalServerErrorException(error.message);
     }
   }
 
@@ -193,7 +193,7 @@ export class EventsService {
 
       return { message: 'Event updated successfully', status: 200 };
     } catch (error) {
-      throw new InternalServerErrorException(error);
+      throw new InternalServerErrorException(error.message);
     }
   }
 
@@ -223,7 +223,7 @@ export class EventsService {
 
       return { message: 'Event deleted successfully', status: 204 };
     } catch (error) {
-      throw new InternalServerErrorException(error);
+      throw new InternalServerErrorException(error.message);
     }
   }
 

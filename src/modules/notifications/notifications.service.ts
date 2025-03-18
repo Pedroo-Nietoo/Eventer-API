@@ -35,7 +35,7 @@ export class NotificationsService {
 
       this.notificationsGateway.sendNotificationToAll({ title, message });
     } catch (error) {
-      throw new InternalServerErrorException(error);
+      throw new InternalServerErrorException(error.message);
     }
   }
 
@@ -61,7 +61,7 @@ export class NotificationsService {
         message,
       });
     } catch (error) {
-      throw new InternalServerErrorException(error);
+      throw new InternalServerErrorException(error.message);
     }
   }
 
@@ -81,7 +81,7 @@ export class NotificationsService {
         },
       });
     } catch (error) {
-      throw new InternalServerErrorException(error);
+      throw new InternalServerErrorException(error.message);
     }
   }
 
@@ -104,7 +104,7 @@ export class NotificationsService {
       });
       return notification;
     } catch (error) {
-      throw new InternalServerErrorException(error);
+      throw new InternalServerErrorException(error.message);
     }
   }
 
@@ -120,7 +120,7 @@ export class NotificationsService {
       });
       return { message: 'Notification deleted successfully!' };
     } catch (error) {
-      throw new InternalServerErrorException(error);
+      throw new InternalServerErrorException(error.message);
     }
   }
 }

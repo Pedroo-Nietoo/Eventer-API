@@ -40,7 +40,6 @@ export class UsersController {
    * @param page - The page number to retrieve, defaults to 1.
    * @returns A list of users.
    */
-  @Public()
   @Get()
   findAll(@Query('page') page: number = 1) {
     return this.usersService.findAll(page);

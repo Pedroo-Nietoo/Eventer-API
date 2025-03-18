@@ -15,7 +15,6 @@ export class NotificationsController {
    * @param body Contains the title and message of the notification.
    * @returns Success message.
    */
-  @Public()
   @Post('all')
   triggerNotificationToAll(@Body() body: CreateNotificationDto) {
     this.notificationsService.sendNotificationToAll(body.title, body.message);
@@ -27,7 +26,6 @@ export class NotificationsController {
    * @param body Contains the title, message, and user ID.
    * @returns Success message.
    */
-  @Public()
   @Post(':userId')
   triggerNotificationToUser(
     @Param() userId: string,
@@ -46,7 +44,6 @@ export class NotificationsController {
    * @param body Contains the user ID to fetch notifications for.
    * @returns A list of notifications.
    */
-  @Public()
   @Get('history/:userId')
   async getNotificationsHistory(@Param() userId: string) {
     const notifications =
@@ -60,7 +57,6 @@ export class NotificationsController {
    * @param body Contains the updated title and message.
    * @returns Success message.
    */
-  @Public()
   @Post('update/:notificationId')
   async updateNotification(
     @Param('notificationId') notificationId: string,
@@ -79,7 +75,6 @@ export class NotificationsController {
    * @param notificationId The ID of the notification to delete.
    * @returns Success message.
    */
-  @Public()
   @Post('delete/:notificationId')
   async deleteNotification(@Param('notificationId') notificationId: string) {
     await this.notificationsService.deleteNotification(notificationId);

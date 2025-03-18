@@ -12,6 +12,8 @@ import { TicketsModule } from '@modules/tickets/tickets.module';
 import { NotificationsGateway } from './modules/notifications/notifications.gateway';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { QrCodeModule } from './common/qr-code/qr-code.module';
+import { VouchersModule } from './modules/vouchers/vouchers.module';
+import { TicketTypesModule } from './modules/events/ticket-types/ticket-types.module';
 
 @Module({
   imports: [
@@ -23,9 +25,11 @@ import { QrCodeModule } from './common/qr-code/qr-code.module';
     EventsModule,
     CategoriesModule,
     TicketsModule,
+    TicketTypesModule,
     AuthModule,
     NotificationsModule,
     QrCodeModule,
+    VouchersModule,
   ],
   controllers: [AppController],
   providers: [AppService],

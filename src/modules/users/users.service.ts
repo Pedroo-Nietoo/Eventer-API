@@ -55,7 +55,7 @@ export class UsersService {
 
       return { message: 'User created successfully', status: 201 };
     } catch (error) {
-      throw new InternalServerErrorException(error);
+      throw new InternalServerErrorException(error.message);
     }
   }
 
@@ -83,7 +83,7 @@ export class UsersService {
 
       return { users };
     } catch (error) {
-      throw new InternalServerErrorException(error);
+      throw new InternalServerErrorException(error.message);
     }
   }
 
@@ -117,7 +117,7 @@ export class UsersService {
 
       return { user };
     } catch (error) {
-      throw new InternalServerErrorException(error);
+      throw new InternalServerErrorException(error.message);
     }
   }
 
@@ -175,7 +175,7 @@ export class UsersService {
 
       return { message: 'User updated successfully', status: 200 };
     } catch (error) {
-      throw new InternalServerErrorException(error);
+      throw new InternalServerErrorException(error.message);
     }
   }
 
@@ -205,7 +205,7 @@ export class UsersService {
 
       return { message: 'User deleted successfully', status: 204 };
     } catch (error) {
-      throw new InternalServerErrorException(error);
+      throw new InternalServerErrorException(error.message);
     }
   }
 
@@ -223,7 +223,7 @@ export class UsersService {
       );
       return hashedPassword;
     } catch (error) {
-      throw new InternalServerErrorException(error);
+      throw new InternalServerErrorException(error.message);
     }
   }
 
@@ -249,7 +249,7 @@ export class UsersService {
 
       return user;
     } catch (error) {
-      throw new InternalServerErrorException(error);
+      throw new InternalServerErrorException(error.message);
     }
   }
 }

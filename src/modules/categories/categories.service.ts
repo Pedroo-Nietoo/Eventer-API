@@ -45,7 +45,7 @@ export class CategoriesService {
 
       return { message: 'Category created successfully', status: 201 };
     } catch (error) {
-      throw new InternalServerErrorException(error);
+      throw new InternalServerErrorException(error.message);
     }
   }
 
@@ -65,7 +65,7 @@ export class CategoriesService {
 
       return { categories };
     } catch (error) {
-      throw new InternalServerErrorException(error);
+      throw new InternalServerErrorException(error.message);
     }
   }
 
@@ -91,7 +91,7 @@ export class CategoriesService {
 
       return { category };
     } catch (error) {
-      throw new InternalServerErrorException(error);
+      throw new InternalServerErrorException(error.message);
     }
   }
 
@@ -123,7 +123,7 @@ export class CategoriesService {
 
       return { message: 'Category updated successfully', status: 200 };
     } catch (error) {
-      throw new InternalServerErrorException(error);
+      throw new InternalServerErrorException(error.message);
     }
   }
 
@@ -153,7 +153,7 @@ export class CategoriesService {
 
       return { message: 'Category deleted successfully', status: 204 };
     } catch (error) {
-      throw new InternalServerErrorException(error);
+      throw new InternalServerErrorException(error.message);
     }
   }
 }

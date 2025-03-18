@@ -4,8 +4,8 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import { CreateEventTicketTypeDto } from './dto/create-event-ticket-type.dto';
-import { UpdateEventTicketTypeDto } from './dto/update-event-ticket-type.dto';
+import { CreateTicketTypeDto } from './dto/create-ticket-type.dto';
+import { UpdateTicketTypeDto } from './dto/update-ticket-type.dto';
 import { PrismaService } from '@src/database/prisma/prisma.service';
 import { EventsService } from '../events.service';
 
@@ -13,7 +13,7 @@ import { EventsService } from '../events.service';
  * Service responsible for managing event ticket types.
  */
 @Injectable()
-export class EventTicketTypesService {
+export class TicketTypesService {
   /**
    * Constructs an instance of EventTicketTypesService.
    * @param prismaService - The Prisma service for database operations.
@@ -30,7 +30,7 @@ export class EventTicketTypesService {
    * @returns A success message and status code.
    * @throws NotFoundException if the event with the specified ID is not found.
    */
-  async create(createEventTicketTypeDto: CreateEventTicketTypeDto) {
+  async create(createEventTicketTypeDto: CreateTicketTypeDto) {
     const event = await this.prismaService.event.findUnique({
       where: { id: createEventTicketTypeDto.eventId },
     });
@@ -71,7 +71,7 @@ export class EventTicketTypesService {
 
       return { eventTicketTypes };
     } catch (error) {
-      throw new InternalServerErrorException(error);
+      throw new InternalServerErrorException(error.message);
     }
   }
 
@@ -98,7 +98,7 @@ export class EventTicketTypesService {
 
       return { eventTicketType };
     } catch (error) {
-      throw new InternalServerErrorException(error);
+      throw new InternalServerErrorException(error.message);
     }
   }
 
@@ -109,7 +109,7 @@ export class EventTicketTypesService {
    * @returns A success message and status code.
    * @throws NotFoundException if the event ticket type with the specified ID is not found.
    */
-  async update(id: string, updateEventTicketTypeDto: UpdateEventTicketTypeDto) {
+  async update(id: string, updateEventTicketTypeDto: UpdateTicketTypeDto) {
     const eventTicketType = await this.prismaService.eventTicketType.findUnique(
       {
         where: { id },

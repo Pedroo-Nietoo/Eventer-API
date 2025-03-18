@@ -28,4 +28,23 @@ export class CreateTicketDto {
   @IsNotEmpty()
   @IsEnum(TicketType)
   ticketType: TicketType;
+
+  /**
+   * The status of the ticket.
+   * @type {boolean}
+   */
+  checkedIn?:  boolean;
+  
+  /**
+   * The ID of the voucher used to purchase the ticket.
+   * @type {string}
+   */
+  voucherId?:  string;
+
+  /**
+   * The price of the ticket.
+   * @type {number}
+   *
+  */
+  price: number;
 }

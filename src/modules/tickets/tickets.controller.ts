@@ -11,6 +11,7 @@ import {
 import { TicketsService } from './tickets.service';
 import { CreateTicketDto } from './dto/create-ticket.dto';
 import { UpdateTicketDto } from './dto/update-ticket.dto';
+import { Public } from '../auth/decorators/public.decorator';
 
 /**
  * Controller for handling ticket-related operations.
@@ -51,6 +52,17 @@ export class TicketsController {
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.ticketsService.findOne(id);
+  }
+
+  /**
+   * Marks a ticket as used based on the provided ticket ID.
+   * 
+   * @param id - The unique identifier of the ticket to be marked as used.
+   * @returns A promise or result indicating the success or failure of the operation.
+  */
+  @Get(':id/mark-as-used')
+  markAsUsed(@Param('id') id: string) {
+    return this.ticketsService.markAsUsed(id);
   }
 
   /**

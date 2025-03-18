@@ -8,6 +8,8 @@ import { CreateTicketDto } from './dto/create-ticket.dto';
 import { UpdateTicketDto } from './dto/update-ticket.dto';
 import { PrismaService } from '@database/prisma/prisma.service';
 import { EventsService } from '../events/events.service';
+import { ConfigService } from '@nestjs/config';
+import { QrCodeService } from '@src/common/qr-code/qr-code.service';
 
 /**
  * Service responsible for handling ticket-related operations.
@@ -21,6 +23,8 @@ export class TicketsService {
    */
   constructor(
     private readonly prismaService: PrismaService,
+    private qrCodeService: QrCodeService,
+    private configService: ConfigService,
     private eventService: EventsService,
   ) {}
 
@@ -86,7 +90,7 @@ export class TicketsService {
 
       return { message: 'Ticket created successfully.', status: 201 };
     } catch (error) {
-      throw new InternalServerErrorException(error);
+      throw new InternalServerErrorException(error.message);
     }
   }
 
@@ -104,9 +108,9 @@ export class TicketsService {
         skip: page > 0 ? (page - 1) * pageSize : 0,
       });
 
-      return { tickets };
+      return tickets;
     } catch (error) {
-      throw new InternalServerErrorException(error);
+      throw new InternalServerErrorException(error.message);
     }
   }
 
@@ -130,9 +134,55 @@ export class TicketsService {
         );
       }
 
-      return { ticket };
+      const qrCodeURL = `${this.configService.get<string>('BASE_ENVIRONMENT')}/tickets/${ticket.id}/mark-as-used`;
+      const qrCode = await this.qrCodeService.generateQrCode(qrCodeURL);
+
+      return { ticket, qrCode };
     } catch (error) {
-      throw new InternalServerErrorException(error);
+      throw new InternalServerErrorException(error.message);
+    }
+  }
+
+  /**
+   * Marks a ticket as used by updating its `checkedIn` status to `true`.
+   * 
+   * @param id - The unique identifier of the ticket to be marked as used.
+   * @returns A success message and status code if the operation is successful.
+   * 
+   * @throws {NotFoundException} If the ticket with the specified ID is not found.
+   * @throws {ConflictException} If the ticket has already been marked as used.
+   * @throws {InternalServerErrorException} If an unexpected error occurs during the operation.
+   */
+  async markAsUsed(id: string) {
+    try {
+      const ticket = await this.prismaService.ticket.findUnique({
+        where: { id },
+      });
+
+      if (!ticket) {
+        throw new NotFoundException(
+          'Ticket with the specified ID was not found',
+          'Ticket not found',
+        );
+      }
+
+      if(ticket.checkedIn) {
+        throw new ConflictException(
+          'Specified ticket has already been used',
+          'Ticket already used',
+        );
+      }
+
+      await this.prismaService.ticket.update({
+        where: { id },
+        data: {
+          checkedIn: true,
+        },
+      });
+
+      return { message: 'Ticket marked as used successfully.', status: 200 };
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
     }
   }
 
@@ -156,16 +206,25 @@ export class TicketsService {
         );
       }
 
-      await this.prismaService.ticket.update({
-        where: { id },
-        data: {
-          ...updateTicketDto,
-        },
-      });
+      //todo verify voucher logic
+      // if(updateTicketDto.voucherId) {
+      //   const voucher = await this.prismaService.voucher.findUnique({
+      //     where: { id: updateTicketDto.voucherId },
+      //   });
 
-      return { message: 'Ticket updates successfully.', status: 200 };
+      //   if (!voucher) {
+      //     throw new NotFoundException(
+      //       'Voucher with the specified ID was not found',
+      //       'Voucher not found',
+      //     );
+      //   }
+
+      //   updateTicketDto.price = ticket.price - voucher.discount;
+      // }
+
+      return { message: 'Ticket updated successfully.', status: 200 };
     } catch (error) {
-      throw new InternalServerErrorException(error);
+      throw new InternalServerErrorException(error.message);
     }
   }
 
@@ -194,7 +253,7 @@ export class TicketsService {
 
       return { message: 'Ticket deleted successfully.', status: 204 };
     } catch (error) {
-      throw new InternalServerErrorException(error);
+      throw new InternalServerErrorException(error.message);
     }
   }
 }

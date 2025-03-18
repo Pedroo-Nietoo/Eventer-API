@@ -8,31 +8,31 @@ import {
   Delete,
   Query,
 } from '@nestjs/common';
-import { EventTicketTypesService } from './event-ticket-types.service';
-import { CreateEventTicketTypeDto } from './dto/create-event-ticket-type.dto';
-import { UpdateEventTicketTypeDto } from './dto/update-event-ticket-type.dto';
+import { TicketTypesService } from './ticket-types.service';
+import { CreateTicketTypeDto } from './dto/create-ticket-type.dto';
+import { UpdateTicketTypeDto } from './dto/update-ticket-type.dto';
 
 /**
- * Controller for handling event ticket types.
+ * Controller for handling ticket types.
  */
-@Controller('event-ticket-types')
-export class EventTicketTypesController {
+@Controller('ticket-types')
+export class TicketTypesController {
   /**
    * Constructs a new instance of EventTicketTypesController.
-   * @param eventTicketTypesService - The service to handle event ticket types.
+   * @param ticketTypesService - The service to handle event ticket types.
    */
   constructor(
-    private readonly eventTicketTypesService: EventTicketTypesService,
+    private readonly ticketTypesService: TicketTypesService,
   ) {}
 
   /**
-   * Creates a new event ticket type.
-   * @param createEventTicketTypeDto - The DTO containing the details of the event ticket type to create.
-   * @returns The created event ticket type.
+   * Creates a new ticket type.
+   * @param createTicketTypeDto - The DTO containing the details of the ticket type to create.
+   * @returns The created ticket type.
    */
   @Post()
-  create(@Body() createEventTicketTypeDto: CreateEventTicketTypeDto) {
-    return this.eventTicketTypesService.create(createEventTicketTypeDto);
+  create(@Body() createTicketTypeDto: CreateTicketTypeDto) {
+    return this.ticketTypesService.create(createTicketTypeDto);
   }
 
   /**
@@ -42,7 +42,7 @@ export class EventTicketTypesController {
    */
   @Get()
   findAll(@Query('page') page: number = 1) {
-    return this.eventTicketTypesService.findAll(page);
+    return this.ticketTypesService.findAll(page);
   }
 
   /**
@@ -52,7 +52,7 @@ export class EventTicketTypesController {
    */
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.eventTicketTypesService.findOne(id);
+    return this.ticketTypesService.findOne(id);
   }
 
   /**
@@ -64,9 +64,9 @@ export class EventTicketTypesController {
   @Patch(':id')
   update(
     @Param('id') id: string,
-    @Body() updateEventTicketTypeDto: UpdateEventTicketTypeDto,
+    @Body() updateEventTicketTypeDto: UpdateTicketTypeDto,
   ) {
-    return this.eventTicketTypesService.update(id, updateEventTicketTypeDto);
+    return this.ticketTypesService.update(id, updateEventTicketTypeDto);
   }
 
   /**
@@ -76,6 +76,6 @@ export class EventTicketTypesController {
    */
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.eventTicketTypesService.remove(id);
+    return this.ticketTypesService.remove(id);
   }
 }
