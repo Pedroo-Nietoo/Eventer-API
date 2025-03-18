@@ -11,7 +11,7 @@ import { Server, Socket } from 'socket.io';
  */
 @WebSocketGateway({
   cors: {
-    origin: '*', // todo: Allows any origin (ideal for testing, but should be configured properly in production)
+    origin: '*', //todo: Allows any origin (ideal for testing, but should be configured properly in production)
   },
 })
 export class NotificationsGateway {

@@ -1,5 +1,4 @@
 import { Controller, Post, Body, Param, Get } from '@nestjs/common';
-import { Public } from '../auth/decorators/public.decorator';
 import { NotificationsService } from './notifications.service';
 import { CreateNotificationDto } from './dto/create-notification.dto';
 

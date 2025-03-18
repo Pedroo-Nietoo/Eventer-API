@@ -11,7 +11,6 @@ import {
 import { TicketsService } from './tickets.service';
 import { CreateTicketDto } from './dto/create-ticket.dto';
 import { UpdateTicketDto } from './dto/update-ticket.dto';
-import { Public } from '../auth/decorators/public.decorator';
 
 /**
  * Controller for handling ticket-related operations.
