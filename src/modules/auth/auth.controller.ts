@@ -1,47 +1,52 @@
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
-/* eslint-disable @typescript-eslint/no-unsafe-return */
 import {
-  Body,
   Controller,
-  Get,
-  HttpCode,
-  HttpStatus,
   Post,
+  Body,
   Request,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { Public } from './decorators/public.decorator';
 
 /**
- * Controller for authentication-related routes.
+ * Controller for handling authentication operations.
+ *
+ * @class
  */
 @Controller('auth')
 export class AuthController {
-  /**
-   * Creates an instance of AuthController.
-   * @param authService - The authentication service.
-   */
-  constructor(private authService: AuthService) {}
+  constructor(private readonly authService: AuthService) {}
 
   /**
-   * Handles user sign-in.
-   * @param signInDto - The sign-in data transfer object containing email and password.
-   * @returns The authentication result.
+   * Logs in a user and returns a JWT token.
+   * @param body - The login credentials containing `email` and `password`.
+   * @returns The JWT token if credentials are valid.
+   * @throws UnauthorizedException if the credentials are invalid.
    */
   @Public()
-  @HttpCode(HttpStatus.OK)
   @Post('login')
-  signIn(@Body() signInDto: Record<string, any>) {
-    return this.authService.signIn(signInDto.email, signInDto.password);
+  async login(@Body() body: { email: string; password: string }) {
+    return await this.authService.login(body.email, body.password);
   }
 
   /**
-   * Retrieves the profile of the authenticated user.
-   * @param req - The request object containing user information.
-   * @returns The user profile.
+   * Returns the profile of the currently logged-in user.
+   * @param req - The request object containing the authenticated user.
+   * @returns The profile of the currently logged-in user.
+   * @throws UnauthorizedException if the request is not authenticated.
    */
-  @Get('profile')
+  @Post('profile')
   getProfile(@Request() req) {
     return req.user;
+  }
+
+  /**
+   * Generates a new access token using a refresh token.
+   * @param body - The refresh token.
+   * @returns The new access token.
+   * @throws UnauthorizedException if the refresh token is invalid.
+   */
+  @Post('refresh-token')
+  async refreshToken(@Body('token') token: string) {
+    return this.authService.refreshToken(token);
   }
 }

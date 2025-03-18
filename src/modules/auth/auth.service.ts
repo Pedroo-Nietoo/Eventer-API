@@ -1,54 +1,112 @@
-import {
-  Injectable,
-  InternalServerErrorException,
-  UnauthorizedException,
-} from '@nestjs/common';
-import { UsersService } from '@modules/users/users.service';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { UsersService } from '../users/users.service';
 import * as bcrypt from 'bcrypt';
 
 /**
- * Service responsible for handling authentication-related operations.
+ * Service for authentication operations.
+ *
+ * @class
  */
 @Injectable()
 export class AuthService {
   /**
    * Constructs an instance of AuthService.
-   * @param usersService - The service used to interact with user data.
+   *
+   * @param usersService - The service used to manage user data.
    * @param jwtService - The service used to handle JSON Web Tokens.
    */
   constructor(
-    private usersService: UsersService,
-    private jwtService: JwtService,
+    private readonly usersService: UsersService,
+    private readonly jwtService: JwtService,
   ) {}
 
   /**
-   * Signs in a user with the provided email and password.
-   * @param email - The email of the user attempting to sign in.
-   * @param pass - The password of the user attempting to sign in.
-   * @returns A promise that resolves to an object containing the access token.
-   * @throws UnauthorizedException if the password is invalid.
+   * Validates a user's credentials.
+   * @param email - The email of the user.
+   * @param pass - The password provided by the user.
+   * @returns The user object if credentials are valid; otherwise, null.
    */
-  async signIn(email: string, pass: string): Promise<{ access_token: string }> {
+  async validateUser(email: string, pass: string): Promise<any> {
+    const user = await this.usersService.findOneByEmail(email);
+
+    if (!user) {
+      return null;
+    }
+
+    const validUser = await bcrypt.compare(pass, user.password);
+
+    if (validUser) {
+      return user;
+    }
+
+    return null;
+  }
+
+  /**
+   * Logs in a user and generates a JWT token.
+   * @param user - The user object to be included in the JWT payload.
+   * @returns The generated JWT tokens.
+   */
+  async login(email: string, password: string) {
+    const user = await this.validateUser(email, password);
+
+    if(!user) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
+    const payload = {
+      id: user.id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      birthDate: user.birthDate,
+    };
+
+    const accessToken = this.jwtService.sign(payload, {
+      expiresIn: '1h',
+    });
+
+    const refreshToken = this.jwtService.sign(payload, {
+      expiresIn: '7d',
+    });
+
+    return {
+      accessToken,
+      refreshToken,
+    };
+  }
+
+  /**
+   * Refreshes the access token using the provided refresh token.
+   *
+   * @param {string} refreshToken - The refresh token to decode and use for generating a new access token.
+   * @returns {Promise<{ accessToken: string, refreshToken: string }>} An object containing the new access token and the provided refresh token.
+   * @throws {UnauthorizedException} If the refresh token is invalid.
+   */
+  async refreshToken(refreshToken: string) {
     try {
-      const user = await this.usersService.findOneByEmail(email);
+      const payload = this.jwtService.decode(refreshToken);
 
-      const isValidPassword = await bcrypt.compare(pass, user?.user.password);
+      const newAccessToken = this.jwtService.sign(
+        {
+          id: payload.id,
+          firstName: payload.firstName,
+          lastName: payload.lastName,
+          email: payload.email,
+          birthDate: payload.birthDate,
+        },
+        {
+          expiresIn: '1h',
+        },
+      );
 
-      if (!isValidPassword) {
-        throw new UnauthorizedException();
-      }
-      const payload = {
-        sub: user.user.id,
-        name: user.user.name,
-        email: user.user.email,
-        birthDate: user.user.birthDate,
-      };
       return {
-        access_token: await this.jwtService.signAsync(payload),
+        accessToken: newAccessToken,
+        refreshToken,
       };
-    } catch (error) {
-      throw new InternalServerErrorException(error);
+    } catch (e) {
+      throw new UnauthorizedException('Invalid refresh token');
     }
   }
 }

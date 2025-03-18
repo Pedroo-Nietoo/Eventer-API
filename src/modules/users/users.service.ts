@@ -247,7 +247,7 @@ export class UsersService {
         );
       }
 
-      return { user };
+      return user;
     } catch (error) {
       throw new InternalServerErrorException(error);
     }
