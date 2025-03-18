@@ -11,6 +11,8 @@ done'
 
 gum spin --spinner "dot" --title "Aplicando migrations do Prisma..." -- npx prisma migrate deploy
 
+gum spin --spinner "dot" --title "🍃 Aplicando Seeds do Prisma..." -- npx prisma db seed
+
 echo ""
 
 gum style --bold --foreground 212 "🚀 Banco de Dados pronto para uso!"
