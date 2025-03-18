@@ -7,7 +7,7 @@ import {
 import { CreateTicketTypeDto } from './dto/create-ticket-type.dto';
 import { UpdateTicketTypeDto } from './dto/update-ticket-type.dto';
 import { PrismaService } from '@src/database/prisma/prisma.service';
-import { EventsService } from '../events.service';
+import { EventsService } from '@src/modules/events/events.service';
 
 /**
  * Service responsible for managing event ticket types.

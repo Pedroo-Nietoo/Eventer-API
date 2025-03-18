@@ -13,7 +13,7 @@ import { NotificationsGateway } from './modules/notifications/notifications.gate
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { QrCodeModule } from './common/qr-code/qr-code.module';
 import { VouchersModule } from './modules/vouchers/vouchers.module';
-import { TicketTypesModule } from './modules/events/ticket-types/ticket-types.module';
+import { TicketTypesModule } from './modules/tickets/ticket-types/ticket-types.module';
 
 @Module({
   imports: [
