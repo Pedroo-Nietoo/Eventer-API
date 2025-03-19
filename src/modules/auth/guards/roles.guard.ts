@@ -1,34 +1,41 @@
-import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
+import { Injectable, CanActivate, ExecutionContext, ForbiddenException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Role } from '@prisma/client';
-import { ROLES_KEY } from '../decorators/roles.decorator';
+import { ROLES_KEY, ExcludeRole } from '../decorators/roles.decorator';
 
 /**
- * Guard to handle role-based access control.
- * This guard checks if the user has the required roles to access a route.
+ * Guard para controle de acesso baseado em papéis.
  */
 @Injectable()
 export class RolesGuard implements CanActivate {
-  /**
-   * Creates an instance of RolesGuard.
-   * @param reflector - The Reflector service to get metadata.
-   */
   constructor(private reflector: Reflector) {}
 
-  /**
-   * Determines if the current user has the required roles to access the route.
-   * @param context - The execution context of the request.
-   * @returns A boolean indicating whether the user has the required roles.
-   */
   canActivate(context: ExecutionContext): boolean {
-    const requiredRoles = this.reflector.getAllAndOverride<Role[]>(ROLES_KEY, [
+    const roles = this.reflector.getAllAndOverride<(Role | ExcludeRole)[]>(ROLES_KEY, [
       context.getHandler(),
       context.getClass(),
     ]);
-    if (!requiredRoles) {
+
+    if (!roles) {
       return true;
     }
+
     const { user } = context.switchToHttp().getRequest();
-    return requiredRoles.some((role) => user.roles?.includes(role));
+    if (!user || !user.role) {
+      throw new ForbiddenException('Usuário não possui ROLE.');
+    }
+
+    const requiredRoles = roles.filter(role => !(role instanceof ExcludeRole)) as Role[];
+    const excludedRoles = roles.filter(role => role instanceof ExcludeRole).map(role => (role as ExcludeRole).role);
+
+    if (excludedRoles.length > 0 && excludedRoles.some(role => user.role.includes(role))) {
+      throw new ForbiddenException('Usuário não tem permissão para acessar este recurso.');
+    }
+
+    if (requiredRoles.length > 0 && !requiredRoles.some(role => user.role.includes(role))) {
+      throw new ForbiddenException('Usuário não tem permissão para acessar este recurso.');
+    }
+
+    return true;
   }
 }

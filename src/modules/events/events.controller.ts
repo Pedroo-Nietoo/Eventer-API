@@ -11,11 +11,13 @@ import {
 import { EventsService } from './events.service';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
-import { Public } from '../auth/decorators/public.decorator';
+import { Exclude, Roles } from '../auth/decorators/roles.decorator';
+import { Role } from '@prisma/client';
 
 /**
  * Controller for handling event-related operations.
  */
+@Roles(Exclude(Role.USER))
 @Controller('events')
 export class EventsController {
   /**
@@ -40,7 +42,6 @@ export class EventsController {
    * @param categoryId - The optional category ID to filter events by.
    * @returns A paginated list of events.
    */
-  @Public()
   @Get()
   findAll(@Query('page') page: number = 1, @Query('categoryId') categoryId?: string) {
     return this.eventsService.findAll(page, categoryId);
