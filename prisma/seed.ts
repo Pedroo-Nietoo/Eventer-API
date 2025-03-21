@@ -1,8 +1,29 @@
 import { PrismaClient } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 
+/**
+ * Initializes an instance of the PrismaClient to interact with the database.
+ * The PrismaClient provides methods for querying and mutating the database
+ * using the Prisma ORM.
+ *
+ * @see https://www.prisma.io/docs/reference/api-reference/prisma-client-reference
+ */
 const prisma = new PrismaClient();
 
+/**
+ * Seeds the database with initial data, including users, categories, and events.
+ * 
+ * This function performs the following operations:
+ * - Creates or updates two users (a regular user and an admin) with hashed passwords.
+ * - Creates or updates two categories (Music and Technology).
+ * - Creates two events associated with the seeded users and categories.
+ * 
+ * Logs the progress and results of the seeding process to the console.
+ * 
+ * @async
+ * @function
+ * @returns {Promise<void>} Resolves when the seeding process is complete.
+ */
 async function main() {
   console.log('Seeding database...');
 

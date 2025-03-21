@@ -8,8 +8,16 @@ import { PrismaService } from '@database/prisma/prisma.service';
 import { CreateVoucherDto } from './dto/create-voucher.dto';
 import { UpdateVoucherDto } from './dto/update-voucher.dto';
 
+/**
+ * Service responsible for managing vouchers.
+ * Provides methods to create, retrieve, update, and delete vouchers.
+ */
 @Injectable()
 export class VouchersService {
+  /**
+   * Constructs an instance of the VouchersService.
+   * @param prisma - The PrismaService instance used for database interactions.
+   */
   constructor(private readonly prisma: PrismaService) {}
 
   /**

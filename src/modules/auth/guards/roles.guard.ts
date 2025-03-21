@@ -8,8 +8,19 @@ import { ROLES_KEY, ExcludeRole } from '../decorators/roles.decorator';
  */
 @Injectable()
 export class RolesGuard implements CanActivate {
+  /**
+   * Creates an instance of RolesGuard.
+   * @param reflector - The Reflector service used to retrieve metadata about roles.
+   */
   constructor(private reflector: Reflector) {}
 
+  /**
+   * Determines whether the current request is allowed based on the user's roles.
+   * 
+   * @param context - The execution context of the request, which provides access to the handler and class metadata.
+   * @returns A boolean indicating whether the request is allowed.
+   * @throws {ForbiddenException} If the user does not have the required roles or has excluded roles.
+   */
   canActivate(context: ExecutionContext): boolean {
     const roles = this.reflector.getAllAndOverride<(Role | ExcludeRole)[]>(ROLES_KEY, [
       context.getHandler(),

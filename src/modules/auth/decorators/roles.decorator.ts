@@ -10,6 +10,10 @@ export const ROLES_KEY = 'roles';
  * Tipo para permitir exclusão de um papel específico.
  */
 export class ExcludeRole {
+  /**
+   * Creates an instance of the class with the specified role.
+   * @param role - The role associated with this instance.
+   */
   constructor(public role: Role) {}
 }
 

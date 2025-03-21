@@ -13,8 +13,18 @@ import { CreateVoucherDto } from './dto/create-voucher.dto';
 import { UpdateVoucherDto } from './dto/update-voucher.dto';
 import { Public } from '../auth/decorators/public.decorator';
 
+/**
+ * Controller responsible for handling voucher-related operations.
+ * Provides endpoints for creating, retrieving, updating, and deleting vouchers.
+ */
 @Controller('vouchers')
 export class VouchersController {
+  
+  /**
+   * Creates an instance of VouchersController.
+   * 
+   * @param vouchersService - The service responsible for handling voucher-related operations.
+   */
   constructor(private readonly vouchersService: VouchersService) {}
 
   /**
