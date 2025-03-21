@@ -34,7 +34,7 @@ async function main() {
     update: {},
     create: {
       name: 'John Doe',
-      email: 'johndoe@example.com',
+      email: 'user1@example.com',
       password: passwordHash,
       birthDate: new Date('1995-06-15'),
       role: 'USER',
@@ -82,8 +82,8 @@ async function main() {
       ticketCount: 500,
       customTickets: false,
       ticketDefaultPrice: 50.0,
-      userId: user1.id,
-      categoryId: categoryMusic.id,
+      user: { connect: { id: user1.id } },
+      category: { connect: { id: categoryMusic.id } },
     },
   });
 
@@ -100,8 +100,8 @@ async function main() {
       ticketCount: 1000,
       customTickets: false,
       ticketDefaultPrice: 100.0,
-      userId: user2.id,
-      categoryId: categoryTech.id,
+      user: { connect: { id: user2.id } },
+      category: { connect: { id: categoryTech.id } },
     },
   });
 

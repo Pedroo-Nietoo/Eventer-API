@@ -108,7 +108,7 @@ export class CreateEventDto {
    * @optional
    */
   @IsUUID()
-  userId: string;
+  userOwnerId: string;
 
   /**
    * The ID of the category to which the event belongs.
