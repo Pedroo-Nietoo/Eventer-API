@@ -134,10 +134,13 @@ export class TicketsService {
         );
       }
 
-      const qrCodeURL = `${this.configService.get<string>('BASE_ENVIRONMENT')}/tickets/${ticket.id}/mark-as-used`;
-      const qrCode = await this.qrCodeService.generateQrCode(qrCodeURL);
+      let qrCode: string | undefined;
+      if(!ticket.checkedIn) {
+        const qrCodeURL = `${this.configService.get<string>('BASE_ENVIRONMENT')}/tickets/${ticket.id}/mark-as-used`;
+        qrCode = await this.qrCodeService.generateQrCode(qrCodeURL);
+      }
 
-      return { ticket, qrCode };
+      return qrCode ? { ticket, qrCode } : { ticket };
     } catch (error) {
       throw new InternalServerErrorException(error.message);
     }

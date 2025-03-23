@@ -14,7 +14,8 @@
       "@src/*": ["src/*"],
       "@modules/*": ["src/modules/*"],
       "@utils/*": ["src/utils/*"],
-      "@database/*": ["src/database/*"]
+      "@database/*": ["src/database/*"],
+      "@decorators/*": ["src/modules/auth/decorators/*"],
     },
     "incremental": true,
     "skipLibCheck": true,

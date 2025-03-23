@@ -67,6 +67,17 @@ export class EventsService {
         }
       }
 
+      const user = await this.prismaService.user.findUnique({
+        where: { id: createEventDto.userOwnerId },
+      });
+
+      if (!user) {
+        throw new NotFoundException(
+          'User with the specified ID was not found',
+          'User not found',
+        );
+      }
+
       await this.prismaService.event.create({
         data: {
           ...createEventDto,
@@ -153,6 +164,8 @@ export class EventsService {
           'Event not found',
         );
       }
+
+      //todo validate if user updating the event is the user who created it
 
       if (updateEventDto.categoryId) {
         const category = await this.prismaService.category.findUnique({

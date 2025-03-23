@@ -117,5 +117,5 @@ export class CreateEventDto {
    */
   @IsOptional()
   @IsUUID()
-  categoryId: string;
+  categoryId?: string;
 }

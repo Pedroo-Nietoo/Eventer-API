@@ -44,16 +44,6 @@ export class TicketsController {
   }
 
   /**
-   * Retrieves a single ticket by its ID.
-   * @param id - The ID of the ticket to retrieve.
-   * @returns The ticket with the specified ID.
-   */
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.ticketsService.findOne(id);
-  }
-
-  /**
    * Marks a ticket as used based on the provided ticket ID.
    * 
    * @param id - The unique identifier of the ticket to be marked as used.

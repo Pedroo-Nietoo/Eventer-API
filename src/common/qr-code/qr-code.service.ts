@@ -1,4 +1,5 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { Public } from '@decorators/public.decorator';
 import * as QRCode from 'qrcode';
 
 /**

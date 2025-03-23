@@ -11,7 +11,7 @@ import {
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { Public } from '@modules/auth/decorators/public.decorator';
+import { Public } from '@decorators/public.decorator';
 
 /**
  * UsersController handles all user-related HTTP requests.

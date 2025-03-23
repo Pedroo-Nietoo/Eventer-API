@@ -3,9 +3,10 @@ import {
   Post,
   Body,
   Request,
+  Get,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { Public } from './decorators/public.decorator';
+import { Public } from '@decorators/public.decorator';
 
 /**
  * Controller for handling authentication operations.
@@ -34,7 +35,7 @@ export class AuthController {
    * @returns The profile of the currently logged-in user.
    * @throws UnauthorizedException if the request is not authenticated.
    */
-  @Post('profile')
+  @Get('profile')
   getProfile(@Request() req) {
     return req.user;
   }
