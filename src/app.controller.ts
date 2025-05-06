@@ -10,7 +10,7 @@ export class AppController {
    * Constructs an instance of AppController.
    * @param appService - The service used to handle business logic.
    */
-  constructor(private readonly appService: AppService) {}
+  constructor(private readonly appService: AppService) { }
 
   /**
    * Handles GET requests to the root endpoint and returns a greeting message.

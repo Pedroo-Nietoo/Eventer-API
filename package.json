@@ -24,7 +24,8 @@
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "docs": "npx compodoc -p tsconfig.json -n 'Eventer API Documentation' -s -w",
-    "database": "sh ./init-db.sh"
+    "database:dev": "sh ./scripts/run-dev-db.sh",
+    "database:test": "sh ./scripts/run-test-db.sh"
   },
   "prisma": {
     "seed": "ts-node prisma/seed.ts"

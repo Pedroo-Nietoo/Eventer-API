@@ -26,7 +26,7 @@ export class TicketsService {
     private qrCodeService: QrCodeService,
     private configService: ConfigService,
     private eventService: EventsService,
-  ) {}
+  ) { }
 
   /**
    * Creates a new ticket.
@@ -135,9 +135,8 @@ export class TicketsService {
       }
 
       let qrCode: string | undefined;
-      if(!ticket.checkedIn) {
-        const qrCodeURL = `${this.configService.get<string>('BASE_ENVIRONMENT')}/tickets/${ticket.id}/mark-as-used`;
-        qrCode = await this.qrCodeService.generateQrCode(qrCodeURL);
+      if (!ticket.checkedIn) {
+        qrCode = await this.qrCodeService.generateQrCode(ticket.id);
       }
 
       return qrCode ? { ticket, qrCode } : { ticket };
@@ -169,7 +168,7 @@ export class TicketsService {
         );
       }
 
-      if(ticket.checkedIn) {
+      if (ticket.checkedIn) {
         throw new ConflictException(
           'Specified ticket has already been used',
           'Ticket already used',
