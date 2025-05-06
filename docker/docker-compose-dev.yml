@@ -3,11 +3,11 @@ version: '3.8'
 services:
   database:
     image: bitnami/postgresql
-    container_name: postgres
+    container_name: eventer-db
     environment:
-      POSTGRES_USER: eventer-admin
-      POSTGRES_PASSWORD: Eventer@2025
-      POSTGRES_DB: eventer
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
     ports:
       - '5432:5432'
     volumes:
