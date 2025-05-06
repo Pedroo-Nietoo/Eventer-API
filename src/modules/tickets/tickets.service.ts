@@ -1,5 +1,7 @@
 import {
   ConflictException,
+  ForbiddenException,
+  GoneException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -10,6 +12,7 @@ import { PrismaService } from '@database/prisma/prisma.service';
 import { EventsService } from '../events/events.service';
 import { ConfigService } from '@nestjs/config';
 import { QrCodeService } from '@src/common/qr-code/qr-code.service';
+import { JwtService } from '@nestjs/jwt';
 
 /**
  * Service responsible for handling ticket-related operations.
@@ -24,7 +27,7 @@ export class TicketsService {
   constructor(
     private readonly prismaService: PrismaService,
     private qrCodeService: QrCodeService,
-    private configService: ConfigService,
+    private jwtService: JwtService,
     private eventService: EventsService,
   ) { }
 
@@ -125,6 +128,13 @@ export class TicketsService {
     try {
       const ticket = await this.prismaService.ticket.findUnique({
         where: { id },
+        include: {
+          event: {
+            select: {
+              date: true,
+            }
+          }
+        }
       });
 
       if (!ticket) {
@@ -133,9 +143,14 @@ export class TicketsService {
           'Ticket not found',
         );
       }
+      const today = new Date();
+      const eventDate = new Date(ticket.event.date);
+
+      const isEventToday =
+        today.toDateString() === eventDate.toDateString();
 
       let qrCode: string | undefined;
-      if (!ticket.checkedIn) {
+      if (isEventToday && !ticket.checkedIn) {
         qrCode = await this.qrCodeService.generateQrCode(ticket.id);
       }
 
@@ -155,10 +170,38 @@ export class TicketsService {
    * @throws {ConflictException} If the ticket has already been marked as used.
    * @throws {InternalServerErrorException} If an unexpected error occurs during the operation.
    */
-  async markAsUsed(id: string) {
+  async markAsUsed(id: string, token: string) {
     try {
+
+      const decoded = this.jwtService.decode(token);
+
+      const role = decoded?.role;
+
+      if (role !== 'ADMIN') {
+        const userId = decoded?.sub;
+
+        const userIsEmployee = await this.prismaService.eventEmployee.findFirst({
+          where: {
+            OR: [
+              { userId: userId },
+              { userOwnerId: userId },
+            ],
+          },
+        });
+
+        if (!userIsEmployee) {
+          throw new ForbiddenException(
+            'User is not authorized to mark this ticket as used',
+            'Unauthorized',
+          );
+        }
+      }
+
       const ticket = await this.prismaService.ticket.findUnique({
         where: { id },
+        include: {
+          event: true,
+        },
       });
 
       if (!ticket) {
@@ -172,6 +215,13 @@ export class TicketsService {
         throw new ConflictException(
           'Specified ticket has already been used',
           'Ticket already used',
+        );
+      }
+
+      if (ticket.event.date < new Date()) {
+        throw new GoneException(
+          'Event date has already passed',
+          'Event date has already passed',
         );
       }
 

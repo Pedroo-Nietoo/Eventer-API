@@ -7,14 +7,14 @@ import { Role } from '@prisma/client';
 export const ROLES_KEY = 'roles';
 
 /**
- * Tipo para permitir exclusão de um papel específico.
+ * Tipo para permitir exclusão de um ou mais papéis específicos.
  */
 export class ExcludeRole {
   /**
-   * Creates an instance of the class with the specified role.
-   * @param role - The role associated with this instance.
+   * Creates an instance of the class with the specified roles.
+   * @param roles - The roles associated with this instance.
    */
-  constructor(public role: Role) {}
+  constructor(public roles: Role[]) { }
 }
 
 /**
@@ -29,6 +29,6 @@ export const Roles = (...roles: (Role | ExcludeRole)[]) =>
   SetMetadata(ROLES_KEY, roles);
 
 /**
- * Função auxiliar para excluir um papel.
+ * Função auxiliar para excluir um ou mais papéis.
  */
-export const Exclude = (role: Role) => new ExcludeRole(role);
+export const Exclude = (...roles: Role[]) => new ExcludeRole(roles);

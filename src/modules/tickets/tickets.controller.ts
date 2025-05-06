@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   Query,
+  Headers,
 } from '@nestjs/common';
 import { TicketsService } from './tickets.service';
 import { CreateTicketDto } from './dto/create-ticket.dto';
@@ -21,7 +22,7 @@ export class TicketsController {
    * Creates an instance of TicketsController.
    * @param ticketsService - The service used to manage tickets.
    */
-  constructor(private readonly ticketsService: TicketsService) {}
+  constructor(private readonly ticketsService: TicketsService) { }
 
   /**
    * Creates a new ticket.
@@ -50,8 +51,9 @@ export class TicketsController {
    * @returns A promise or result indicating the success or failure of the operation.
   */
   @Get(':id/mark-as-used')
-  markAsUsed(@Param('id') id: string) {
-    return this.ticketsService.markAsUsed(id);
+  markAsUsed(@Param('id') id: string, @Headers('authorization') authHeader: string) {
+    const token = authHeader?.replace('Bearer ', '');
+    return this.ticketsService.markAsUsed(id, token);
   }
 
   /**

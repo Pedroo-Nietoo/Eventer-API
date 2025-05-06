@@ -19,8 +19,10 @@ model User {
 
   tickets       Ticket[]
   notifications Notification[]
-  Event         Event[]
-  EventEmployee EventEmployee[]
+  events         Event[]
+  
+  ownedEventEmployees EventEmployee[] @relation("UserOwnerRelation")
+  assignedEventEmployees EventEmployee[] @relation("UserEmployeeRelation")
 
   @@map("users")
 }
@@ -68,16 +70,19 @@ model Event {
 model EventEmployee {
   id          String    @id @default(uuid())
   userOwnerId String    @map("user_owner_id")
+  userId      String    @map("user_id")
   eventId     String    @map("event_id")
   createdAt   DateTime  @default(now()) @map("created_at")
   updatedAt   DateTime  @updatedAt @map("updated_at")
   deletedAt   DateTime? @map("deleted_at")
 
-  user  User  @relation(fields: [userOwnerId], references: [id])
-  event Event @relation(fields: [eventId], references: [id])
+  userOwner User @relation(name: "UserOwnerRelation", fields: [userOwnerId], references: [id])
+  user      User @relation(name: "UserEmployeeRelation", fields: [userId], references: [id])
+  event     Event @relation(fields: [eventId], references: [id])
 
   @@map("event_employees")
 }
+
 
 model EventTicketType {
   id          String @id @default(uuid())

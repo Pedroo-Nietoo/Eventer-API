@@ -1,5 +1,6 @@
 import {
   ConflictException,
+  ForbiddenException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -8,6 +9,7 @@ import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
 import { PrismaService } from '@database/prisma/prisma.service';
 import generateSlug from '@utils/generate-slug';
+import { JwtService } from '@nestjs/jwt';
 
 /**
  * Service responsible for handling event-related operations.
@@ -18,7 +20,7 @@ export class EventsService {
    * Constructs an instance of EventsService.
    * @param prismaService - The Prisma service used for database operations.
    */
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(private readonly prismaService: PrismaService, private jwtService: JwtService) { }
 
   /**
    * Creates a new event.
@@ -148,7 +150,7 @@ export class EventsService {
    * @throws ConflictException if an event with the specified slug already exists.
    * @throws InternalServerErrorException if an error occurs during the update process.
    */
-  async update(id: string, updateEventDto: UpdateEventDto) {
+  async update(id: string, updateEventDto: UpdateEventDto, token: string) {
     try {
       if (!Object.keys(updateEventDto).length) {
         return { message: 'No data to update', status: 200 };
@@ -165,7 +167,16 @@ export class EventsService {
         );
       }
 
-      //todo validate if user updating the event is the user who created it
+      const decoded = this.jwtService.decode(token);
+
+      const userId = decoded?.sub;
+
+      if (event.userOwnerId !== userId) {
+        throw new ForbiddenException(
+          'Onlye the user who created the event can update it',
+          'Permission denied',
+        );
+      }
 
       if (updateEventDto.categoryId) {
         const category = await this.prismaService.category.findUnique({
@@ -217,7 +228,7 @@ export class EventsService {
    * @throws NotFoundException if the event with the specified ID does not exist.
    * @throws InternalServerErrorException if an error occurs during the deletion process.
    */
-  async remove(id: string) {
+  async remove(id: string, token: string) {
     try {
       const event = await this.prismaService.event.findUnique({
         where: { id },
@@ -227,6 +238,17 @@ export class EventsService {
         throw new NotFoundException(
           'Event with the specified ID was not found',
           'Event not found',
+        );
+      }
+
+      const decoded = this.jwtService.decode(token);
+
+      const userId = decoded?.sub;
+
+      if (event.userOwnerId !== userId) {
+        throw new ForbiddenException(
+          'Onlye the user who created the event can delete it',
+          'Permission denied',
         );
       }
 

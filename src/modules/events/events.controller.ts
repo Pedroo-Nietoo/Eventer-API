@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   Query,
+  Headers,
 } from '@nestjs/common';
 import { EventsService } from './events.service';
 import { CreateEventDto } from './dto/create-event.dto';
@@ -24,13 +25,14 @@ export class EventsController {
    * Constructs a new EventsController.
    * @param eventsService - The service used to manage events.
    */
-  constructor(private readonly eventsService: EventsService) {}
+  constructor(private readonly eventsService: EventsService) { }
 
   /**
    * Creates a new event.
    * @param createEventDto - The data transfer object containing event details.
    * @returns The created event.
    */
+  @Roles(Exclude(Role.EVENT_EMPLOYEE))
   @Post()
   create(@Body() createEventDto: CreateEventDto) {
     return this.eventsService.create(createEventDto);
@@ -63,9 +65,11 @@ export class EventsController {
    * @param updateEventDto - The data transfer object containing updated event details.
    * @returns The updated event.
    */
+  @Roles(Exclude(Role.EVENT_EMPLOYEE))
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateEventDto: UpdateEventDto) {
-    return this.eventsService.update(id, updateEventDto);
+  update(@Param('id') id: string, @Body() updateEventDto: UpdateEventDto, @Headers('authorization') authHeader: string) {
+    const token = authHeader?.replace('Bearer ', '');
+    return this.eventsService.update(id, updateEventDto, token);
   }
 
   /**
@@ -73,8 +77,10 @@ export class EventsController {
    * @param id - The ID of the event to remove.
    * @returns A confirmation message.
    */
+  @Roles(Exclude(Role.EVENT_EMPLOYEE))
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.eventsService.remove(id);
+  remove(@Param('id') id: string, @Headers('authorization') authHeader: string) {
+    const token = authHeader?.replace('Bearer ', '');
+    return this.eventsService.remove(id, token);
   }
 }

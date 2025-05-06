@@ -12,7 +12,7 @@ export class RolesGuard implements CanActivate {
    * Creates an instance of RolesGuard.
    * @param reflector - The Reflector service used to retrieve metadata about roles.
    */
-  constructor(private reflector: Reflector) {}
+  constructor(private reflector: Reflector) { }
 
   /**
    * Determines whether the current request is allowed based on the user's roles.
@@ -37,7 +37,9 @@ export class RolesGuard implements CanActivate {
     }
 
     const requiredRoles = roles.filter(role => !(role instanceof ExcludeRole)) as Role[];
-    const excludedRoles = roles.filter(role => role instanceof ExcludeRole).map(role => (role as ExcludeRole).role);
+    const excludedRoles = roles
+      .filter(role => role instanceof ExcludeRole)
+      .flatMap(role => (role as ExcludeRole).roles);
 
     if (excludedRoles.length > 0 && excludedRoles.some(role => user.role.includes(role))) {
       throw new ForbiddenException('Usuário não tem permissão para acessar este recurso.');

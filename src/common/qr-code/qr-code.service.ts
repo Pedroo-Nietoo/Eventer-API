@@ -17,7 +17,7 @@ export class QrCodeService {
    * Generates a QR code for the given data.
    * @param data - The data to encode in the QR code.
    * @returns A promise that resolves to the QR code data URL.
-   * @throws InternalServerErrorException if an error occurs during the operation.
+   * @throws {InternalServerErrorException} if an error occurs during the operation.
    */
   async generateQrCode(ticketId: string): Promise<string> {
     try {
