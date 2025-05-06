@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
+import { RequestMethod } from '@nestjs/common';
 
 /**
  * Initializes and starts the NestJS application.
@@ -15,7 +16,13 @@ import { ConfigService } from '@nestjs/config';
  */
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  app.setGlobalPrefix('v1', {
+    exclude: [{ path: 'health', method: RequestMethod.GET }],
+  });
+
   const configService = app.get(ConfigService);
+
   const port = configService.get<number>('PORT') ?? 3000;
   await app.listen(port);
 }

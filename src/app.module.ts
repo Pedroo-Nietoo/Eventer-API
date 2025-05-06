@@ -18,6 +18,7 @@ import { TicketTypesModule } from './modules/tickets/ticket-types/ticket-types.m
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+      envFilePath: ['.env', '.env.test'],
     }),
     PrismaModule,
     UsersModule,
@@ -33,4 +34,4 @@ import { TicketTypesModule } from './modules/tickets/ticket-types/ticket-types.m
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }
