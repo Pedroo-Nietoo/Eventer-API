@@ -84,7 +84,7 @@ export class EventsService {
       INSERT INTO "events" (
         id, name, slug, description, address, latitude, longitude, location,
         date, phone, ticket_count, custom_tickets, ticket_default_price,
-        user_owner_id, category_id, created_at, updated_at
+        user_owner_id, category_id
       ) VALUES (
         gen_random_uuid(),
         ${createEventDto.name},
@@ -100,11 +100,9 @@ export class EventsService {
         ${createEventDto.customTickets},
         ${createEventDto.ticketDefaultPrice ?? null},
         ${createEventDto.userOwnerId},
-        ${createEventDto.categoryId ?? null},
-        NOW(),
-        NOW()
+        ${createEventDto.categoryId ?? null}
       );
-    `;
+        `;
 
 
       return { message: 'Event created successfully', status: 201 };
@@ -122,62 +120,13 @@ export class EventsService {
   async findAll(page: number, categoryId?: string) {
     try {
       const pageSize = 25;
-      const offset = page > 0 ? (page - 1) * pageSize : 0;
+      const events = await this.prismaService.event.findMany({
+        where: categoryId ? { categoryId } : undefined,
+        take: page === 0 ? undefined : pageSize,
+        skip: page > 0 ? (page - 1) * pageSize : 0,
+      });
 
-      const events = categoryId
-        ? await this.prismaService.$queryRaw<
-          any[]
-        >`
-            SELECT 
-              id, 
-              name, 
-              description, 
-              address, 
-              latitude, 
-              longitude, 
-              date, 
-              phone, 
-              ticket_count, 
-              category_id, 
-              created_at, 
-              updated_at, 
-              custom_tickets, 
-              slug, 
-              ticket_default_price, 
-              user_owner_id, 
-              ST_AsText(location) AS location
-            FROM events
-            WHERE category_id = ${categoryId}
-            ORDER BY created_at DESC
-            LIMIT ${pageSize} OFFSET ${offset};
-          `
-        : await this.prismaService.$queryRaw<
-          any[]
-        >`
-            SELECT 
-              id, 
-              name, 
-              description, 
-              address, 
-              latitude, 
-              longitude, 
-              date, 
-              phone, 
-              ticket_count, 
-              category_id, 
-              created_at, 
-              updated_at, 
-              custom_tickets, 
-              slug, 
-              ticket_default_price, 
-              user_owner_id, 
-              ST_AsText(location) AS location
-            FROM events
-            ORDER BY created_at DESC
-            LIMIT ${pageSize} OFFSET ${offset};
-          `;
-
-      return { events };
+      return events;
     } catch (error) {
       throw new InternalServerErrorException(error.message);
     }
@@ -192,28 +141,9 @@ export class EventsService {
    */
   async findOne(id: string) {
     try {
-      const event = await this.prismaService.$queryRaw`
-        SELECT 
-          id, 
-          name, 
-          description, 
-          address, 
-          latitude, 
-          longitude, 
-          date, 
-          phone, 
-          ticket_count, 
-          category_id, 
-          created_at, 
-          updated_at, 
-          custom_tickets, 
-          slug, 
-          ticket_default_price, 
-          user_owner_id, 
-          ST_AsText(location) AS location
-        FROM events
-        WHERE id = ${id};
-      `;
+      const event = await this.prismaService.event.findUnique({
+        where: { id },
+      });
 
       if (!event) {
         throw new NotFoundException(
@@ -222,7 +152,7 @@ export class EventsService {
         );
       }
 
-      return { event };
+      return event;
     } catch (error) {
       throw new InternalServerErrorException(error.message);
     }
