@@ -122,11 +122,60 @@ export class EventsService {
   async findAll(page: number, categoryId?: string) {
     try {
       const pageSize = 25;
-      const events = await this.prismaService.event.findMany({
-        where: categoryId ? { categoryId } : undefined,
-        take: page === 0 ? undefined : pageSize,
-        skip: page > 0 ? (page - 1) * pageSize : 0,
-      });
+      const offset = page > 0 ? (page - 1) * pageSize : 0;
+
+      const events = categoryId
+        ? await this.prismaService.$queryRaw<
+          any[]
+        >`
+            SELECT 
+              id, 
+              name, 
+              description, 
+              address, 
+              latitude, 
+              longitude, 
+              date, 
+              phone, 
+              ticket_count, 
+              category_id, 
+              created_at, 
+              updated_at, 
+              custom_tickets, 
+              slug, 
+              ticket_default_price, 
+              user_owner_id, 
+              ST_AsText(location) AS location
+            FROM events
+            WHERE category_id = ${categoryId}
+            ORDER BY created_at DESC
+            LIMIT ${pageSize} OFFSET ${offset};
+          `
+        : await this.prismaService.$queryRaw<
+          any[]
+        >`
+            SELECT 
+              id, 
+              name, 
+              description, 
+              address, 
+              latitude, 
+              longitude, 
+              date, 
+              phone, 
+              ticket_count, 
+              category_id, 
+              created_at, 
+              updated_at, 
+              custom_tickets, 
+              slug, 
+              ticket_default_price, 
+              user_owner_id, 
+              ST_AsText(location) AS location
+            FROM events
+            ORDER BY created_at DESC
+            LIMIT ${pageSize} OFFSET ${offset};
+          `;
 
       return { events };
     } catch (error) {
