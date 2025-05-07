@@ -21,6 +21,10 @@ gum spin --spinner "dot" --title "📦 Applying Prisma migrations..." -- npx pri
 
 gum spin --spinner "dot" --title "🍃 Applying Prisma seeds..." -- npx prisma db seed
 
+gum spin --spinner "dot" --title "📌 Creating location index on Event table..." -- \
+  docker exec -i eventer-postgis psql -U eventer-admin -d eventer -c 'CREATE INDEX idx_evento_location_gist ON "events" USING GIST (location);'
+
+
 echo ""
 
 gum style --bold --foreground 212 "🚀 Database ready for use!"

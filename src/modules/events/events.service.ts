@@ -80,12 +80,32 @@ export class EventsService {
         );
       }
 
-      await this.prismaService.event.create({
-        data: {
-          ...createEventDto,
-          date: new Date(createEventDto.date),
-        },
-      });
+      await this.prismaService.$queryRaw`
+      INSERT INTO "events" (
+        id, name, slug, description, address, latitude, longitude, location,
+        date, phone, ticket_count, custom_tickets, ticket_default_price,
+        user_owner_id, category_id, created_at, updated_at
+      ) VALUES (
+        gen_random_uuid(),
+        ${createEventDto.name},
+        ${slug},
+        ${createEventDto.description || null},
+        ${createEventDto.address},
+        ${createEventDto.latitude},
+        ${createEventDto.longitude},
+        ST_SetSRID(ST_MakePoint(${createEventDto.longitude}, ${createEventDto.latitude}), 4326)::geography,
+        ${new Date(createEventDto.date)},
+        ${createEventDto.phone},
+        ${createEventDto.ticketCount},
+        ${createEventDto.customTickets},
+        ${createEventDto.ticketDefaultPrice ?? null},
+        ${createEventDto.userOwnerId},
+        ${createEventDto.categoryId ?? null},
+        NOW(),
+        NOW()
+      );
+    `;
+
 
       return { message: 'Event created successfully', status: 201 };
     } catch (error) {
@@ -123,9 +143,28 @@ export class EventsService {
    */
   async findOne(id: string) {
     try {
-      const event = await this.prismaService.event.findUnique({
-        where: { id },
-      });
+      const event = await this.prismaService.$queryRaw`
+        SELECT 
+          id, 
+          name, 
+          description, 
+          address, 
+          latitude, 
+          longitude, 
+          date, 
+          phone, 
+          ticket_count, 
+          category_id, 
+          created_at, 
+          updated_at, 
+          custom_tickets, 
+          slug, 
+          ticket_default_price, 
+          user_owner_id, 
+          ST_AsText(location) AS location
+        FROM events
+        WHERE id = ${id};
+      `;
 
       if (!event) {
         throw new NotFoundException(
@@ -137,6 +176,29 @@ export class EventsService {
       return { event };
     } catch (error) {
       throw new InternalServerErrorException(error.message);
+    }
+  }
+
+  async findNearby(id: string, distance: number) {
+    try {
+      const userLatitude = 37.7719; // Latitude do usuário
+      const userLongitude = -122.4176; // Longitude do usuário
+
+      const events = await this.prismaService.$queryRaw`
+        SELECT id, name, description, latitude, longitude, address, 
+               ST_AsText(location) AS location
+        FROM events
+        WHERE ST_DWithin(
+            location::geography,
+            ST_SetSRID(ST_MakePoint(${userLongitude}, ${userLatitude}), 4326)::geography,
+            ${distance}
+        );
+      `;
+
+      return events;
+
+    } catch (error) {
+      throw new Error('Error fetching nearby events: ' + error.message);
     }
   }
 

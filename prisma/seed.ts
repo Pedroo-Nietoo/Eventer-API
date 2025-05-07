@@ -28,7 +28,7 @@ async function main() {
   console.log('Seeding database...');
 
   const passwordHash = await bcrypt.hash('Abc123456', 10);
-  
+
   const user1 = await prisma.user.upsert({
     where: { email: 'johndoe@example.com' },
     update: {},
@@ -69,43 +69,43 @@ async function main() {
 
   console.log('Categories seeded:', { categoryMusic, categoryTech });
 
-  const event1 = await prisma.event.create({
-    data: {
-      name: 'Rock Festival',
-      slug: 'rock-festival',
-      description: 'A great rock festival.',
-      address: 'Rock Street, 123',
-      latitude: -23.55052,
-      longitude: -46.633308,
-      date: new Date('2025-08-15T18:00:00Z'),
-      phone: '555-1234',
-      ticketCount: 500,
-      customTickets: false,
-      ticketDefaultPrice: 50.0,
-      user: { connect: { id: user1.id } },
-      category: { connect: { id: categoryMusic.id } },
-    },
-  });
+  // const event1 = await prisma.event.create({
+  //   data: {
+  //     name: 'Rock Festival',
+  //     slug: 'rock-festival',
+  //     description: 'A great rock festival.',
+  //     address: 'Rock Street, 123',
+  //     latitude: -23.55052,
+  //     longitude: -46.633308,
+  //     date: new Date('2025-08-15T18:00:00Z'),
+  //     phone: '555-1234',
+  //     ticketCount: 500,
+  //     customTickets: false,
+  //     ticketDefaultPrice: 50.0,
+  //     user: { connect: { id: user1.id } },
+  //     category: { connect: { id: categoryMusic.id } },
+  //   },
+  // });
 
-  const event2 = await prisma.event.create({
-    data: {
-      name: 'Tech Conference 2025',
-      slug: 'tech-conference-2025',
-      description: 'The biggest tech event of the year.',
-      address: 'Tech Avenue, 42',
-      latitude: 37.7749,
-      longitude: -122.4194,
-      date: new Date('2025-09-20T09:00:00Z'),
-      phone: '555-5678',
-      ticketCount: 1000,
-      customTickets: false,
-      ticketDefaultPrice: 100.0,
-      user: { connect: { id: user2.id } },
-      category: { connect: { id: categoryTech.id } },
-    },
-  });
+  // const event2 = await prisma.event.create({
+  //   data: {
+  //     name: 'Tech Conference 2025',
+  //     slug: 'tech-conference-2025',
+  //     description: 'The biggest tech event of the year.',
+  //     address: 'Tech Avenue, 42',
+  //     latitude: 37.7749,
+  //     longitude: -122.4194,
+  //     date: new Date('2025-09-20T09:00:00Z'),
+  //     phone: '555-5678',
+  //     ticketCount: 1000,
+  //     customTickets: false,
+  //     ticketDefaultPrice: 100.0,
+  //     user: { connect: { id: user2.id } },
+  //     category: { connect: { id: categoryTech.id } },
+  //   },
+  // });
 
-  console.log('Events seeded:', { event1, event2 });
+  // console.log('Events seeded:', { event1, event2 });
 
   console.log('Seeding completed!');
 }

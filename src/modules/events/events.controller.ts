@@ -18,7 +18,7 @@ import { Role } from '@prisma/client';
 /**
  * Controller for handling event-related operations.
  */
-@Roles(Exclude(Role.USER))
+// @Roles(Exclude(Role.USER)) //todo fix this for the GET method
 @Controller('events')
 export class EventsController {
   /**
@@ -57,6 +57,11 @@ export class EventsController {
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.eventsService.findOne(id);
+  }
+
+  @Get(':id/nearby')
+  findNearby(@Param('id') id: string, @Query('distance') distance: number = 500) {
+    return this.eventsService.findNearby(id, distance);
   }
 
   /**
