@@ -48,6 +48,7 @@ model Event {
   address            String
   latitude           Float
   longitude          Float
+  location           Unsupported("geography(Point,4326)")
   date               DateTime
   phone              String?
   ticketCount        Int      @map("ticket_count")

@@ -62,6 +62,13 @@ export class CreateEventDto {
   longitude: number;
 
   /**
+   * The location of the event.
+   * @type {JSON}
+   */
+  @IsOptional()
+  location?: JSON;
+
+  /**
    * The date of the event.
    * @type {Date}
    */
