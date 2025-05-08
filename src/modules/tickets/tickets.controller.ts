@@ -12,6 +12,8 @@ import {
 import { TicketsService } from './tickets.service';
 import { CreateTicketDto } from './dto/create-ticket.dto';
 import { UpdateTicketDto } from './dto/update-ticket.dto';
+import { Exclude, Roles } from '../auth/decorators/roles.decorator';
+import { Role } from '@prisma/client';
 
 /**
  * Controller for handling ticket-related operations.
@@ -50,6 +52,7 @@ export class TicketsController {
    * @param id - The unique identifier of the ticket to be marked as used.
    * @returns A promise or result indicating the success or failure of the operation.
   */
+  @Roles(Exclude(Role.USER))
   @Get(':id/mark-as-used')
   markAsUsed(@Param('id') id: string, @Headers('authorization') authHeader: string) {
     const token = authHeader?.replace('Bearer ', '');
