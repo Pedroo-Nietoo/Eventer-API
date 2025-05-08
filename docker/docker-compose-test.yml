@@ -3,7 +3,7 @@ version: '3.8'
 services:
   test-database:
     image: bitnami/postgresql
-    container_name: eventer-test-db
+    container_name: nearby-test-db
     environment:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}

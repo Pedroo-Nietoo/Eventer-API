@@ -1,5 +1,5 @@
 {
-  "name": "eventer-api",
+  "name": "nearby-api",
   "version": "0.0.1",
   "description": "",
   "author": "",
@@ -23,7 +23,7 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
-    "docs": "npx compodoc -p tsconfig.json -n 'Eventer API Documentation' -s -w",
+    "docs": "npx compodoc -p tsconfig.json -n 'Nearby API Documentation' -s -w",
     "database:dev": "sh ./scripts/run-dev-db.sh",
     "database:test": "sh ./scripts/run-test-db.sh"
   },
