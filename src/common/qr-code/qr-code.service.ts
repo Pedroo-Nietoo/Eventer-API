@@ -9,6 +9,11 @@ import { ConfigService } from '@nestjs/config';
 @Injectable()
 export class QrCodeService {
 
+  /**
+   * Constructs an instance of the QrCodeService.
+   * 
+   * @param configService - The configuration service used to access application settings.
+   */
   constructor(
     private readonly configService: ConfigService,
   ) { }
