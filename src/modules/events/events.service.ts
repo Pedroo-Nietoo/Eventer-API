@@ -158,6 +158,16 @@ export class EventsService {
     }
   }
 
+  /**
+   * Finds nearby events within a specified distance from a user's location.
+   *
+   * @param id - The ID of the user (currently unused in the implementation).
+   * @param distance - The maximum distance (in meters) to search for events.
+   * @returns A promise that resolves to an array of events, each containing
+   *          the event's ID, name, description, latitude, longitude, address,
+   *          and location as a textual representation.
+   * @throws An error if there is an issue fetching nearby events.
+   */
   async findNearby(id: string, distance: number) {
     try {
       const userLatitude = 37.7719; // Latitude do usuário

@@ -59,6 +59,12 @@ export class EventsController {
     return this.eventsService.findOne(id);
   }
 
+  /**
+   * Finds nearby events based on the provided user ID and distance.
+   * @param id - The ID of the user for whom nearby events are being searched.
+   * @param distance - The maximum distance (in meters) to search for nearby events. Defaults to 500 meters.
+   * @returns A list of events within the specified distance from the user.
+  */
   @Get(':id/nearby')
   findNearby(@Param('id') id: string, @Query('distance') distance: number = 500) {
     return this.eventsService.findNearby(id, distance);
