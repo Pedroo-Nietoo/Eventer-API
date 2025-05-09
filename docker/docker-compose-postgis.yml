@@ -3,7 +3,7 @@ version: '3.8'
 services:
   postgis:
     image: postgis/postgis:16-3.4
-    container_name: eventer-postgis
+    container_name: nearby-postgis
     restart: always
     environment:
       POSTGRES_DB: ${DB_NAME}
@@ -14,11 +14,11 @@ services:
     volumes:
       - postgis_data:/var/lib/postgresql/data
     networks:
-      - eventer-net
+      - nearby-net
 
 volumes:
   postgis_data:
 
 networks:
-  eventer-net:
+  nearby-net:
     driver: bridge
