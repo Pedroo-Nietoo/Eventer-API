@@ -4,7 +4,7 @@ import { AppService } from './app.service';
 /**
  * AppController is responsible for handling incoming HTTP requests and returning responses.
  */
-@Controller()
+@Controller('health')
 export class AppController {
   /**
    * Constructs an instance of AppController.

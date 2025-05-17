@@ -14,6 +14,8 @@ until docker exec nearby-db pg_isready -U nearby-admin -d nearby; do
 done'
 
 
+gum spin --spinner "dot" --title "Generating Prisma Client..." -- npx prisma generate
+
 gum spin --spinner "dot" --title "Applying Prisma migrations..." -- npx prisma migrate deploy
 
 gum spin --spinner "dot" --title "🍃 Applying Prisma seeds..." -- npx prisma db seed
