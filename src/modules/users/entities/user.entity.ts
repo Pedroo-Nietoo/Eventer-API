@@ -1,5 +1,6 @@
 import { UserRole } from 'src/common/enums/role.enum';
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, DeleteDateColumn, Index } from 'typeorm';
+import { Ticket } from 'src/modules/tickets/entities/ticket.entity';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, DeleteDateColumn, Index, OneToMany } from 'typeorm';
 
 
 @Entity('users')
@@ -26,6 +27,9 @@ export class User {
   default: UserRole.USER,
  })
  role: UserRole;
+
+ @OneToMany(() => Ticket, (ticket) => ticket.user)
+ tickets: Ticket[];
 
  @CreateDateColumn({ name: 'created_at' })
  createdAt: Date;

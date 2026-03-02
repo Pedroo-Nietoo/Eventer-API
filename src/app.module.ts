@@ -7,6 +7,9 @@ import { ConfigModule } from '@nestjs/config';
 import { UsersModule } from './modules/users/users.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { EventsModule } from './modules/events/events.module';
+import { TicketsModule } from './modules/tickets/tickets.module';
+import { TicketTypeModule } from './modules/ticket_type/ticket_type.module';
+import { MailService } from './modules/mail/mail.service';
 
 @Module({
   imports: [
@@ -17,8 +20,10 @@ import { EventsModule } from './modules/events/events.module';
     UsersModule,
     AuthModule,
     EventsModule,
+    TicketsModule,
+    TicketTypeModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, MailService],
 })
 export class AppModule { }

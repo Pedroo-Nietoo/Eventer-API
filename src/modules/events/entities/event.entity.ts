@@ -1,5 +1,6 @@
-import { Entity, PrimaryGeneratedColumn, Column, Index, CreateDateColumn, UpdateDateColumn, DeleteDateColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, Index, CreateDateColumn, UpdateDateColumn, DeleteDateColumn, OneToMany } from 'typeorm';
 import type { Point } from 'geojson';
+import { TicketType } from 'src/modules/ticket_type/entities/ticket_type.entity';
 
 @Entity('events')
 export class Event {
@@ -25,6 +26,9 @@ export class Event {
   srid: 4326,
  })
  location: Point;
+
+ @OneToMany(() => TicketType, (ticketType) => ticketType.event)
+ ticketTypes: TicketType[];
 
  @CreateDateColumn({ name: 'created_at' })
  createdAt: Date;

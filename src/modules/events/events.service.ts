@@ -82,14 +82,17 @@ export class EventsService {
     const skip = (page - 1) * limit;
 
     const [events, total] = await this.repository.findAndCount({
-      select: [
-        'id',
-        'title',
-        'description',
-        'coverImageUrl',
-        'createdAt',
-        'updatedAt'
-      ],
+      select: {
+        id: true,
+        title: true,
+        slug: true,
+        description: true,
+        coverImageUrl: true,
+        location: true,
+        createdAt: true,
+        updatedAt: true,
+        deletedAt: true,
+      },
       skip: skip,
       take: limit,
       order: {

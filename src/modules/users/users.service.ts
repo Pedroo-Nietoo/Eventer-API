@@ -47,15 +47,19 @@ export class UsersService {
     const skip = (page - 1) * limit;
 
     const [users, total] = await this.repository.findAndCount({
-      select: [
-        'id',
-        'username',
-        'email',
-        'profilePicture',
-        'role',
-        'createdAt',
-        'updatedAt'
-      ],
+      select: {
+        id: true,
+        username: true,
+        email: true,
+        profilePicture: true,
+        role: true,
+        tickets: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+      relations: {
+        tickets: true,
+      },
       skip: skip,
       take: limit,
       order: {
@@ -78,15 +82,19 @@ export class UsersService {
   async findOne(id: string) {
     const user = await this.repository.findOne({
       where: { id },
-      select: [
-        'id',
-        'username',
-        'email',
-        'profilePicture',
-        'role',
-        'createdAt',
-        'updatedAt'
-      ],
+      select: {
+        id: true,
+        username: true,
+        email: true,
+        profilePicture: true,
+        role: true,
+        tickets: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+      relations: {
+        tickets: true,
+      },
     });
 
     if (!user) {
@@ -99,7 +107,12 @@ export class UsersService {
   async findByEmail(email: string) {
     return this.repository.findOne({
       where: { email },
-      select: ['id', 'email', 'password', 'role'],
+      select: {
+        id: true,
+        email: true,
+        password: true,
+        role: true,
+      },
     });
   }
 
