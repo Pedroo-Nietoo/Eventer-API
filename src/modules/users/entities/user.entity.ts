@@ -2,7 +2,6 @@ import { UserRole } from 'src/common/enums/role.enum';
 import { Ticket } from 'src/modules/tickets/entities/ticket.entity';
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, DeleteDateColumn, Index, OneToMany } from 'typeorm';
 
-
 @Entity('users')
 @Index('IDX_UNIQUE_EMAIL_ACTIVE', ['email'], { unique: true, where: 'deleted_at IS NULL' })
 export class User {
@@ -31,6 +30,7 @@ export class User {
  @OneToMany(() => Ticket, (ticket) => ticket.user)
  tickets: Ticket[];
 
+ @Index()
  @CreateDateColumn({ name: 'created_at' })
  createdAt: Date;
 

@@ -3,10 +3,11 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { UsersModule } from '../users/users.module';
-import { AuthController } from './auth.controller';
-import { AuthService } from './auth.service';
+import { AuthController } from './controller/auth.controller';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { LocalStrategy } from './strategies/local.strategy';
+import { ValidateUserUseCase } from './use-cases/validate-user.usecase';
+import { LoginUseCase } from './use-cases/login.usecase';
 
 @Module({
   imports: [
@@ -24,6 +25,11 @@ import { LocalStrategy } from './strategies/local.strategy';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, LocalStrategy, JwtStrategy],
+  providers: [
+    LocalStrategy,
+    JwtStrategy,
+    ValidateUserUseCase,
+    LoginUseCase
+  ],
 })
 export class AuthModule { }

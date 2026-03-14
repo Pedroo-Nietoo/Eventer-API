@@ -1,36 +1,24 @@
-import {
- IsString,
- IsEmail,
- IsNotEmpty,
- MinLength,
- MaxLength,
- IsOptional,
- IsUrl,
- IsEnum
-} from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsString, IsEmail, IsNotEmpty, MinLength, MaxLength, IsOptional, IsUrl, IsEnum } from 'class-validator';
 import { UserRole } from 'src/common/enums/role.enum';
 
 export class CreateUserDto {
- @MaxLength(100, { message: "O campo 'username' pode ter no máximo 100 caracteres." })
- @MinLength(3, { message: "O campo 'username' deve ter pelo menos 3 caracteres." })
- @IsString({ message: "O campo 'username' deve ser uma string." })
- @IsNotEmpty({ message: "O campo 'username' é obrigatório." })
+ @ApiProperty({ example: 'johndoe', description: 'Nome único de usuário' })
+ @MaxLength(100) @MinLength(3) @IsString() @IsNotEmpty()
  username: string;
 
- @IsEmail({}, { message: "Por favor, insira um endereço de e-mail válido." })
- @IsNotEmpty({ message: "O campo 'email' é obrigatório." })
+ @ApiProperty({ example: 'john@example.com', description: 'E-mail para login e notificações' })
+ @IsEmail() @IsNotEmpty()
  email: string;
 
- @MinLength(6, { message: "A senha deve conter no mínimo 6 caracteres." })
- @IsString({ message: "A senha deve ser uma string." })
- @IsNotEmpty({ message: "O campo 'password' é obrigatório." })
+ @ApiProperty({ example: 'senha123', description: 'Senha do usuário (mínimo 6 caracteres)', minLength: 6 })
+ @MinLength(6) @IsString() @IsNotEmpty()
  password: string;
 
- @IsOptional()
- @IsUrl({}, { message: "A foto de perfil deve ser uma URL válida." })
+ @ApiPropertyOptional({ example: 'https://avatar.com/user.png', description: 'URL da foto de perfil' })
+ @IsOptional() @IsUrl()
  profilePicture?: string;
 
- @IsOptional()
- @IsEnum(UserRole, { message: "A role do usuário é inválida." })
+ @IsOptional() @IsEnum(UserRole)
  role?: UserRole;
 }
