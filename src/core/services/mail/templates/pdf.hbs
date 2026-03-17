@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+ <meta charset="UTF-8">
+ <title>Ingresso Oficial - {{eventName}}</title>
+ <style>
+  /* Configuração para impressão PDF (A4) */
+  @page {
+   margin: 1cm;
+   size: A4;
+  }
+
+  body {
+   margin: 0;
+   padding: 0;
+   font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+   background-color: #ffffff;
+   color: #1e293b;
+   -webkit-font-smoothing: antialiased;
+  }
+
+  /* Classes utilitárias */
+  .text-uppercase {
+   text-transform: uppercase;
+  }
+
+  .text-center {
+   text-align: center;
+  }
+
+  /* Container do Ingresso */
+  .ticket-wrapper {
+   width: 100%;
+   max-width: 800px;
+   margin: 0 auto;
+  }
+
+  /* Estrutura visual da borda */
+  .ticket-table {
+   width: 100%;
+   border: 2px solid #cbd5e1;
+   border-radius: 8px;
+   border-collapse: collapse;
+  }
+
+  /* Cabeçalho Escuro */
+  .ticket-header {
+   background-color: #0f172a;
+   color: #ffffff;
+   padding: 20px 30px;
+  }
+
+  .ticket-header h1 {
+   margin: 0;
+   font-size: 22px;
+   letter-spacing: 1px;
+  }
+
+  /* Corpo do Ingresso */
+  .ticket-body-td {
+   padding: 30px;
+   vertical-align: top;
+  }
+
+  .label {
+   font-size: 11px;
+   color: #64748b;
+   font-weight: bold;
+   letter-spacing: 0.5px;
+   display: block;
+   margin-bottom: 4px;
+   margin-top: 20px;
+  }
+
+  .label:first-child {
+   margin-top: 0;
+  }
+
+  .value {
+   font-size: 18px;
+   color: #0f172a;
+   font-weight: bold;
+   margin: 0;
+  }
+
+  .value-large {
+   font-size: 26px;
+   color: #2563eb;
+   font-weight: 800;
+   margin: 0;
+  }
+
+  /* Área do QR Code */
+  .qr-td {
+   width: 200px;
+   padding: 30px;
+   border-left: 2px dashed #cbd5e1;
+   text-align: center;
+   vertical-align: middle;
+   background-color: #fafafa;
+  }
+
+  .qr-img {
+   width: 160px;
+   height: 160px;
+   border: 1px solid #e2e8f0;
+   padding: 8px;
+   background-color: #ffffff;
+   border-radius: 4px;
+  }
+
+  .qr-text {
+   margin-top: 10px;
+   font-size: 11px;
+   color: #64748b;
+   font-weight: bold;
+  }
+
+  /* Rodapé / Instruções */
+  .instructions-wrapper {
+   background-color: #f8fafc;
+   padding: 20px 30px;
+   border-top: 2px solid #cbd5e1;
+  }
+
+  .instructions-title {
+   font-size: 14px;
+   color: #334155;
+   margin: 0 0 12px 0;
+  }
+
+  .instructions-list {
+   margin: 0;
+   padding-left: 20px;
+   font-size: 13px;
+   color: #475569;
+   line-height: 1.6;
+  }
+
+  .instructions-list li {
+   margin-bottom: 6px;
+  }
+
+  /* Linha de corte simulada */
+  .cut-line {
+   width: 100%;
+   border-top: 2px dashed #94a3b8;
+   margin: 40px 0;
+   text-align: center;
+  }
+
+  .cut-icon {
+   display: inline-block;
+   background: #fff;
+   padding: 0 15px;
+   color: #94a3b8;
+   font-size: 12px;
+   position: relative;
+   top: -8px;
+  }
+ </style>
+</head>
+
+<body>
+ <div class="ticket-wrapper">
+
+  <table class="ticket-table">
+   <tr>
+    <td colspan="2" class="ticket-header">
+     <h1 class="text-uppercase">Voucher de Acesso</h1>
+    </td>
+   </tr>
+
+   <tr>
+    <td class="ticket-body-td">
+     <span class="label text-uppercase">Evento</span>
+     <p class="value-large text-uppercase">{{eventName}}</p>
+
+     <span class="label text-uppercase">Participante</span>
+     <p class="value">{{userName}}</p>
+
+     <span class="label text-uppercase">Tipo de Ingresso</span>
+     <p class="value">Acesso Padrão (Único)</p>
+    </td>
+
+    <td class="qr-td">
+     <img class="qr-img" src="{{qrCodeUrl}}" alt="QR Code" />
+     <div class="qr-text text-uppercase">Entrada Única</div>
+    </td>
+   </tr>
+
+   <tr>
+    <td colspan="2" class="instructions-wrapper">
+     <h3 class="instructions-title text-uppercase">Orientações Importantes</h3>
+     <ul class="instructions-list">
+      <li><strong>Brilho da tela:</strong> Aumente o brilho do celular ao máximo na portaria para a leitura do QR Code.
+      </li>
+      <li><strong>Documento:</strong> É obrigatória a apresentação de documento oficial com foto (RG, CNH, Passaporte).
+      </li>
+      <li><strong>Segurança:</strong> Não compartilhe a imagem do seu QR Code. Ele é de uso único.</li>
+     </ul>
+    </td>
+   </tr>
+  </table>
+
+  <div class="cut-line">
+   <span class="cut-icon">✂️ Dobre ou corte nesta linha</span>
+  </div>
+
+ </div>
+</body>
+
+</html>
