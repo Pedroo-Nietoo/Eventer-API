@@ -5,15 +5,11 @@ import { EventsRepository } from '../repository/events.repository';
 export class DeleteEventUseCase {
  constructor(private readonly eventsRepository: EventsRepository) { }
 
- async execute(id: string) {
+ async execute(id: string): Promise<void> {
   const result = await this.eventsRepository.softDelete(id);
 
   if (result.affected === 0) {
    throw new NotFoundException(`Evento com ID ${id} não encontrado.`);
   }
-
-  return {
-   message: 'Evento removido com sucesso',
-  };
  }
 }

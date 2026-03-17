@@ -5,15 +5,11 @@ import { UsersRepository } from '../repository/users.repository';
 export class DeleteUserUseCase {
  constructor(private readonly usersRepository: UsersRepository) { }
 
- async execute(id: string) {
+ async execute(id: string): Promise<void> {
   const result = await this.usersRepository.softDelete(id);
 
   if (result.affected === 0) {
    throw new NotFoundException(`Usuário com o ID ${id} não encontrado.`);
   }
-
-  return {
-   message: 'Usuário removido com sucesso',
-  };
  }
 }
