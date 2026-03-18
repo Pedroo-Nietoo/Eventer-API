@@ -10,12 +10,18 @@ import { TicketsModule } from './modules/tickets/tickets.module';
 import { TicketTypeModule } from './modules/ticket-types/ticket-type.module';
 import { MailService } from './core/services/mail/mail.service';
 import { databaseConfig } from './config/database.config';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    ThrottlerModule.forRoot([{
+      ttl: 60000,
+      limit: 10,
+    }]),
     TypeOrmModule.forRootAsync(databaseConfig),
     UsersModule,
     AuthModule,
@@ -24,6 +30,9 @@ import { databaseConfig } from './config/database.config';
     TicketTypeModule,
   ],
   controllers: [AppController],
-  providers: [AppService, MailService],
+  providers: [AppService, {
+    provide: APP_GUARD,
+    useClass: ThrottlerGuard,
+  },],
 })
 export class AppModule { }
