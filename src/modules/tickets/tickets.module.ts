@@ -13,6 +13,7 @@ import { FindTicketUseCase } from './use-cases/find-ticket.usecase';
 import { UpdateTicketUseCase } from './use-cases/update-ticket.usecase';
 import { DeleteTicketUseCase } from './use-cases/delete-ticket.usecase';
 import { TicketsRepository } from './repository/ticket.repository';
+import { DispatchTicketEmailUseCase } from './use-cases/dispatch-ticket-email.usecase';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { TicketsRepository } from './repository/ticket.repository';
     GenerateQrCodeImageService,
     MailService,
     CreateTicketUseCase,
+    DispatchTicketEmailUseCase,
     ValidateTicketUseCase,
     ListTicketsUseCase,
     FindTicketUseCase,

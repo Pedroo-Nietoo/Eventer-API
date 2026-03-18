@@ -21,7 +21,7 @@ export class UpdateTicketUseCase {
     private readonly findTicketUseCase: FindTicketUseCase,
   ) { }
 
-  async execute(id: string, dto: UpdateTicketDto): Promise<TicketResponseDto> {
+  async execute(id: string, dto: UpdateTicketDto, userId: string): Promise<TicketResponseDto> {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
@@ -95,7 +95,7 @@ export class UpdateTicketUseCase {
       }
 
       if (dto.status) ticket.status = dto.status;
-      if (dto.userId) ticket.user = { id: dto.userId } as any;
+      if (userId) ticket.user = { id: userId } as any;
 
       await queryRunner.manager.save(ticket);
       await queryRunner.commitTransaction();

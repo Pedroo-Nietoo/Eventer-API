@@ -16,7 +16,7 @@ export class MailService {
   this.resend = new Resend(apiKey);
  }
 
- async sendTicketEmail(to: string, userName: string, eventName: string, qrCodeBuffer: Buffer) {
+ async sendTicketEmail(to: string, userName: string, eventName: string, ticketType: string, qrCodeBuffer: Buffer) {
   try {
    const ticketTemplatePath = path.join(__dirname, 'templates', 'ticket.hbs');
    const pdfTemplatePath = path.join(__dirname, 'templates', 'pdf.hbs');
@@ -32,6 +32,7 @@ export class MailService {
    const emailHtml = compiledTicket({
     userName,
     eventName,
+    ticketType,
     qrCodeUrl: 'cid:qrcode-ingresso',
    });
 
@@ -39,6 +40,7 @@ export class MailService {
    const pdfHtml = compiledPdf({
     userName,
     eventName,
+    ticketType,
     qrCodeUrl: qrCodeBase64,
    });
 
@@ -71,7 +73,7 @@ export class MailService {
       contentId: 'qrcode-ingresso',
      },
      {
-      filename: 'Ingresso_Oficial.pdf',
+      filename: 'ingresso_evento.pdf',
       content: pdfBuffer,
      },
     ],

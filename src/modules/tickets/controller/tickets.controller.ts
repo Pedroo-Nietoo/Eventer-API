@@ -11,6 +11,7 @@ import { FindTicketUseCase } from '../use-cases/find-ticket.usecase';
 import { UpdateTicketUseCase } from '../use-cases/update-ticket.usecase';
 import { DeleteTicketUseCase } from '../use-cases/delete-ticket.usecase';
 import { SwaggerTicketController as Doc } from './tickets.swagger';
+import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 
 @Doc.Main()
 @UseGuards(JwtAuthGuard)
@@ -27,8 +28,8 @@ export class TicketsController {
 
   @Doc.Create()
   @Post()
-  create(@Body() createTicketDto: CreateTicketDto) {
-    return this.createTicketUseCase.execute(createTicketDto);
+  create(@Body() createTicketDto: CreateTicketDto, @CurrentUser('id') loggedUserId: string) {
+    return this.createTicketUseCase.execute(createTicketDto, loggedUserId);
   }
 
   @Doc.Validate()
@@ -54,9 +55,10 @@ export class TicketsController {
   @Patch(':id')
   update(
     @Param('id', ParseUUIDPipe) id: string,
-    @Body() updateTicketDto: UpdateTicketDto
+    @Body() updateTicketDto: UpdateTicketDto,
+    @CurrentUser('id') userId: string
   ) {
-    return this.updateTicketUseCase.execute(id, updateTicketDto);
+    return this.updateTicketUseCase.execute(id, updateTicketDto, userId);
   }
 
   @Doc.Delete()

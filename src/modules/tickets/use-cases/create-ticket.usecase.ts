@@ -12,10 +12,9 @@ import { CreateTicketDto } from '../dto/create-ticket.dto';
 import { Ticket, TicketStatus } from '../entities/ticket.entity';
 import { TicketType } from 'src/modules/ticket-types/entities/ticket-type.entity';
 import { GenerateTicketTokenService } from '../../../core/services/generate-ticket-token.service';
-import { GenerateQrCodeImageService } from '../../../core/services/generate-qrcode-image.service';
-import { MailService } from 'src/core/services/mail/mail.service';
 import { TicketMapper } from '../mappers/ticket.mapper';
 import { TicketResponseDto } from '../dto/ticket-response.dto';
+import { DispatchTicketEmailUseCase } from './dispatch-ticket-email.usecase';
 
 @Injectable()
 export class CreateTicketUseCase {
@@ -24,13 +23,12 @@ export class CreateTicketUseCase {
  constructor(
   private readonly dataSource: DataSource,
   private readonly generateTicketTokenService: GenerateTicketTokenService,
-  private readonly generateQrCodeImageService: GenerateQrCodeImageService,
-  private readonly mailService: MailService,
+  private readonly dispatchTicketEmailUseCase: DispatchTicketEmailUseCase,
  ) { }
 
- async execute(dto: CreateTicketDto): Promise<TicketResponseDto> {
+ async execute(dto: CreateTicketDto, userId: string): Promise<TicketResponseDto> {
   const ticketId = uuidv4();
-  const token = this.generateTicketTokenService.execute(ticketId, dto.eventId, dto.userId);
+  const token = this.generateTicketTokenService.execute(ticketId, dto.eventId, userId);
 
   let savedTicket: Ticket;
 
@@ -64,7 +62,7 @@ export class CreateTicketUseCase {
     qrCode: token,
     status: TicketStatus.VALID,
     purchasePrice: ticketType.price,
-    user: { id: dto.userId },
+    user: { id: userId },
     ticketType: { id: dto.ticketTypeId },
    });
 
@@ -74,8 +72,10 @@ export class CreateTicketUseCase {
   } catch (error) {
    await queryRunner.rollbackTransaction();
 
-   if (error instanceof BadRequestException) throw error;
-   if (error instanceof NotFoundException) throw error;
+   if (error instanceof BadRequestException || error instanceof NotFoundException) {
+    throw error;
+   }
+
    if (error.code === '23503') throw new NotFoundException('A conta de usuário informada é inválida.');
    if (error.code === '23505') throw new BadRequestException('Já existe um registro com este QR Code.');
 
@@ -85,29 +85,10 @@ export class CreateTicketUseCase {
    await queryRunner.release();
   }
 
-  this.dispatchTicketEmail(savedTicket.id, token).catch((err) => {
-   this.logger.error(`Falha silenciosa ao enviar e-mail em background: ${err.message}`);
+  this.dispatchTicketEmailUseCase.execute(savedTicket.id, token).catch((err) => {
+   this.logger.error(`Erro no processamento do e-mail: ${err.message}`);
   });
 
   return TicketMapper.toResponse(savedTicket);
- }
-
- //todo passar pro mail module
- private async dispatchTicketEmail(ticketId: string, qrCodeToken: string): Promise<void> {
-  const ticketFull = await this.dataSource.getRepository(Ticket).findOne({
-   where: { id: ticketId },
-   relations: { user: true, ticketType: { event: true } },
-  });
-
-  if (!ticketFull) return;
-
-  const qrCodeBuffer = await this.generateQrCodeImageService.execute(qrCodeToken);
-
-  await this.mailService.sendTicketEmail(
-   ticketFull.user.email,
-   ticketFull.user.username,
-   ticketFull.ticketType.event.title,
-   qrCodeBuffer,
-  );
  }
 }
