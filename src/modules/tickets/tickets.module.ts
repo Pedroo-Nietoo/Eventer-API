@@ -14,11 +14,13 @@ import { UpdateTicketUseCase } from './use-cases/update-ticket.usecase';
 import { DeleteTicketUseCase } from './use-cases/delete-ticket.usecase';
 import { TicketsRepository } from './repository/ticket.repository';
 import { DispatchTicketEmailUseCase } from './use-cases/dispatch-ticket-email.usecase';
+import { EventsModule } from '../events/events.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Ticket]),
     ConfigModule,
+    EventsModule
   ],
   controllers: [TicketsController],
   providers: [

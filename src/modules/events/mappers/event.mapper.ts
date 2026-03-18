@@ -10,6 +10,7 @@ export class EventMapper {
    title: entity.title,
    description: entity.description,
    coverImageUrl: entity.coverImageUrl,
+   eventDate: entity.eventDate,
    location: entity.location
     ? {
      longitude: entity.location.coordinates[0],

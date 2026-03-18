@@ -25,6 +25,7 @@ export class EventsRepository extends BaseRepository<Event> {
         'event.title',
         'event.description',
         'event.coverImageUrl',
+        'event.eventDate',
         'event.createdAt'
       ])
       .addSelect(`ST_Distance(event.location, ${point})`, 'distance')

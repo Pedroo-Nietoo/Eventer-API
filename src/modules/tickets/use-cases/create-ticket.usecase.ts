@@ -6,8 +6,6 @@ import {
  NotFoundException,
 } from '@nestjs/common';
 import { DataSource } from 'typeorm';
-import { v4 as uuidv4 } from 'uuid';
-
 import { CreateTicketDto } from '../dto/create-ticket.dto';
 import { Ticket, TicketStatus } from '../entities/ticket.entity';
 import { TicketType } from 'src/modules/ticket-types/entities/ticket-type.entity';
@@ -27,8 +25,7 @@ export class CreateTicketUseCase {
  ) { }
 
  async execute(dto: CreateTicketDto, userId: string): Promise<TicketResponseDto> {
-  const ticketId = uuidv4();
-  const token = this.generateTicketTokenService.execute(ticketId, dto.eventId, userId);
+  const { ticketId, token } = this.generateTicketTokenService.execute(dto.eventId, userId);
 
   let savedTicket: Ticket;
 
@@ -39,11 +36,20 @@ export class CreateTicketUseCase {
   try {
    const ticketType = await queryRunner.manager.findOne(TicketType, {
     where: { id: dto.ticketTypeId },
-    select: ['id', 'price'],
+    relations: { event: true },
+    select: {
+     id: true,
+     price: true,
+     event: { id: true }
+    },
    });
 
    if (!ticketType) {
     throw new NotFoundException('O lote de ingressos informado não existe.');
+   }
+
+   if (dto.eventId !== ticketType.event.id) {
+    throw new BadRequestException('O evento informado não corresponde ao lote de ingressos selecionado.');
    }
 
    const updateResult = await queryRunner.manager

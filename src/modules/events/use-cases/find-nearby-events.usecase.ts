@@ -16,6 +16,7 @@ export class FindNearbyEventsUseCase {
    title: event.event_title,
    description: event.event_description,
    coverImageUrl: event.event_coverImageUrl,
+   eventDate: event.event_eventDate,
    location: {
     distance: Number(event.distance),
     latitude: Number(event.latitude),

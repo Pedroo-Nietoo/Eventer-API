@@ -26,6 +26,6 @@ import { FindEventBySlugUseCase } from './use-cases/find-event-by-slug.usecase';
     UpdateEventUseCase,
     DeleteEventUseCase,
   ],
-  exports: [EventsRepository],
+  exports: [EventsRepository, FindEventUseCase],
 })
 export class EventsModule { }

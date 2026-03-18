@@ -20,6 +20,9 @@ export class Event {
  @Column({ nullable: true })
  coverImageUrl: string;
 
+ @Column({ type: 'timestamp' })
+ eventDate: Date;
+
  @Index({ spatial: true })
  @Column({
   type: 'geography',
