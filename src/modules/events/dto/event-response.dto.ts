@@ -4,6 +4,9 @@ export class EventResponseDto {
  @ApiProperty({ example: 'uuid-v4-id' })
  id: string;
 
+ @ApiProperty({ example: 'uuid-v4-id' })
+ organizerId: string;
+
  @ApiProperty({ example: 'show-da-virada-cuid2' })
  slug?: string;
 

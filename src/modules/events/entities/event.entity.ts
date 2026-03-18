@@ -1,6 +1,7 @@
-import { Entity, PrimaryGeneratedColumn, Column, Index, CreateDateColumn, UpdateDateColumn, DeleteDateColumn, OneToMany } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, Index, CreateDateColumn, UpdateDateColumn, DeleteDateColumn, OneToMany, ManyToOne, JoinColumn } from 'typeorm';
 import type { Point } from 'geojson';
 import { TicketType } from 'src/modules/ticket-types/entities/ticket-type.entity';
+import { User } from 'src/modules/users/entities/user.entity'; // <-- Importe o User
 
 @Entity('events')
 export class Event {
@@ -29,6 +30,15 @@ export class Event {
 
  @OneToMany(() => TicketType, (ticketType) => ticketType.event)
  ticketTypes: TicketType[];
+
+ @ManyToOne(() => User, (user) => user.organizedEvents, {
+  nullable: false
+ })
+ @JoinColumn({ name: 'organizer_id' })
+ organizer: User;
+
+ @Column({ name: 'organizer_id' })
+ organizerId: string;
 
  @Index()
  @CreateDateColumn({ name: 'created_at' })

@@ -1,4 +1,7 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards, ParseUUIDPipe, HttpCode, HttpStatus } from '@nestjs/common';
+import {
+  Controller, Get, Post, Body, Patch, Param, Delete, Query,
+  UseGuards, ParseUUIDPipe, HttpCode, HttpStatus, Req
+} from '@nestjs/common';
 
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
@@ -17,6 +20,8 @@ import { UpdateEventUseCase } from '../use-cases/update-event.usecase';
 import { DeleteEventUseCase } from '../use-cases/delete-event.usecase';
 import { FindEventBySlugUseCase } from '../use-cases/find-event-by-slug.usecase';
 import { SwaggerEventController as Doc } from './events.swagger';
+import { CurrentUser } from 'src/common/decorators/current-user.decorator';
+import type { AuthenticatedUser } from 'src/common/decorators/current-user.decorator';
 
 @Doc.Main()
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -33,10 +38,10 @@ export class EventsController {
   ) { }
 
   @Doc.Create()
-  @Roles(UserRole.ADMIN)
+  @Roles({ deny: [UserRole.USER] })
   @Post()
-  create(@Body() createEventDto: CreateEventDto) {
-    return this.createEventUseCase.execute(createEventDto);
+  create(@Body() createEventDto: CreateEventDto, @CurrentUser('id') userId: string) {
+    return this.createEventUseCase.execute(createEventDto, userId);
   }
 
   @Doc.FindNearby()
@@ -69,14 +74,25 @@ export class EventsController {
 
   @Doc.Update()
   @Patch(':id')
-  update(@Param('id', ParseUUIDPipe) id: string, @Body() updateEventDto: UpdateEventDto) {
-    return this.updateEventUseCase.execute(id, updateEventDto);
+  @Roles({ deny: [UserRole.USER] })
+  update(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() updateEventDto: UpdateEventDto,
+    @CurrentUser() user: AuthenticatedUser
+  ) {
+    return this.updateEventUseCase.execute(
+      id,
+      updateEventDto,
+      user.id,
+      user.role
+    );
   }
 
   @Doc.Delete()
+  @Roles({ deny: [UserRole.USER] })
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  remove(@Param('id', ParseUUIDPipe) id: string) {
-    return this.deleteEventUseCase.execute(id);
+  remove(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
+    return this.deleteEventUseCase.execute(id, user.id, user.role);
   }
 }

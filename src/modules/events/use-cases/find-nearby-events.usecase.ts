@@ -11,6 +11,8 @@ export class FindNearbyEventsUseCase {
 
   return rawEvents.map((event) => ({
    id: event.event_id,
+   organizerId: event.organizer_id,
+   slug: event.event_slug,
    title: event.event_title,
    description: event.event_description,
    coverImageUrl: event.event_coverImageUrl,
@@ -19,6 +21,7 @@ export class FindNearbyEventsUseCase {
     latitude: Number(event.latitude),
     longitude: Number(event.longitude),
    },
+   createdAt: event.event_created_at,
   }));
  }
 }

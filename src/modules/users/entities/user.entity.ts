@@ -1,4 +1,5 @@
 import { UserRole } from 'src/common/enums/role.enum';
+import { Event } from 'src/modules/events/entities/event.entity';
 import { Ticket } from 'src/modules/tickets/entities/ticket.entity';
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, DeleteDateColumn, Index, OneToMany } from 'typeorm';
 
@@ -29,6 +30,9 @@ export class User {
 
  @OneToMany(() => Ticket, (ticket) => ticket.user)
  tickets: Ticket[];
+
+ @OneToMany(() => Event, (event) => event.organizer)
+ organizedEvents: Event[];
 
  @Index()
  @CreateDateColumn({ name: 'created_at' })

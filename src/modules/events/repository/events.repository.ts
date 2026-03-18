@@ -20,9 +20,12 @@ export class EventsRepository extends BaseRepository<Event> {
       .createQueryBuilder('event')
       .select([
         'event.id',
+        'event.organizer_id',
+        'event.slug',
         'event.title',
         'event.description',
         'event.coverImageUrl',
+        'event.createdAt'
       ])
       .addSelect(`ST_Distance(event.location, ${point})`, 'distance')
       .addSelect('ST_X(event.location::geometry)', 'longitude')

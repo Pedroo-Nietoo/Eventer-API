@@ -5,6 +5,7 @@ export class EventMapper {
  static toResponse(entity: Event): EventResponseDto {
   return {
    id: entity.id,
+   organizerId: entity.organizerId,
    slug: entity.slug,
    title: entity.title,
    description: entity.description,
