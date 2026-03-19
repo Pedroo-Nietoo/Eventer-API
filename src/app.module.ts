@@ -12,6 +12,7 @@ import { MailService } from './core/services/mail/mail.service';
 import { databaseConfig } from './config/database.config';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
+import { OrdersModule } from './modules/orders/orders.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { APP_GUARD } from '@nestjs/core';
     EventsModule,
     TicketsModule,
     TicketTypeModule,
+    OrdersModule,
   ],
   controllers: [AppController],
   providers: [AppService, {

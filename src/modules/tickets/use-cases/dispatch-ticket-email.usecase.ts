@@ -16,7 +16,7 @@ export class DispatchTicketEmailUseCase {
 
  async execute(ticketId: string, qrCodeToken: string): Promise<void> {
   try {
-   const ticketFull = await this.dataSource.getRepository(Ticket).findOne({
+   const ticket = await this.dataSource.getRepository(Ticket).findOne({
     where: { id: ticketId },
     relations: {
      user: true,
@@ -24,7 +24,7 @@ export class DispatchTicketEmailUseCase {
     },
    });
 
-   if (!ticketFull) {
+   if (!ticket) {
     this.logger.warn(`Tentativa de enviar e-mail para ticket inexistente: ${ticketId}`);
     return;
    }
@@ -32,14 +32,14 @@ export class DispatchTicketEmailUseCase {
    const qrCodeBuffer = await this.generateQrCodeImageService.execute(qrCodeToken);
 
    await this.mailService.sendTicketEmail(
-    ticketFull.user.email,
-    ticketFull.user.username,
-    ticketFull.ticketType.event.title,
-    ticketFull.ticketType.name,
+    ticket.user.email,
+    ticket.user.username,
+    ticket.ticketType.event.title,
+    ticket.ticketType.name,
     qrCodeBuffer,
    );
 
-   this.logger.log(`E-mail de confirmação enviado para: ${ticketFull.user.email}`);
+   this.logger.log(`E-mail de confirmação enviado para: ${ticket.user.email}`);
   } catch (error) {
    this.logger.error(`Falha ao disparar e-mail do ticket ${ticketId}: ${error.message}`);
   }

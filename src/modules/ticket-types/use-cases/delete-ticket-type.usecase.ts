@@ -16,7 +16,7 @@ export class DeleteTicketTypeUseCase {
 
   if (ticketsSold > 0) {
    throw new BadRequestException(
-    `Não é possível excluir este lote pois já existe()m ${ticketsSold} ingresso(s) vendido(s). ` +
+    `Não é possível excluir este lote pois já existem(m) ${ticketsSold} ingresso(s) vendido(s). ` +
     `Para interromper as vendas, sugerimos editar a quantidade para zero.`
    );
   }

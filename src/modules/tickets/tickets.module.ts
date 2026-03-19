@@ -36,6 +36,6 @@ import { EventsModule } from '../events/events.module';
     UpdateTicketUseCase,
     DeleteTicketUseCase,
   ],
-  exports: [TicketsRepository],
+  exports: [TicketsRepository, CreateTicketUseCase],
 })
 export class TicketsModule { }
