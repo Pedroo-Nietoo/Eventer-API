@@ -14,10 +14,10 @@ export class CreateTicketTypeDto {
  @IsNumber({ maxDecimalPlaces: 2 }) @Min(0)
  price: number;
 
- @ApiProperty({ example: 50, description: 'Capacidade total deste lote' })
+ @ApiProperty({ example: 50 })
  @IsInt()
+ @Min(1, { message: 'A quantidade total deve ser de pelo menos 1 ingresso.' })
  totalQuantity: number;
-
  @ApiProperty({ example: 'e0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11' })
  @IsUUID() @IsNotEmpty()
  eventId: string;

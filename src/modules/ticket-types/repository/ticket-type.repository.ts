@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { BaseRepository } from 'src/common/repository/base.repository';
@@ -24,5 +24,19 @@ export class TicketTypesRepository extends BaseRepository<TicketType> {
     createdAt: 'DESC',
    },
   });
+ }
+
+ //todo verificar se é pra colocar aqui mesmo, não tá parecendo
+ async decrementAvailableQuantity(id: string, quantity: number): Promise<void> {
+  const result = await this.ticketTypeRepo
+   .createQueryBuilder()
+   .update(TicketType)
+   .set({ availableQuantity: () => `available_quantity - ${quantity}` })
+   .where("id = :id AND available_quantity >= :quantity", { id, quantity })
+   .execute();
+
+  if (result.affected === 0) {
+   throw new BadRequestException('Ingressos insuficientes para este lote.');
+  }
  }
 }
