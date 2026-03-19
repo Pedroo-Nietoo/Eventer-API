@@ -1,4 +1,4 @@
-import { Repository, FindOptionsWhere, DeepPartial } from 'typeorm';
+import { Repository, FindOptionsWhere, DeepPartial, FindManyOptions } from 'typeorm';
 
 export abstract class BaseRepository<T extends { id: string }> {
  constructor(protected readonly repository: Repository<T>) { }
@@ -22,6 +22,10 @@ export abstract class BaseRepository<T extends { id: string }> {
    skip,
    take,
   });
+ }
+
+ async findAndCount(options: FindManyOptions<T>): Promise<[T[], number]> {
+  return this.repository.findAndCount(options);
  }
 
  async count(): Promise<number> {

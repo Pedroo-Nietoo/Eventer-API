@@ -10,6 +10,7 @@ import { CreateUserDto } from '../dto/create-user.dto';
 import { UserResponseDto } from '../dto/user-response.dto';
 import { UserMapper } from '../mappers/user.mapper';
 import { UsersRepository } from '../repository/users.repository';
+import { UserRole } from 'src/common/enums/role.enum';
 
 @Injectable()
 export class CreateUserUseCase {
@@ -19,10 +20,13 @@ export class CreateUserUseCase {
 
  async execute(dto: CreateUserDto): Promise<UserResponseDto> {
   try {
+
+   const role = dto.role || UserRole.USER;
    const hashedPassword = await bcrypt.hash(dto.password, 10);
 
    const user = this.usersRepository.create({
     ...dto,
+    role,
     password: hashedPassword,
    });
 

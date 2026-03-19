@@ -30,11 +30,13 @@ export class UpdateUserUseCase {
   }
 
   try {
-   if (dto.password) {
-    dto.password = await bcrypt.hash(dto.password, 10);
+   const { password, ...updateData } = dto;
+
+   if (password) {
+    user.password = await bcrypt.hash(password, 10);
    }
 
-   Object.assign(user, dto);
+   Object.assign(user, updateData);
 
    const savedUser = await this.usersRepository.save(user);
 

@@ -14,15 +14,11 @@ export class UsersRepository extends BaseRepository<User> {
   super(usersRepo);
  }
 
- async findByEmail(email: string): Promise<User | null> {
-  return this.usersRepo.findOne({
-   where: { email },
-   select: {
-    id: true,
-    email: true,
-    password: true,
-    role: true,
-   },
-  });
+ async findByEmailWithPassword(email: string): Promise<User | null> {
+  return this.usersRepo
+   .createQueryBuilder('user')
+   .addSelect('user.password')
+   .where('user.email = :email', { email })
+   .getOne();
  }
 }

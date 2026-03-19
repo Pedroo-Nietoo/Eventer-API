@@ -14,11 +14,13 @@ export class ListUsersUseCase {
   paginationDto: PaginationDto,
  ): Promise<PaginatedResponse<UserResponseDto>> {
   const { page = 1, limit = 20 } = paginationDto;
-
   const skip = (page - 1) * limit;
 
-  const users = await this.usersRepository.findAll(skip, limit);
-  const total = await this.usersRepository.count();
+  const [users, total] = await this.usersRepository.findAndCount({
+   skip,
+   take: limit,
+   order: { createdAt: 'DESC' } as any,
+  });
 
   return {
    data: UserMapper.toResponseList(users),
