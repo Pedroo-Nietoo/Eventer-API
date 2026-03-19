@@ -40,7 +40,6 @@ export class CreateOrderUseCase {
    });
    const savedOrder = await this.ordersRepository.save(order);
 
-   // Comunica com o Stripe Service
    const session = await this.stripeService.createCheckoutSession(
     savedOrder.id,
     ticketType.name,
@@ -48,11 +47,9 @@ export class CreateOrderUseCase {
     quantity
    );
 
-   // Atualiza o ID da sessão usando o método customizado que criamos acima
    await this.ordersRepository.updateSessionId(savedOrder.id, session.id);
 
-   // Pode retornar um OrderMapper.toResponse se quiser, 
-   // mas para o frontend o principal agora é a URL de redirecionamento.
+   //todo Retornar um OrderMap.toResponse aqui depois, mas por enquanto só o necessário pro frontend iniciar o checkout
    return {
     orderId: savedOrder.id,
     checkoutUrl: session.url

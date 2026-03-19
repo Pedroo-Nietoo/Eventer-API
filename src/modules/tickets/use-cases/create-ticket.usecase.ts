@@ -25,9 +25,8 @@ export class CreateTicketUseCase {
  ) { }
 
  async execute(dto: CreateTicketDto, userId: string): Promise<TicketResponseDto> {
-  const { ticketId, token } = this.generateTicketTokenService.execute(dto.eventId, userId);
-
   let savedTicket: Ticket;
+  let token: string;
 
   const queryRunner = this.dataSource.createQueryRunner();
   await queryRunner.connect();
@@ -40,7 +39,7 @@ export class CreateTicketUseCase {
     select: {
      id: true,
      price: true,
-     event: { id: true }
+     event: { id: true },
     },
    });
 
@@ -49,9 +48,12 @@ export class CreateTicketUseCase {
    }
 
    if (dto.eventId !== ticketType.event.id) {
-    throw new BadRequestException('O evento informado não corresponde ao lote de ingressos selecionado.');
+    throw new BadRequestException(
+     'O evento informado não corresponde ao lote de ingressos selecionado.',
+    );
    }
 
+   //todo Verificar uso do decrementAvailableQuantity() aqui
    const updateResult = await queryRunner.manager
     .createQueryBuilder()
     .update(TicketType)
@@ -60,8 +62,12 @@ export class CreateTicketUseCase {
     .execute();
 
    if (updateResult.affected === 0) {
-    throw new BadRequestException('Este lote de ingressos está esgotado ou indisponível.');
+    throw new BadRequestException('Este lote de ingressos está esgotado.');
    }
+
+   const generated = this.generateTicketTokenService.execute(dto.eventId, userId);
+   const ticketId = generated.ticketId;
+   token = generated.token;
 
    const ticket = queryRunner.manager.create(Ticket, {
     id: ticketId,
@@ -82,11 +88,22 @@ export class CreateTicketUseCase {
     throw error;
    }
 
-   if (error.code === '23503') throw new NotFoundException('A conta de usuário informada é inválida.');
-   if (error.code === '23505') throw new BadRequestException('Já existe um registro com este QR Code.');
+   if (error.code === '23503') {
+    throw new NotFoundException('A conta de usuário informada é inválida.');
+   }
 
-   this.logger.error(`Falha inesperada ao criar ingresso: ${error.message}`, error.stack);
-   throw new InternalServerErrorException('Ocorreu um erro interno ao processar a emissão do ingresso.');
+   if (error.code === '23505') {
+    throw new BadRequestException('Já existe um registro com este QR Code.');
+   }
+
+   this.logger.error(
+    `Falha inesperada ao criar ingresso: ${error.message}`,
+    error.stack,
+   );
+
+   throw new InternalServerErrorException(
+    'Ocorreu um erro interno ao processar a emissão do ingresso.',
+   );
   } finally {
    await queryRunner.release();
   }

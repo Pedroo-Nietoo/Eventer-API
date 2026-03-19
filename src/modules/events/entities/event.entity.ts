@@ -1,7 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, Index, CreateDateColumn, UpdateDateColumn, DeleteDateColumn, OneToMany, ManyToOne, JoinColumn } from 'typeorm';
 import type { Point } from 'geojson';
 import { TicketType } from 'src/modules/ticket-types/entities/ticket-type.entity';
-import { User } from 'src/modules/users/entities/user.entity'; // <-- Importe o User
+import { User } from 'src/modules/users/entities/user.entity';
 
 @Entity('events')
 export class Event {

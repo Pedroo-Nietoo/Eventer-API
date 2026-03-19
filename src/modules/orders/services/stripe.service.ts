@@ -24,7 +24,7 @@ export class StripeService {
        product_data: {
         name: `Ingresso - ${ticketName}`,
        },
-       unit_amount: Math.round(unitPrice * 100), //* Stripe exige centavos
+       unit_amount: Math.round(unitPrice * 100),
       },
       quantity: quantity,
      },
@@ -33,7 +33,7 @@ export class StripeService {
     success_url: `${this.configService.getOrThrow<string>('FRONTEND_URL')}/events/success?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${this.configService.getOrThrow<string>('FRONTEND_URL')}/events/canceled`,
     metadata: {
-     orderId: orderId, //* Metadado vital para o Webhook saber qual Order atualizar
+     orderId: orderId,
     },
    });
   } catch (error) {
@@ -42,7 +42,6 @@ export class StripeService {
   }
  }
 
- // Você precisará disso para o Webhook depois
  constructEvent(payload: Buffer, signature: string): Stripe.Event {
   return this.stripe.webhooks.constructEvent(
    payload,

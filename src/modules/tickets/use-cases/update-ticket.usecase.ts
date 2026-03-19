@@ -11,6 +11,7 @@ import { FindTicketUseCase } from './find-ticket.usecase';
 import { Ticket, TicketStatus } from '../entities/ticket.entity';
 import { TicketType } from 'src/modules/ticket-types/entities/ticket-type.entity';
 import { TicketResponseDto } from '../dto/ticket-response.dto';
+import { TicketMapper } from '../mappers/ticket.mapper';
 
 @Injectable()
 export class UpdateTicketUseCase {
@@ -29,7 +30,7 @@ export class UpdateTicketUseCase {
     try {
       const ticket = await queryRunner.manager.findOne(Ticket, {
         where: { id },
-        relations: ['ticketType'],
+        relations: ['ticketType', 'ticketType.event'],
       });
 
       if (!ticket) {
@@ -70,13 +71,19 @@ export class UpdateTicketUseCase {
 
         const newTicketType = await queryRunner.manager.findOne(TicketType, {
           where: { id: dto.ticketTypeId },
+          relations: ['event'],
         });
 
         if (!newTicketType) {
           throw new NotFoundException('O novo tipo de ingresso informado não existe.');
         }
 
+        if (newTicketType.event.id !== ticket.ticketType.event.id) {
+          throw new BadRequestException('Não é possível transferir um ingresso para um evento diferente.');
+        }
+
         const targetStatus = dto.status || ticket.status;
+
         if (targetStatus !== TicketStatus.CANCELLED) {
           const updateResult = await queryRunner.manager
             .createQueryBuilder()
@@ -98,10 +105,19 @@ export class UpdateTicketUseCase {
       if (userId) ticket.user = { id: userId } as any;
 
       await queryRunner.manager.save(ticket);
+
+      const updatedTicket = await queryRunner.manager.findOne(Ticket, {
+        where: { id },
+        relations: { user: true, ticketType: { event: true } },
+      });
+
+      if (!updatedTicket) {
+        throw new NotFoundException('Ingresso não encontrado após atualização.');
+      }
+
       await queryRunner.commitTransaction();
 
-      return await this.findTicketUseCase.execute(id);
-
+      return TicketMapper.toResponse(updatedTicket);
     } catch (error) {
       await queryRunner.rollbackTransaction();
 
