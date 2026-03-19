@@ -18,16 +18,10 @@ export class CompleteOrderUseCase {
  async execute(orderId: string): Promise<void> {
   const order = await this.ordersRepository.findById(orderId);
 
-  if (!order) {
-   this.logger.error(`Pedido ${orderId} não encontrado no processamento do webhook.`);
-   throw new NotFoundException('Pedido não encontrado.');
-  }
-
-  if (order.status === OrderStatus.PAID) {
-   this.logger.warn(`Pedido ${orderId} já consta como pago.`);
+  if (!order || order.status !== OrderStatus.PENDING) {
+   this.logger.warn(`Pedido ${orderId} ignorado (Status atual: ${order?.status})`);
    return;
   }
-
   await this.ordersRepository.updateStatus(orderId, OrderStatus.PAID);
   this.logger.log(`Status do pedido ${orderId} atualizado para PAID.`);
 

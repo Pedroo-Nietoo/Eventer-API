@@ -13,6 +13,7 @@ import { ListOrdersUseCase } from '../usecase/list-orders.usecase';
 import { UpdateOrderUseCase } from '../usecase/update-order.usecase';
 import { DeleteOrderUseCase } from '../usecase/delete-order.usecase';
 import { SwaggerOrderController as Doc } from './orders.swagger';
+import { UserRole } from 'src/common/enums/role.enum';
 
 @Doc.Main()
 @UseGuards(JwtAuthGuard)
@@ -77,10 +78,15 @@ export class OrdersController {
     return this.listOrdersUseCase.execute(paginationDto);
   }
 
+  //todo testar pra ver se está funcionando (currentUser -> Role)
   @Doc.FindOne()
   @Get(':id')
-  findOne(@Param('id', ParseUUIDPipe) id: string) {
-    return this.findOrderUseCase.execute(id);
+  findOne(
+    @Param('id', ParseUUIDPipe) id: string,
+    @CurrentUser('id') userId: string,
+    @CurrentUser('role') role: UserRole,
+  ) {
+    return this.findOrderUseCase.execute(id, userId, role);
   }
 
   @Doc.Update()
