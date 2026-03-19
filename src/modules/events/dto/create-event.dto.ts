@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsString, IsNumber, IsOptional, IsDate, IsDateString } from 'class-validator';
+import { IsString, IsNumber, IsOptional, IsDate, IsDateString, Min, Max } from 'class-validator';
 
 export class CreateEventDto {
  @ApiProperty({ example: 'Show da Virada 2026' })
@@ -26,9 +26,11 @@ export class CreateEventDto {
 
  @ApiProperty({ example: -23.55052 })
  @IsNumber()
+ @Min(-90) @Max(90)
  latitude: number;
 
  @ApiProperty({ example: -46.633308 })
  @IsNumber()
+ @Min(-180) @Max(180)
  longitude: number;
 }

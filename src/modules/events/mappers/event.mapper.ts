@@ -24,4 +24,22 @@ export class EventMapper {
  static toResponseList(entities: Event[]): EventResponseDto[] {
   return entities.map((entity) => this.toResponse(entity));
  }
+
+ static fromNearbyRaw(raw: any): EventResponseDto {
+  return {
+   id: raw.id,
+   organizerId: raw.organizerId,
+   slug: raw.slug,
+   title: raw.title,
+   description: raw.description,
+   coverImageUrl: raw.coverImageUrl,
+   eventDate: raw.eventDate,
+   createdAt: raw.createdAt,
+   location: {
+    latitude: Number(raw.latitude),
+    longitude: Number(raw.longitude),
+    distance: Number(raw.distance),
+   },
+  };
+ }
 }

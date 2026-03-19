@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { BaseRepository } from 'src/common/repository/base.repository';
 import { Event } from '../entities/event.entity';
+import { EventMapper } from '../mappers/event.mapper';
 
 @Injectable()
 export class EventsRepository extends BaseRepository<Event> {
@@ -16,17 +17,17 @@ export class EventsRepository extends BaseRepository<Event> {
   async findNearby(lat: number, lng: number, radius: number, limit = 50) {
     const point = `ST_SetSRID(ST_MakePoint(:lng, :lat), 4326)::geography`;
 
-    return this.eventsRepo
+    const rawResults = await this.eventsRepo
       .createQueryBuilder('event')
       .select([
-        'event.id',
-        'event.organizer_id',
-        'event.slug',
-        'event.title',
-        'event.description',
-        'event.coverImageUrl',
-        'event.eventDate',
-        'event.createdAt'
+        'event.id AS id',
+        'event.organizer_id AS "organizerId"',
+        'event.slug AS slug',
+        'event.title AS title',
+        'event.description AS description',
+        'event.coverImageUrl AS "coverImageUrl"',
+        'event.eventDate AS "eventDate"',
+        'event.createdAt AS "createdAt"',
       ])
       .addSelect(`ST_Distance(event.location, ${point})`, 'distance')
       .addSelect('ST_X(event.location::geometry)', 'longitude')
@@ -35,6 +36,8 @@ export class EventsRepository extends BaseRepository<Event> {
       .orderBy('distance', 'ASC')
       .limit(limit)
       .getRawMany();
+
+    return rawResults.map(EventMapper.fromNearbyRaw);
   }
 
   async findBySlug(slug: string): Promise<Event | null> {
