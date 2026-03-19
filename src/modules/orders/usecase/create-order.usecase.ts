@@ -1,9 +1,10 @@
-import { Injectable, Logger, NotFoundException, BadRequestException, InternalServerErrorException } from '@nestjs/common';
+import { Injectable, Logger, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { DataSource } from 'typeorm';
 import { OrdersRepository } from '../repository/orders.repository';
-import { CreateOrderDto } from '../dto/create-order.dto';
 import { TicketTypesRepository } from 'src/modules/ticket-types/repository/ticket-type.repository';
-import { StripeService } from '../services/stripe.service';
+import { StripeService } from '../../../core/services/stripe.service';
 import { OrderStatus } from 'src/common/enums/order-status.enum';
+import { CreateOrderDto } from '../dto/create-order.dto';
 
 @Injectable()
 export class CreateOrderUseCase {
@@ -13,6 +14,7 @@ export class CreateOrderUseCase {
   private readonly ordersRepository: OrdersRepository,
   private readonly ticketTypesRepository: TicketTypesRepository,
   private readonly stripeService: StripeService,
+  private readonly dataSource: DataSource,
  ) { }
 
  async execute(userId: string, dto: CreateOrderDto) {
@@ -20,43 +22,40 @@ export class CreateOrderUseCase {
 
   const ticketType = await this.ticketTypesRepository.findById(ticketTypeId);
   if (!ticketType) {
-   throw new NotFoundException('Tipo de ingresso não encontrado.');
+   throw new NotFoundException('Lote de ingressos não encontrado.');
   }
 
-  if (ticketType.availableQuantity < quantity) {
-   throw new BadRequestException('Quantidade de ingressos indisponível.');
-  }
+  return await this.dataSource.transaction(async (manager) => {
+   await this.ticketTypesRepository.decrementStock(ticketTypeId, quantity, manager);
 
-  const totalPrice = ticketType.price * quantity;
+   try {
+    const savedOrder = await this.ordersRepository.createOrder({
+     userId,
+     ticketTypeId,
+     quantity,
+     unitPrice: ticketType.price,
+     totalPrice: ticketType.price * quantity,
+     status: OrderStatus.PENDING
+    }, manager);
 
-  try {
-   const order = this.ordersRepository.create({
-    userId,
-    ticketTypeId,
-    quantity,
-    unitPrice: ticketType.price,
-    totalPrice: totalPrice,
-    status: OrderStatus.PENDING
-   });
-   const savedOrder = await this.ordersRepository.save(order);
+    const session = await this.stripeService.createCheckoutSession(
+     savedOrder.id,
+     ticketType.name,
+     ticketType.price,
+     quantity
+    );
 
-   const session = await this.stripeService.createCheckoutSession(
-    savedOrder.id,
-    ticketType.name,
-    ticketType.price,
-    quantity
-   );
+    await this.ordersRepository.updateSessionId(savedOrder.id, session.id, manager);
 
-   await this.ordersRepository.updateSessionId(savedOrder.id, session.id);
-
-   //todo Retornar um OrderMap.toResponse aqui depois, mas por enquanto só o necessário pro frontend iniciar o checkout
-   return {
-    orderId: savedOrder.id,
-    checkoutUrl: session.url
-   };
-  } catch (error) {
-   this.logger.error('Erro ao criar pedido e sessão de checkout', error);
-   throw new InternalServerErrorException('Erro interno ao iniciar pagamento.');
-  }
+    //todo Trocar depois por OrderMap.toResponse
+    return {
+     orderId: savedOrder.id,
+     checkoutUrl: session.url
+    };
+   } catch (error) {
+    this.logger.error('Erro no fluxo de criação de pedido:', error);
+    throw new InternalServerErrorException('Falha ao iniciar processo de pagamento.');
+   }
+  });
  }
 }

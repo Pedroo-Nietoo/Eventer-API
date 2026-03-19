@@ -53,18 +53,6 @@ export class CreateTicketUseCase {
     );
    }
 
-   //todo Verificar uso do decrementAvailableQuantity() aqui
-   const updateResult = await queryRunner.manager
-    .createQueryBuilder()
-    .update(TicketType)
-    .set({ availableQuantity: () => 'available_quantity - 1' })
-    .where('id = :id AND available_quantity > 0', { id: dto.ticketTypeId })
-    .execute();
-
-   if (updateResult.affected === 0) {
-    throw new BadRequestException('Este lote de ingressos está esgotado.');
-   }
-
    const generated = this.generateTicketTokenService.execute(dto.eventId, userId);
    const ticketId = generated.ticketId;
    token = generated.token;

@@ -1,5 +1,6 @@
 import { DataSource, DataSourceOptions } from 'typeorm';
 import { config } from 'dotenv';
+
 config();
 
 export const dataSourceOptions: DataSourceOptions = {
@@ -10,9 +11,12 @@ export const dataSourceOptions: DataSourceOptions = {
  password: process.env.DB_PASS,
  database: process.env.DB_NAME,
  entities: [__dirname + '/../**/*.entity{.ts,.js}'],
- migrations: [__dirname + '/migrations/*{.ts,.js}'],
+ migrations: [__dirname + '/../database/migrations/*{.ts,.js}'],
  synchronize: false,
- migrationsTableName: 'migrations_history'
+ migrationsTableName: 'migrations_history',
+ extra: {
+  timezone: 'UTC',
+ },
 };
 
 const dataSource = new DataSource(dataSourceOptions);

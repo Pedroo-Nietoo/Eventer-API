@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, EntityManager } from 'typeorm';
 import { BaseRepository } from 'src/common/repository/base.repository';
 import { Order } from '../entities/order.entity';
 import { OrderStatus } from 'src/common/enums/order-status.enum';
@@ -14,8 +14,15 @@ export class OrdersRepository extends BaseRepository<Order> {
   super(ordersRepo);
  }
 
- async updateSessionId(orderId: string, sessionId: string): Promise<void> {
-  await this.ordersRepo.update(orderId, { stripeSessionId: sessionId });
+ async createOrder(data: Partial<Order>, manager?: EntityManager): Promise<Order> {
+  const repo = manager ? manager.getRepository(Order) : this.ordersRepo;
+  const order = repo.create(data);
+  return await repo.save(order);
+ }
+
+ async updateSessionId(orderId: string, sessionId: string, manager?: EntityManager): Promise<void> {
+  const repo = manager ? manager.getRepository(Order) : this.ordersRepo;
+  await repo.update(orderId, { stripeSessionId: sessionId });
  }
 
  async findBySessionId(sessionId: string): Promise<Order | null> {
@@ -25,7 +32,8 @@ export class OrdersRepository extends BaseRepository<Order> {
   });
  }
 
- async updateStatus(orderId: string, status: OrderStatus): Promise<void> {
-  await this.ordersRepo.update(orderId, { status });
+ async updateStatus(orderId: string, status: OrderStatus, manager?: EntityManager): Promise<void> {
+  const repo = manager ? manager.getRepository(Order) : this.ordersRepo;
+  await repo.update(orderId, { status });
  }
 }

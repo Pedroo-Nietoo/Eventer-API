@@ -5,7 +5,7 @@ import { FindOrderUseCase } from '../usecase/find-order.usecase';
 import { ListOrdersUseCase } from '../usecase/list-orders.usecase';
 import { UpdateOrderUseCase } from '../usecase/update-order.usecase';
 import { DeleteOrderUseCase } from '../usecase/delete-order.usecase';
-import { StripeService } from '../services/stripe.service';
+import { StripeService } from '../../../core/services/stripe.service';
 import { OrdersController } from './orders.controller';
 
 describe('OrdersController', () => {

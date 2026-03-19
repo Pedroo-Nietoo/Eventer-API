@@ -5,13 +5,15 @@ import { OrdersRepository } from './repository/orders.repository';
 import { OrdersController } from './controller/orders.controller';
 import { TicketTypeModule } from '../ticket-types/ticket-type.module';
 import { CreateOrderUseCase } from './usecase/create-order.usecase';
-import { StripeService } from './services/stripe.service';
+import { StripeService } from '../../core/services/stripe.service';
 import { CompleteOrderUseCase } from './usecase/complete-order.usecase';
 import { TicketsModule } from '../tickets/tickets.module';
 import { FindOrderUseCase } from './usecase/find-order.usecase';
 import { ListOrdersUseCase } from './usecase/list-orders.usecase';
 import { UpdateOrderUseCase } from './usecase/update-order.usecase';
 import { DeleteOrderUseCase } from './usecase/delete-order.usecase';
+import { OrderExpirationService } from 'src/core/services/order-expiration.service';
+import { OrderExpirationCron } from './cron/order-expiration.cron';
 
 @Module({
   imports: [
@@ -30,7 +32,9 @@ import { DeleteOrderUseCase } from './usecase/delete-order.usecase';
     ListOrdersUseCase,
     UpdateOrderUseCase,
     DeleteOrderUseCase,
-    StripeService
+    StripeService,
+    OrderExpirationService,
+    OrderExpirationCron,
   ],
   exports: [
     OrdersRepository,

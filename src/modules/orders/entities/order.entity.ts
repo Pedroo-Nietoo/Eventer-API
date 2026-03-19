@@ -7,6 +7,7 @@ import { OrderStatus } from 'src/common/enums/order-status.enum';
 
 
 @Entity('orders')
+@Index(['status', 'createdAt'])
 export class Order {
  @PrimaryGeneratedColumn('uuid')
  id: string;
@@ -58,7 +59,10 @@ export class Order {
  totalPrice: number;
 
  @Index()
- @CreateDateColumn({ name: 'created_at' })
+ @CreateDateColumn({
+  name: 'created_at',
+  type: 'timestamptz'
+ })
  createdAt: Date;
 
  @UpdateDateColumn({ name: 'updated_at' })
