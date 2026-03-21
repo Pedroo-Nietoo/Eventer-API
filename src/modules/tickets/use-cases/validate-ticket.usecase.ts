@@ -15,7 +15,7 @@ export class ValidateTicketUseCase {
   private readonly configService: ConfigService,
   private findEventUseCase: FindEventUseCase,
  ) {
-  this.secretKey = this.configService.get<string>('JWT_SECRET') || "chave-secreta-padrao-para-desenvolvimento";
+  this.secretKey = this.configService.get<string>('JWT_SECRET') || "secretKey";
  }
 
  async execute(qrCode: string): Promise<ValidateTicketResponseDto> {

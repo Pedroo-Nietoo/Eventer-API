@@ -1,24 +1,52 @@
-import { ExecutionContext, Injectable } from '@nestjs/common';
+import { ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { AuthGuard } from '@nestjs/passport';
+import { JwtService } from '@nestjs/jwt';
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
+import { SessionService } from 'src/infra/redis/session.service';
 
 @Injectable()
-export class JwtAuthGuard extends AuthGuard('jwt') {
- constructor(private reflector: Reflector) {
-  super();
- }
+export class JwtAuthGuard {
+ constructor(
+  private reflector: Reflector,
+  private readonly sessionService: SessionService,
+  private readonly jwtService: JwtService,
+ ) { }
 
- canActivate(context: ExecutionContext) {
+ async canActivate(context: ExecutionContext): Promise<boolean> {
   const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
    context.getHandler(),
    context.getClass(),
   ]);
 
-  if (isPublic) {
-   return true;
+  if (isPublic) return true;
+
+  const request = context.switchToHttp().getRequest();
+  const authHeader = request.headers.authorization;
+
+  if (!authHeader?.startsWith('Bearer ')) {
+   throw new UnauthorizedException('Cabeçalho de autorização inválido');
   }
 
-  return super.canActivate(context);
+  const opaqueToken = authHeader.replace('Bearer ', '');
+
+  const jwtToken = await this.sessionService.getSession(opaqueToken);
+
+  if (!jwtToken) {
+   throw new UnauthorizedException('Sessão expirada ou token inválido');
+  }
+
+  try {
+   const payload = await this.jwtService.verifyAsync(jwtToken);
+
+   request.user = {
+    id: payload.sub,
+    role: payload.role,
+   };
+
+  } catch (error) {
+   throw new UnauthorizedException('Falha na validação do token interno');
+  }
+
+  return true;
  }
 }

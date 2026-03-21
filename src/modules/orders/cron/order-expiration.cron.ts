@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import { OrderExpirationService } from '../../../core/services/order-expiration.service';
+import { OrderExpirationService } from 'src/services/order-expiration.service';
 
 @Injectable()
 export class OrderExpirationCron {
@@ -10,7 +10,7 @@ export class OrderExpirationCron {
 
  @Cron(CronExpression.EVERY_5_MINUTES)
  async handleCron() {
-  this.logger.log('Iniciando rotina de verificação de pedidos expirados...');
+  this.logger.log(`Iniciando rotina de verificação de pedidos expirados às ${new Date().toLocaleTimeString()}...`);
   await this.expirationService.execute();
  }
 }

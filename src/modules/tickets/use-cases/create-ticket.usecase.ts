@@ -9,10 +9,10 @@ import { DataSource } from 'typeorm';
 import { CreateTicketDto } from '../dto/create-ticket.dto';
 import { Ticket, TicketStatus } from '../entities/ticket.entity';
 import { TicketType } from 'src/modules/ticket-types/entities/ticket-type.entity';
-import { GenerateTicketTokenService } from '../../../core/services/generate-ticket-token.service';
 import { TicketMapper } from '../mappers/ticket.mapper';
 import { TicketResponseDto } from '../dto/ticket-response.dto';
 import { DispatchTicketEmailUseCase } from './dispatch-ticket-email.usecase';
+import { GenerateTicketTokenService } from 'src/services/generate-ticket-token.service';
 
 @Injectable()
 export class CreateTicketUseCase {

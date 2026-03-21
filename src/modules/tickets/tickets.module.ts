@@ -3,9 +3,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { Ticket } from './entities/ticket.entity';
 import { TicketsController } from './controller/tickets.controller';
-import { GenerateTicketTokenService } from '../../core/services/generate-ticket-token.service';
-import { GenerateQrCodeImageService } from '../../core/services/generate-qrcode-image.service';
-import { MailService } from '../../core/services/mail/mail.service';
 import { CreateTicketUseCase } from './use-cases/create-ticket.usecase';
 import { ValidateTicketUseCase } from './use-cases/validate-ticket.usecase';
 import { ListTicketsUseCase } from './use-cases/list-tickets.usecase';
@@ -15,6 +12,9 @@ import { DeleteTicketUseCase } from './use-cases/delete-ticket.usecase';
 import { TicketsRepository } from './repository/ticket.repository';
 import { DispatchTicketEmailUseCase } from './use-cases/dispatch-ticket-email.usecase';
 import { EventsModule } from '../events/events.module';
+import { GenerateTicketTokenService } from 'src/services/generate-ticket-token.service';
+import { GenerateQrCodeImageService } from 'src/services/generate-qrcode-image.service';
+import { MailService } from 'src/services/mail/mail.service';
 
 @Module({
   imports: [

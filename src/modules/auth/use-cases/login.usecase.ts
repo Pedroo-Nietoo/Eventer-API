@@ -1,17 +1,24 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { ValidatedUser } from '../types/validated-user.type';
-import { LoginResponseDto } from '../dto/login-response.dto';
+import { randomBytes } from 'crypto';
+import { SessionService } from 'src/infra/redis/session.service';
 
 @Injectable()
 export class LoginUseCase {
- constructor(private readonly jwtService: JwtService) { }
+ constructor(
+  private readonly sessionService: SessionService,
+  private readonly jwtService: JwtService,
+ ) { }
 
- async execute(user: ValidatedUser): Promise<LoginResponseDto> {
+ async execute(user: any) {
   const payload = { sub: user.id, role: user.role };
 
-  return {
-   access_token: this.jwtService.sign(payload),
-  };
+  const jwtToken = await this.jwtService.signAsync(payload);
+
+  const opaqueToken = randomBytes(32).toString('hex');
+
+  await this.sessionService.createSession(opaqueToken, jwtToken);
+
+  return { access_token: opaqueToken };
  }
 }

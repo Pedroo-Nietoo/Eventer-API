@@ -5,7 +5,7 @@ import { Public } from 'src/common/decorators/public.decorator';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { CreateOrderDto } from '../dto/create-order.dto';
 import { UpdateOrderDto } from '../dto/update-order.dto';
-import { StripeService } from '../../../core/services/stripe.service';
+import { StripeService } from '../../../infra/stripe/stripe.service';
 import { CompleteOrderUseCase } from '../usecase/complete-order.usecase';
 import { CreateOrderUseCase } from '../usecase/create-order.usecase';
 import { FindOrderUseCase } from '../usecase/find-order.usecase';
@@ -16,7 +16,6 @@ import { SwaggerOrderController as Doc } from './orders.swagger';
 import { UserRole } from 'src/common/enums/role.enum';
 
 @Doc.Main()
-@UseGuards(JwtAuthGuard)
 @Controller('orders')
 export class OrdersController {
   private readonly logger = new Logger(OrdersController.name);

@@ -19,9 +19,9 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "typeorm": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js",
-    "migration:generate": "npm run typeorm -- migration:generate -d src/config/data-source.config.ts src/database/migrations/$npm_config_name",
-    "migration:run": "npm run typeorm -- migration:run -d src/config/data-source.config.ts",
-    "migration:revert": "npm run typeorm -- migration:revert -d src/config/data-source.config.ts"
+    "migration:generate": "npm run typeorm -- migration:generate -d src/infra/database/data-source.config.ts src/infra/database/migrations/$npm_config_name",
+    "migration:run": "npm run typeorm -- migration:run -d src/infra/database/data-source.config.ts",
+    "migration:revert": "npm run typeorm -- migration:revert -d src/infra/database/data-source.config.ts"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
@@ -42,7 +42,7 @@
     "class-validator": "^0.14.4",
     "handlebars": "^4.7.8",
     "helmet": "^8.1.0",
-    "ioredis": "^5.10.0",
+    "ioredis": "^5.10.1",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "passport-local": "^1.0.0",

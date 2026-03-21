@@ -2,7 +2,7 @@ import { Injectable, Logger, InternalServerErrorException, NotFoundException } f
 import { DataSource } from 'typeorm';
 import { OrdersRepository } from '../repository/orders.repository';
 import { TicketTypesRepository } from 'src/modules/ticket-types/repository/ticket-type.repository';
-import { StripeService } from '../../../core/services/stripe.service';
+import { StripeService } from '../../../infra/stripe/stripe.service';
 import { OrderStatus } from 'src/common/enums/order-status.enum';
 import { CreateOrderDto } from '../dto/create-order.dto';
 

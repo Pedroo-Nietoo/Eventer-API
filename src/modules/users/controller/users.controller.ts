@@ -25,7 +25,6 @@ import { DeleteUserUseCase } from '../use-cases/delete-user.usecase';
 import { SwaggerUserController as Doc } from './users.swagger';
 
 @Doc.Main()
-@UseGuards(JwtAuthGuard)
 @Controller('users')
 export class UsersController {
   constructor(

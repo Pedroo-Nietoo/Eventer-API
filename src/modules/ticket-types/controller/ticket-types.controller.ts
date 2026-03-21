@@ -11,7 +11,6 @@ import { UpdateTicketTypeDto } from '../dto/update-ticket-type.dto';
 import { SwaggerTicketTypeController as Doc } from './ticket-types.swagger';
 
 @Doc.Main()
-@UseGuards(JwtAuthGuard)
 @Controller('ticket-types')
 export class TicketTypesController {
   constructor(

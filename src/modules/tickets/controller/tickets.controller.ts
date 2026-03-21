@@ -14,7 +14,6 @@ import { SwaggerTicketController as Doc } from './tickets.swagger';
 import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 
 @Doc.Main()
-@UseGuards(JwtAuthGuard)
 @Controller('tickets')
 export class TicketsController {
   constructor(
