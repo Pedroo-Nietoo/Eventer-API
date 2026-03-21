@@ -10,6 +10,10 @@ export class GenerateQrCodeImageService {
     errorCorrectionLevel: 'H',
     width: 300,
     margin: 2,
+    color: {
+     dark: '#000000',
+     light: '#ffffff'
+    }
    });
 
    return imageBuffer;

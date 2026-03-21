@@ -40,4 +40,16 @@ export class TicketsRepository extends BaseRepository<Ticket> {
    },
   });
  }
+
+ async findByQrCodeWithRelations(qrCode: string): Promise<Ticket | null> {
+  return this.ticketsRepo.findOne({
+   where: { qrCode },
+   relations: {
+    user: true,
+    ticketType: {
+     event: true,
+    },
+   },
+  });
+ }
 }

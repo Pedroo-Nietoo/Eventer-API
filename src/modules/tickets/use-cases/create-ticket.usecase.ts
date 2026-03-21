@@ -53,7 +53,7 @@ export class CreateTicketUseCase {
     );
    }
 
-   const generated = this.generateTicketTokenService.execute(dto.eventId, userId);
+   const generated = this.generateTicketTokenService.execute();
    const ticketId = generated.ticketId;
    token = generated.token;
 
