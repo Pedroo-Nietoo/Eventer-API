@@ -15,6 +15,7 @@ import { OrdersModule } from './modules/orders/orders.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { RedisModule } from './infra/redis/redis.module';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
+import { StorageModule } from './infra/aws/s3/storage.module';
 
 @Module({
   imports: [
@@ -33,7 +34,8 @@ import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
     TicketsModule,
     TicketTypeModule,
     OrdersModule,
-    RedisModule
+    RedisModule,
+    StorageModule
   ],
   controllers: [AppController],
   providers: [

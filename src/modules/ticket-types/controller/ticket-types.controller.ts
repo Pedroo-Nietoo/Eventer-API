@@ -1,5 +1,5 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, HttpStatus, HttpCode, Query, ParseUUIDPipe, UseGuards } from '@nestjs/common';
-import { PaginationDto } from 'src/common/dto/pagination.dto';
+import { PaginationDto } from 'src/common/dtos/pagination.dto';
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
 import { CreateTicketTypeUseCase } from '../use-cases/create-ticket-type.usecase';
 import { ListTicketTypesUseCase } from '../use-cases/list-ticket-types.usecase';

@@ -12,7 +12,7 @@ import {
   HttpStatus,
   UseGuards,
 } from '@nestjs/common';
-import { PaginationDto } from 'src/common/dto/pagination.dto';
+import { PaginationDto } from 'src/common/dtos/pagination.dto';
 import { Public } from 'src/common/decorators/public.decorator';
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
 import { CreateUserDto } from '../dto/create-user.dto';

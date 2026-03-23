@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { PaginationDto } from 'src/common/dto/pagination.dto';
+import { PaginationDto } from 'src/common/dtos/pagination.dto';
 import { PaginatedResponse } from 'src/common/interfaces/paginated-response.interface';
 import { EventsRepository } from '../repository/events.repository';
 import { EventResponseDto } from '../dto/event-response.dto';

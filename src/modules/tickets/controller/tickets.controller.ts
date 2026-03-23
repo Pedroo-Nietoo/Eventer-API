@@ -2,7 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, HttpCode, HttpStatus
 import { CreateTicketDto } from '../dto/create-ticket.dto';
 import { UpdateTicketDto } from '../dto/update-ticket.dto';
 import { ValidateTicketDto } from '../dto/validate-ticket.dto';
-import { PaginationDto } from 'src/common/dto/pagination.dto';
+import { PaginationDto } from 'src/common/dtos/pagination.dto';
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
 import { CreateTicketUseCase } from '../use-cases/create-ticket.usecase';
 import { ValidateTicketUseCase } from '../use-cases/validate-ticket.usecase';

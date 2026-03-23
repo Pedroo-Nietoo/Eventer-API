@@ -3,7 +3,7 @@ import {
   UseGuards, ParseUUIDPipe, HttpCode, HttpStatus, Req
 } from '@nestjs/common';
 
-import { PaginationDto } from 'src/common/dto/pagination.dto';
+import { PaginationDto } from 'src/common/dtos/pagination.dto';
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
 import { RolesGuard } from 'src/common/guards/roles.guard';
 import { Roles } from 'src/common/decorators/roles.decorator';
