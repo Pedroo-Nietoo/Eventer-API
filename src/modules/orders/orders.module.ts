@@ -14,10 +14,32 @@ import { UpdateOrderUseCase } from './usecase/update-order.usecase';
 import { DeleteOrderUseCase } from './usecase/delete-order.usecase';
 import { OrderExpirationCron } from './cron/order-expiration.cron';
 import { OrderExpirationService } from 'src/services/order-expiration.service';
+import { BullModule } from '@nestjs/bullmq';
+import { OrdersProcessor } from './queue/order.processor';
+import { BullBoardModule } from '@bull-board/nestjs';
+import { ExpressAdapter } from '@bull-board/express';
+import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Order]),
+    BullModule.forRoot({
+      connection: {
+        host: 'localhost',
+        port: 6379,
+      },
+    }),
+    BullModule.registerQueue({
+      name: 'orders-queue',
+    }),
+    BullBoardModule.forRoot({
+      route: '/queues',
+      adapter: ExpressAdapter,
+    }),
+    BullBoardModule.forFeature({
+      name: 'orders-queue',
+      adapter: BullMQAdapter,
+    }),
     TicketTypeModule,
     TicketsModule
   ],
@@ -35,6 +57,7 @@ import { OrderExpirationService } from 'src/services/order-expiration.service';
     StripeService,
     OrderExpirationService,
     OrderExpirationCron,
+    OrdersProcessor
   ],
   exports: [
     OrdersRepository,

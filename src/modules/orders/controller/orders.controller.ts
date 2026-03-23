@@ -14,6 +14,8 @@ import { UpdateOrderUseCase } from '../usecase/update-order.usecase';
 import { DeleteOrderUseCase } from '../usecase/delete-order.usecase';
 import { SwaggerOrderController as Doc } from './orders.swagger';
 import { UserRole } from 'src/common/enums/role.enum';
+import { InjectQueue } from '@nestjs/bullmq';
+import { Queue } from 'bullmq';
 
 @Doc.Main()
 @Controller('orders')
@@ -28,34 +30,31 @@ export class OrdersController {
     private readonly updateOrderUseCase: UpdateOrderUseCase,
     private readonly deleteOrderUseCase: DeleteOrderUseCase,
     private readonly stripeService: StripeService,
+    @InjectQueue('orders-queue') private readonly ordersQueue: Queue,
   ) { }
 
-  @Doc.Create()
+
   @Post()
-  createOrder(
+  async createOrder(
     @Body() createOrderDto: CreateOrderDto,
     @CurrentUser('id') userId: string,
   ) {
     return this.createOrderUseCase.execute(userId, createOrderDto);
   }
 
-  @Doc.Webhook()
   @Public()
   @Post('webhook')
   async handleIncomingEvents(
     @Headers('stripe-signature') signature: string,
     @Req() req: any,
   ) {
-    if (!signature) {
-      throw new BadRequestException('Missing stripe-signature header');
-    }
+    if (!signature) throw new BadRequestException('Missing stripe-signature header');
 
     let event;
-
     try {
       event = this.stripeService.constructEvent(req.rawBody, signature);
     } catch (err: any) {
-      this.logger.error(`Webhook signature verification failed.`, err.message);
+      this.logger.error(`Webhook signature verification failed: ${err.message}`);
       throw new BadRequestException(`Webhook Error: ${err.message}`);
     }
 
@@ -63,9 +62,17 @@ export class OrdersController {
       const session = event.data.object as any;
       const orderId = session.metadata.orderId;
 
-      this.logger.log(`Processando pagamento concluído para o pedido: ${orderId}`);
+      this.logger.log(`Encaminhando pedido ${orderId} para a fila de processamento.`);
 
-      await this.completeOrderUseCase.execute(orderId);
+      await this.ordersQueue.add('complete-order-job',
+        { orderId },
+        {
+          attempts: 5,
+          backoff: { type: 'exponential', delay: 2000 },
+          removeOnComplete: { age: 3600, count: 1000 }, // Remove após 1 hora ou se passar de 1000 jobs
+          removeOnFail: { age: 24 * 3600 } // Mantém falhas por 24h para análise
+        }
+      );
     }
 
     return { received: true };
