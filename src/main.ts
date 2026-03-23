@@ -24,9 +24,13 @@ async function bootstrap() {
     contentSecurityPolicy: {
       directives: {
         defaultSrc: [`'self'`],
+        scriptSrc: [`'self'`],
         styleSrc: [`'self'`, `'unsafe-inline'`],
         imgSrc: [`'self'`, 'data:', 'validator.swagger.io'],
-        scriptSrc: [`'self'`, `https: 'unsafe-inline'`],
+        frameAncestors: [`'none'`],
+        connectSrc: [`'self'`, ...configService.get('CORS_ORIGINS')?.split(',') || []],
+        objectSrc: [`'none'`],
+        upgradeInsecureRequests: [],
       },
     },
   }));
