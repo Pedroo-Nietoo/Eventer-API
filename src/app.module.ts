@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigModule } from '@nestjs/config';
 import { UsersModule } from './modules/users/users.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { EventsModule } from './modules/events/events.module';
@@ -16,6 +16,8 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { RedisModule } from './infra/redis/redis.module';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { StorageModule } from './infra/aws/s3/storage.module';
+import { WinstonModule } from 'nest-winston';
+import { loggerConfigAsync } from './config/logger.config';
 
 @Module({
   imports: [
@@ -27,6 +29,7 @@ import { StorageModule } from './infra/aws/s3/storage.module';
       ttl: 60000,
       limit: 10,
     }]),
+    WinstonModule.forRootAsync(loggerConfigAsync),
     TypeOrmModule.forRootAsync(databaseConfig),
     UsersModule,
     AuthModule,

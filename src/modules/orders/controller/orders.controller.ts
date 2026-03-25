@@ -1,5 +1,4 @@
 import { Controller, Post, Body, UseGuards, Headers, Req, BadRequestException, Logger, Get, Query, Param, ParseUUIDPipe, Patch, Delete, HttpCode, HttpStatus } from '@nestjs/common';
-import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
 import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 import { Public } from 'src/common/decorators/public.decorator';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
@@ -24,7 +23,6 @@ export class OrdersController {
 
   constructor(
     private readonly createOrderUseCase: CreateOrderUseCase,
-    private readonly completeOrderUseCase: CompleteOrderUseCase,
     private readonly findOrderUseCase: FindOrderUseCase,
     private readonly listOrdersUseCase: ListOrdersUseCase,
     private readonly updateOrderUseCase: UpdateOrderUseCase,

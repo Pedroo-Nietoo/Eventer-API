@@ -7,7 +7,7 @@ import {
  Logger,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
-import { randomUUID } from 'crypto';
+import { v4 as randomUUID } from 'uuid';
 
 @Catch()
 export class HttpExceptionFilter implements ExceptionFilter {
@@ -16,16 +16,20 @@ export class HttpExceptionFilter implements ExceptionFilter {
  catch(exception: unknown, host: ArgumentsHost) {
   const ctx = host.switchToHttp();
   const response = ctx.getResponse<Response>();
-  const request = ctx.getRequest<Request>();
+  const request = ctx.getRequest<Request & { traceId?: string; startTime?: number; user?: any }>();
+
+  const traceId = request.traceId || request.headers['x-trace-id'] || randomUUID();
+  const durationMs = request.startTime ? Date.now() - request.startTime : null;
 
   let status = HttpStatus.INTERNAL_SERVER_ERROR;
   let message: string | string[] = 'Erro interno no servidor.';
   let errorType = 'InternalServerError';
   let details: string[] | undefined;
 
+  const stack = exception instanceof Error ? exception.stack : undefined;
+
   if (exception instanceof HttpException) {
    status = exception.getStatus();
-
    const exceptionResponse = exception.getResponse() as any;
 
    if (typeof exceptionResponse === 'string') {
@@ -51,13 +55,34 @@ export class HttpExceptionFilter implements ExceptionFilter {
    message = errorMappings[status] || 'Erro inesperado.';
   }
 
-  const logMessage = Array.isArray(details) && details.length > 0
-   ? JSON.stringify(details)
-   : message;
+  const sanitizedBody = { ...request.body };
+  if (sanitizedBody.password) {
+   sanitizedBody.password = '***Omitted***';
+  }
+
+  const errorContext = {
+   body: Object.keys(sanitizedBody).length ? sanitizedBody : undefined,
+   query: Object.keys(request.query).length ? request.query : undefined,
+   params: Object.keys(request.params).length ? request.params : undefined,
+   userId: request.user?.sub || request.user?.id || 'Unauthenticated',
+   clientIp: request.ip,
+  };
+
+  const errorLogData = {
+   event: 'http_request_error',
+   traceId,
+   method: request.method,
+   url: request.url,
+   statusCode: status,
+   durationMs,
+   errorType,
+   message: Array.isArray(details) && details.length > 0 ? details : message,
+   context: errorContext,
+  };
 
   this.logger.error(
-   `${request.method} ${request.url} - Status: ${status} - Error: ${errorType} - Msg: ${logMessage}`,
-   exception instanceof Error ? exception.stack : undefined,
+   JSON.stringify(errorLogData),
+   stack
   );
 
   response.status(status).json({
@@ -65,6 +90,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
    error: errorType,
    message,
    details,
+   traceId,
    timestamp: new Date().toISOString(),
    path: request.url,
   });
