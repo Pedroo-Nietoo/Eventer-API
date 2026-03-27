@@ -1,16 +1,7 @@
 import { WinstonModuleAsyncOptions, utilities as nestWinstonUtilities } from 'nest-winston';
 import * as winston from 'winston';
-import * as rtracer from 'cls-rtracer';
 import CloudWatchTransport from 'winston-cloudwatch';
 import { ConfigService } from '@nestjs/config';
-
-const traceIdFormat = winston.format((info) => {
- const traceId = rtracer.id();
- if (traceId) {
-  info.message = `[Trace: ${traceId}] ${info.message}`;
- }
- return info;
-});
 
 export const loggerConfigAsync: WinstonModuleAsyncOptions = {
  inject: [ConfigService],
@@ -20,7 +11,6 @@ export const loggerConfigAsync: WinstonModuleAsyncOptions = {
     new winston.transports.Console({
      format: winston.format.combine(
       winston.format.timestamp(),
-      traceIdFormat(),
       nestWinstonUtilities.format.nestLike('Nearby API', {
        colors: true,
       }),
@@ -30,6 +20,8 @@ export const loggerConfigAsync: WinstonModuleAsyncOptions = {
      name: 'CloudWatch',
      logGroupName: configService.get<string>('AWS_CLOUDWATCH_LOG_GROUP') || 'nearby-api-logs',
      logStreamName: `api-${configService.get<string>('NODE_ENV') || 'development'}`,
+     retentionInDays: 1,
+     errorHandler: (err) => { console.error("Erro no CloudWatch:", err); },
      awsOptions: {
       region: configService.get<string>('AWS_REGION'),
       credentials: {
@@ -37,6 +29,7 @@ export const loggerConfigAsync: WinstonModuleAsyncOptions = {
        secretAccessKey: configService.get<string>('AWS_SECRET_ACCESS_KEY') as string,
       },
      },
+
      messageFormatter: (info: any) => {
       let parsedMessage: any = {};
 
@@ -49,7 +42,6 @@ export const loggerConfigAsync: WinstonModuleAsyncOptions = {
       const finalLog: any = {
        level: info.level,
        context: info.context,
-       traceId: rtracer.id() || parsedMessage.traceId || info.traceId,
        ...parsedMessage,
       };
 

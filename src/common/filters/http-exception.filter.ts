@@ -7,7 +7,6 @@ import {
  Logger,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
-import { v4 as randomUUID } from 'uuid';
 
 @Catch()
 export class HttpExceptionFilter implements ExceptionFilter {
@@ -16,9 +15,8 @@ export class HttpExceptionFilter implements ExceptionFilter {
  catch(exception: unknown, host: ArgumentsHost) {
   const ctx = host.switchToHttp();
   const response = ctx.getResponse<Response>();
-  const request = ctx.getRequest<Request & { traceId?: string; startTime?: number; user?: any }>();
+  const request = ctx.getRequest<Request & { startTime?: number; user?: any }>();
 
-  const traceId = request.traceId || request.headers['x-trace-id'] || randomUUID();
   const durationMs = request.startTime ? Date.now() - request.startTime : null;
 
   let status = HttpStatus.INTERNAL_SERVER_ERROR;
@@ -70,7 +68,6 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
   const errorLogData = {
    event: 'http_request_error',
-   traceId,
    method: request.method,
    url: request.url,
    statusCode: status,
@@ -90,7 +87,6 @@ export class HttpExceptionFilter implements ExceptionFilter {
    error: errorType,
    message,
    details,
-   traceId,
    timestamp: new Date().toISOString(),
    path: request.url,
   });
