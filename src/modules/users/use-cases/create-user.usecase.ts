@@ -10,6 +10,7 @@ import { UserResponseDto } from '@users/dto/user-response.dto';
 import { UserMapper } from '@users/mappers/user.mapper';
 import { UsersRepository } from '@users/repository/users.repository';
 import { UserRole } from '@common/enums/role.enum';
+import { DatabaseError } from '@common/interfaces/database-error.interface';
 
 @Injectable()
 export class CreateUserUseCase {
@@ -19,7 +20,6 @@ export class CreateUserUseCase {
 
  async execute(dto: CreateUserDto): Promise<UserResponseDto> {
   try {
-
    const role = dto.role || UserRole.USER;
    const hashedPassword = await bcrypt.hash(dto.password, 10);
 
@@ -32,8 +32,10 @@ export class CreateUserUseCase {
    const savedUser = await this.usersRepository.save(user);
 
    return UserMapper.toResponse(savedUser);
-  } catch (error) {
-   if (error.code === '23505' || error.code === 'ER_DUP_ENTRY') {
+  } catch (error: unknown) {
+   const dbError = error as DatabaseError;
+
+   if (dbError.code === '23505' || dbError.code === 'ER_DUP_ENTRY') {
     throw new ConflictException('Este e-mail já está em uso.');
    }
 

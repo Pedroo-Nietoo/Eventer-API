@@ -5,7 +5,7 @@ import { EventsRepository } from '@events/repository/events.repository';
 import { EventResponseDto } from '@events/dto/event-response.dto';
 import { CreateEventDto } from '@events/dto/create-event.dto';
 import { EventMapper } from '@events/mappers/event.mapper';
-
+import { DatabaseError } from '@common/interfaces/database-error.interface';
 
 @Injectable()
 export class CreateEventUseCase {
@@ -30,8 +30,10 @@ export class CreateEventUseCase {
    const savedEvent = await this.eventsRepository.save(event);
 
    return EventMapper.toResponse(savedEvent);
-  } catch (error) {
-   if (error.code === '23505' || error.code === 'ER_DUP_ENTRY') {
+  } catch (error: unknown) {
+   const dbError = error as DatabaseError;
+
+   if (dbError.code === '23505' || dbError.code === 'ER_DUP_ENTRY') {
     throw new ConflictException('O slug deste evento já existe.');
    }
 

@@ -10,8 +10,9 @@ import { UpdateTicketDto } from '@tickets/dto/update-ticket.dto';
 import { FindTicketUseCase } from './find-ticket.usecase';
 import { Ticket, TicketStatus } from '@tickets/entities/ticket.entity';
 import { TicketType } from '@ticket-types/entities/ticket-type.entity';
-import { TicketResponseDto } from '@tickets/dto/ticket-response.dto';
 import { TicketMapper } from '@tickets/mappers/ticket.mapper';
+import { User } from '@users/entities/user.entity';
+import { TicketResponseDto } from '@tickets/dto/ticket-response.dto';
 
 @Injectable()
 export class UpdateTicketUseCase {
@@ -97,12 +98,12 @@ export class UpdateTicketUseCase {
           }
         }
 
-        ticket.ticketType = { id: dto.ticketTypeId } as any;
+        ticket.ticketType = { id: dto.ticketTypeId } as TicketType;
         ticket.purchasePrice = newTicketType.price;
       }
 
       if (dto.status) ticket.status = dto.status;
-      if (userId) ticket.user = { id: userId } as any;
+      if (userId) ticket.user = { id: userId } as User;
 
       await queryRunner.manager.save(ticket);
 
@@ -118,14 +119,17 @@ export class UpdateTicketUseCase {
       await queryRunner.commitTransaction();
 
       return TicketMapper.toResponse(updatedTicket);
-    } catch (error) {
+    } catch (error: unknown) {
       await queryRunner.rollbackTransaction();
 
       if (error instanceof NotFoundException || error instanceof BadRequestException) {
         throw error;
       }
 
-      this.logger.error(`Erro ao atualizar o ingresso ${id}: ${error.message}`, error.stack);
+      const message = error instanceof Error ? error.message : 'Erro desconhecido';
+      const stack = error instanceof Error ? error.stack : 'Sem stack trace';
+
+      this.logger.error(`Erro ao atualizar o ingresso ${id}: ${message}`, stack);
       throw new InternalServerErrorException('Falha ao atualizar os dados do ingresso.');
     } finally {
       await queryRunner.release();

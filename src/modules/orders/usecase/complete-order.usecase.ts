@@ -28,10 +28,10 @@ export class CompleteOrderUseCase {
   const queryRunner = this.dataSource.createQueryRunner();
   await queryRunner.connect();
 
-  let ticketType;
+  let ticketType: TicketType | null = null;
 
   try {
-   ticketType = await queryRunner.manager.findOne(TicketType, {
+   ticketType = await queryRunner.manager.findOne<TicketType>(TicketType, {
     where: { id: order.ticketTypeId },
     relations: { event: true },
     select: {
@@ -57,7 +57,7 @@ export class CompleteOrderUseCase {
      },
      order.userId
     );
-   } catch (error) {
+   } catch (error: unknown) {
     this.logger.error(`Erro ao emitir o ingresso ${i + 1} de ${order.quantity} para o pedido ${orderId}`, error);
    }
   }

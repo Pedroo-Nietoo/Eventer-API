@@ -1,14 +1,11 @@
 import {
   Controller, Get, Post, Body, Patch, Param, Delete, Query,
-  UseGuards, ParseUUIDPipe, HttpCode, HttpStatus, Req
+  UseGuards, ParseUUIDPipe, HttpCode, HttpStatus
 } from '@nestjs/common';
-
 import { PaginationDto } from '@common/dtos/pagination.dto';
 import { RolesGuard } from '@common/guards/roles.guard';
 import { Roles } from '@common/decorators/roles.decorator';
 import { UserRole } from '@common/enums/role.enum';
-
-
 import { SwaggerEventController as Doc } from './events.swagger';
 import { CurrentUser } from '@common/decorators/current-user.decorator';
 import type { AuthenticatedUser } from '@common/decorators/current-user.decorator';

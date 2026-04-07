@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { Transform } from 'class-transformer';
+import { Transform, TransformFnParams } from 'class-transformer';
 import { IsString, IsEmail, IsNotEmpty, MinLength, MaxLength, IsOptional, IsUrl, IsEnum } from 'class-validator';
 import { UserRole } from '@common/enums/role.enum';
 
@@ -10,7 +10,9 @@ export class CreateUserDto {
 
  @ApiProperty({ example: 'john@example.com', description: 'E-mail para login e notificações' })
  @IsEmail() @IsNotEmpty()
- @Transform(({ value }) => value?.toLowerCase().trim())
+ @Transform(({ value }: TransformFnParams): unknown =>
+  typeof value === 'string' ? value.toLowerCase().trim() : value
+ )
  email: string;
 
  @ApiProperty({ example: 'senha123', description: 'Senha do usuário (mínimo 6 caracteres)', minLength: 6 })

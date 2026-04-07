@@ -54,10 +54,14 @@ export class DeleteTicketUseCase {
    });
 
    await queryRunner.commitTransaction();
-  } catch (error) {
+  } catch (error: unknown) {
    await queryRunner.rollbackTransaction();
 
-   this.logger.error(`Erro ao remover o ingresso ${id}: ${error.message}`, error.stack);
+   const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
+   const errorStack = error instanceof Error ? error.stack : 'Sem stack trace';
+
+   this.logger.error(`Erro ao remover o ingresso ${id}: ${errorMessage}`, errorStack);
+
    throw new InternalServerErrorException('Falha interna ao tentar cancelar e remover o ingresso.');
   } finally {
    await queryRunner.release();

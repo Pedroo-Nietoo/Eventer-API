@@ -37,7 +37,7 @@ export class EventsRepository extends BaseRepository<Event> {
       .limit(limit)
       .getRawMany();
 
-    return rawResults.map(EventMapper.fromNearbyRaw);
+    return rawResults.map((raw) => EventMapper.fromNearbyRaw(raw));
   }
 
   async findBySlug(slug: string): Promise<Event | null> {

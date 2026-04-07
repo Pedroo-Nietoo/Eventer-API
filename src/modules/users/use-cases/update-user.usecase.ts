@@ -10,6 +10,7 @@ import { UpdateUserDto } from '@users/dto/update-user.dto';
 import { UsersRepository } from '@users/repository/users.repository';
 import { UserMapper } from '@users/mappers/user.mapper';
 import { UserResponseDto } from '@users/dto/user-response.dto';
+import { DatabaseError } from '@common/interfaces/database-error.interface';
 
 @Injectable()
 export class UpdateUserUseCase {
@@ -40,8 +41,10 @@ export class UpdateUserUseCase {
    const savedUser = await this.usersRepository.save(user);
 
    return UserMapper.toResponse(savedUser);
-  } catch (error) {
-   if (error?.code === '23505' || error?.code === 'ER_DUP_ENTRY') {
+  } catch (error: unknown) {
+   const dbError = error as DatabaseError;
+
+   if (dbError.code === '23505' || dbError.code === 'ER_DUP_ENTRY') {
     throw new ConflictException(
      'Este e-mail já está em uso por outro usuário.',
     );
@@ -49,7 +52,7 @@ export class UpdateUserUseCase {
 
    this.logger.error(
     `Erro ao atualizar usuário ID=${id}`,
-    error.stack,
+    dbError.stack ?? 'Sem stack trace',
    );
 
    throw new InternalServerErrorException(

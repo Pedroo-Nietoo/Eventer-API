@@ -33,8 +33,9 @@ export class DispatchTicketEmailUseCase {
    );
 
    this.logger.log(`E-mail de confirmação enviado para: ${ticket.user.email}`);
-  } catch (error) {
-   this.logger.error(`Falha ao disparar e-mail do ticket ${ticketId}: ${error.message}`);
+  } catch (error: unknown) {
+   const message = error instanceof Error ? error.message : 'Erro desconhecido ao disparar e-mail';
+   this.logger.error(`Falha ao disparar e-mail do ticket ${ticketId}: ${message}`);
   }
  }
 }

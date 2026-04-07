@@ -13,6 +13,7 @@ import { TicketMapper } from '@tickets/mappers/ticket.mapper';
 import { TicketResponseDto } from '@tickets/dto/ticket-response.dto';
 import { DispatchTicketEmailUseCase } from './dispatch-ticket-email.usecase';
 import { GenerateTicketTokenService } from '@services/generate-ticket-token.service';
+import { DatabaseError } from '@common/interfaces/database-error.interface';
 
 @Injectable()
 export class CreateTicketUseCase {
@@ -69,24 +70,26 @@ export class CreateTicketUseCase {
    savedTicket = await queryRunner.manager.save(ticket);
 
    await queryRunner.commitTransaction();
-  } catch (error) {
+  } catch (error: unknown) {
    await queryRunner.rollbackTransaction();
 
    if (error instanceof BadRequestException || error instanceof NotFoundException) {
     throw error;
    }
 
-   if (error.code === '23503') {
+   const dbError = error as DatabaseError;
+
+   if (dbError.code === '23503') {
     throw new NotFoundException('A conta de usuário informada é inválida.');
    }
 
-   if (error.code === '23505') {
+   if (dbError.code === '23505') {
     throw new BadRequestException('Já existe um registro com este QR Code.');
    }
 
    this.logger.error(
-    `Falha inesperada ao criar ingresso: ${error.message}`,
-    error.stack,
+    `Falha inesperada ao criar ingresso: ${dbError.message}`,
+    dbError.stack,
    );
 
    throw new InternalServerErrorException(
@@ -96,8 +99,9 @@ export class CreateTicketUseCase {
    await queryRunner.release();
   }
 
-  this.dispatchTicketEmailUseCase.execute(savedTicket.id, token).catch((err) => {
-   this.logger.error(`Erro no processamento do e-mail: ${err.message}`);
+  this.dispatchTicketEmailUseCase.execute(savedTicket.id, token).catch((err: unknown) => {
+   const message = err instanceof Error ? err.message : 'Erro desconhecido';
+   this.logger.error(`Erro no processamento do e-mail: ${message}`);
   });
 
   return TicketMapper.toResponse(savedTicket);

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, HttpCode, HttpStatus, Query, ParseUUIDPipe, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, HttpCode, HttpStatus, Query, ParseUUIDPipe } from '@nestjs/common';
 import { CreateTicketDto } from '@tickets/dto/create-ticket.dto';
 import { UpdateTicketDto } from '@tickets/dto/update-ticket.dto';
 import { ValidateTicketDto } from '@tickets/dto/validate-ticket.dto';

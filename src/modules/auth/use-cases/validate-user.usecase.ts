@@ -13,8 +13,10 @@ export class ValidateUserUseCase {
   const user = await this.findUserByEmailUseCase.execute(email);
 
   if (user && await bcrypt.compare(pass, user.password)) {
-   const { password, ...result } = user;
-   return result;
+   const result = { ...user } as Partial<typeof user>;
+   delete result.password;
+
+   return result as ValidatedUser;
   }
 
   return null;

@@ -1,6 +1,20 @@
 import { EventResponseDto } from "@events/dto/event-response.dto";
 import { Event } from "@events/entities/event.entity";
 
+interface NearbyEventRaw {
+ id: string;
+ organizerId: string;
+ slug: string;
+ title: string;
+ description: string;
+ coverImageUrl: string;
+ eventDate: Date;
+ createdAt: Date;
+ latitude: string | number;
+ longitude: string | number;
+ distance: string | number;
+}
+
 export class EventMapper {
  static toResponse(entity: Event): EventResponseDto {
   return {
@@ -25,7 +39,7 @@ export class EventMapper {
   return entities.map((entity) => this.toResponse(entity));
  }
 
- static fromNearbyRaw(raw: any): EventResponseDto {
+ static fromNearbyRaw(raw: NearbyEventRaw): EventResponseDto {
   return {
    id: raw.id,
    organizerId: raw.organizerId,

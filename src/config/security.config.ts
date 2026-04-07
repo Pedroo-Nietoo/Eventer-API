@@ -5,8 +5,11 @@ import helmet from 'helmet';
 export function setupSecurity(app: NestExpressApplication, configService: ConfigService) {
  app.set('trust proxy', 1);
 
+ const corsOrigins = configService.get<string>('CORS_ORIGINS');
+ const parsedOrigins = corsOrigins ? corsOrigins.split(',') : ['http://localhost:3000'];
+
  app.enableCors({
-  origin: configService.get('CORS_ORIGINS')?.split(',') || ['http://localhost:3000'],
+  origin: parsedOrigins,
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   credentials: true,
  });
@@ -19,7 +22,7 @@ export function setupSecurity(app: NestExpressApplication, configService: Config
     styleSrc: [`'self'`, `'unsafe-inline'`],
     imgSrc: [`'self'`, 'data:', 'validator.swagger.io'],
     frameAncestors: [`'none'`],
-    connectSrc: [`'self'`, ...configService.get('CORS_ORIGINS')?.split(',') || []],
+    connectSrc: [`'self'`, ...(corsOrigins ? corsOrigins.split(',') : [])],
     objectSrc: [`'none'`],
     upgradeInsecureRequests: [],
    },

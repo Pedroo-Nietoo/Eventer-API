@@ -8,48 +8,43 @@ import { TicketTypeMapper } from '@ticket-types/mappers/ticket-type.mapper';
 @Injectable()
 export class UpdateTicketTypeUseCase {
  constructor(
-  private readonly ticketTypesRepository: TicketTypesRepository,
-  private readonly findTicketTypeUseCase: FindTicketTypeUseCase,
+  private readonly ticketTypesRepository: TicketTypesRepository
  ) { }
 
  async execute(id: string, dto: UpdateTicketTypeDto): Promise<TicketTypeResponseDto> {
-  try {
-   const ticketType = await this.ticketTypesRepository.findById(id);
+  const ticketType = await this.ticketTypesRepository.findById(id);
 
-   if (!ticketType) {
-    throw new NotFoundException('Tipo de ingresso não encontrado para atualização.');
-   }
-
-   if (
-    dto.totalQuantity !== undefined &&
-    dto.totalQuantity !== ticketType.totalQuantity
-   ) {
-    const ticketsSold =
-     ticketType.totalQuantity - ticketType.availableQuantity;
-
-    if (dto.totalQuantity < ticketsSold) {
-     throw new BadRequestException(
-      `A nova quantidade total não pode ser menor do que o número de ingressos já vendidos (${ticketsSold}).`
-     );
-    }
-
-    const difference = dto.totalQuantity - ticketType.totalQuantity;
-    ticketType.availableQuantity += difference;
-   }
-
-   const { totalQuantity, ...updateData } = dto;
-
-   if (totalQuantity !== undefined) {
-    ticketType.totalQuantity = totalQuantity;
-   }
-
-   Object.assign(ticketType, updateData);
-
-   const updatedEntity = await this.ticketTypesRepository.save(ticketType);
-
-   return TicketTypeMapper.toResponse(updatedEntity);
-  } catch (error) {
-   throw error;
+  if (!ticketType) {
+   throw new NotFoundException('Tipo de ingresso não encontrado para atualização.');
   }
+
+  if (
+   dto.totalQuantity !== undefined &&
+   dto.totalQuantity !== ticketType.totalQuantity
+  ) {
+   const ticketsSold =
+    ticketType.totalQuantity - ticketType.availableQuantity;
+
+   if (dto.totalQuantity < ticketsSold) {
+    throw new BadRequestException(
+     `A nova quantidade total não pode ser menor do que o número de ingressos já vendidos (${ticketsSold}).`
+    );
+   }
+
+   const difference = dto.totalQuantity - ticketType.totalQuantity;
+   ticketType.availableQuantity += difference;
+  }
+
+  const { totalQuantity, ...updateData } = dto;
+
+  if (totalQuantity !== undefined) {
+   ticketType.totalQuantity = totalQuantity;
+  }
+
+  Object.assign(ticketType, updateData);
+
+  const updatedEntity = await this.ticketTypesRepository.save(ticketType);
+
+  return TicketTypeMapper.toResponse(updatedEntity);
  }
 }

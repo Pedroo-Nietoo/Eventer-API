@@ -1,4 +1,4 @@
-import { Controller, Post, Body, UseGuards, Headers, Req, BadRequestException, Logger, Get, Query, Param, ParseUUIDPipe, Patch, Delete, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Post, Body, Headers, Req, BadRequestException, Logger, Get, Query, Param, ParseUUIDPipe, Patch, Delete, HttpCode, HttpStatus } from '@nestjs/common';
 import { CurrentUser } from '@common/decorators/current-user.decorator';
 import { Public } from '@common/decorators/public.decorator';
 import { PaginationDto } from '@common/dtos/pagination.dto';
@@ -14,6 +14,10 @@ import { UpdateOrderUseCase } from '@orders/usecase/update-order.usecase';
 import { DeleteOrderUseCase } from '@orders/usecase/delete-order.usecase';
 import { CreateOrderDto } from '@orders/dto/create-order.dto';
 import { UpdateOrderDto } from '@orders/dto/update-order.dto';
+import type Stripe from 'stripe';
+import type { StripeRequest } from '@common/interfaces/stripe-request.interface';
+
+
 
 @Doc.Main()
 @Controller('orders')
@@ -30,7 +34,6 @@ export class OrdersController {
     @InjectQueue('orders-queue') private readonly ordersQueue: Queue,
   ) { }
 
-
   @Post()
   async createOrder(
     @Body() createOrderDto: CreateOrderDto,
@@ -43,33 +46,36 @@ export class OrdersController {
   @Post('webhook')
   async handleIncomingEvents(
     @Headers('stripe-signature') signature: string,
-    @Req() req: any,
+    @Req() req: StripeRequest,
   ) {
     if (!signature) throw new BadRequestException('Missing stripe-signature header');
 
-    let event;
+    let event: Stripe.Event;
     try {
       event = this.stripeService.constructEvent(req.rawBody, signature);
-    } catch (err: any) {
-      this.logger.error(`Webhook signature verification failed: ${err.message}`);
-      throw new BadRequestException(`Webhook Error: ${err.message}`);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Unknown error';
+      this.logger.error(`Webhook signature verification failed: ${message}`);
+      throw new BadRequestException(`Webhook Error: ${message}`);
     }
 
     if (event.type === 'checkout.session.completed') {
-      const session = event.data.object as any;
-      const orderId = session.metadata.orderId;
+      const session = event.data.object as Stripe.Checkout.Session;
+      const orderId = session.metadata?.orderId;
 
-      this.logger.log(`Encaminhando pedido ${orderId} para a fila de processamento.`);
+      if (orderId) {
+        this.logger.log(`Encaminhando pedido ${orderId} para a fila de processamento.`);
 
-      await this.ordersQueue.add('complete-order-job',
-        { orderId },
-        {
-          attempts: 5,
-          backoff: { type: 'exponential', delay: 2000 },
-          removeOnComplete: { age: 3600, count: 1000 }, // Remove após 1 hora ou se passar de 1000 jobs
-          removeOnFail: { age: 24 * 3600 } // Mantém falhas por 24h para análise
-        }
-      );
+        await this.ordersQueue.add('complete-order-job',
+          { orderId },
+          {
+            attempts: 5,
+            backoff: { type: 'exponential', delay: 2000 },
+            removeOnComplete: { age: 3600, count: 1000 },
+            removeOnFail: { age: 24 * 3600 }
+          }
+        );
+      }
     }
 
     return { received: true };

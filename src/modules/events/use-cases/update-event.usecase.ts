@@ -5,6 +5,7 @@ import { EventsRepository } from '@events/repository/events.repository';
 import { UpdateEventDto } from '@events/dto/update-event.dto';
 import { EventResponseDto } from '@events/dto/event-response.dto';
 import { EventMapper } from '@events/mappers/event.mapper';
+import { DatabaseError } from '@common/interfaces/database-error.interface';
 
 @Injectable()
 export class UpdateEventUseCase {
@@ -59,7 +60,7 @@ export class UpdateEventUseCase {
    const savedEvent = await this.eventsRepository.save(event);
 
    return EventMapper.toResponse(savedEvent);
-  } catch (error) {
+  } catch (error: unknown) {
    if (
     error instanceof NotFoundException ||
     error instanceof ForbiddenException ||
@@ -68,11 +69,16 @@ export class UpdateEventUseCase {
     throw error;
    }
 
-   if (error?.code === '23505' || error?.code === 'ER_DUP_ENTRY') {
+   const dbError = error as DatabaseError;
+
+   if (dbError.code === '23505' || dbError.code === 'ER_DUP_ENTRY') {
     throw new ConflictException('Conflito de dados no evento (slug já existente).');
    }
 
-   this.logger.error(`Erro ao atualizar evento ID=${id}`, error.stack);
+   this.logger.error(
+    `Erro ao atualizar evento ID=${id}`,
+    dbError.stack ?? 'Sem stack trace'
+   );
 
    throw new InternalServerErrorException('Erro interno ao atualizar o evento.');
   }

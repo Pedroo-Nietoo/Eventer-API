@@ -10,7 +10,6 @@ import { ValidateUserUseCase } from './use-cases/validate-user.usecase';
 import { LoginUseCase } from './use-cases/login.usecase';
 import { LogoutUseCase } from './use-cases/logout.usecase';
 
-
 @Module({
   imports: [
     UsersModule,
@@ -22,7 +21,7 @@ import { LogoutUseCase } from './use-cases/logout.usecase';
       useFactory: (configService: ConfigService) => ({
         secret: configService.get<string>('JWT_SECRET') || 'secretKey',
         signOptions: {
-          expiresIn: (configService.get<string>('JWT_EXPIRES_IN') || '24h') as any,
+          expiresIn: (configService.get<string>('JWT_EXPIRES_IN') || '24h') as '24h',
           issuer: configService.get<string>('JWT_ISSUER') || 'nearby-api',
           audience: configService.get<string>('JWT_AUDIENCE') || 'nearby-api-users',
         },

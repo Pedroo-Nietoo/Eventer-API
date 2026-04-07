@@ -86,8 +86,9 @@ export class MailService {
    this.logger.log(`E-mail com anexo em PDF enviado com sucesso! ID: ${data?.id}`);
    return true;
 
-  } catch (error) {
-   this.logger.error(`Falha ao enviar e-mail com PDF para ${to}: ${error.message}`);
+  } catch (error: unknown) {
+   const message = error instanceof Error ? error.message : 'Erro desconhecido ao processar e-mail';
+   this.logger.error(`Falha ao enviar e-mail com PDF para ${to}: ${message}`);
    throw new InternalServerErrorException('Não foi possível enviar o ingresso.');
   }
  }

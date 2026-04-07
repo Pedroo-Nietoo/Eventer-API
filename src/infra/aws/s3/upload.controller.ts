@@ -1,8 +1,6 @@
-import { Controller, Post, Body, UseGuards } from '@nestjs/common';
+import { Controller, Post, Body } from '@nestjs/common';
 import { StorageService } from './storage.service';
 import { GenerateUploadUrlDto } from '@common/dtos/generate-upload-url.dto';
-
-
 
 @Controller('uploads')
 export class UploadController {

@@ -18,6 +18,7 @@ export class GenerateQrCodeImageService {
 
    return imageBuffer;
   } catch (error) {
+   console.error('Erro ao gerar QR Code:', error);
    throw new Error('Falha ao gerar a imagem do QR Code para o e-mail');
   }
  }

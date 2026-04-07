@@ -46,12 +46,13 @@ export class UpdateOrderUseCase {
    const savedOrder = await this.ordersRepository.save(order);
 
    return OrderMapper.toResponse(savedOrder);
-  } catch (error) {
+  } catch (error: unknown) {
    if (error instanceof NotFoundException || error instanceof BadRequestException) {
     throw error;
    }
 
-   this.logger.error(`Erro ao atualizar pedido ID=${id}`, error.stack);
+   const errorMessage = error instanceof Error ? error.stack : 'Sem stack trace disponível';
+   this.logger.error(`Erro ao atualizar pedido ID=${id}`, errorMessage);
 
    throw new InternalServerErrorException(
     'Erro interno ao atualizar o pedido.',

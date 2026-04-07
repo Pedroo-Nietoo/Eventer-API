@@ -18,4 +18,7 @@ async function bootstrap() {
 
   await app.listen(configService.get<number>('PORT') || 3000);
 }
-bootstrap();
+
+bootstrap().catch((err) => {
+  console.error('Erro fatal ao iniciar a aplicação:', err);
+});

@@ -1,8 +1,21 @@
 import { ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
+import { Request } from 'express';
 import { IS_PUBLIC_KEY } from '@common/decorators/public.decorator';
 import { SessionService } from '@infra/redis/session.service';
+
+interface AuthenticatedRequest extends Request {
+ user?: {
+  id: string;
+  role: string;
+ };
+}
+
+interface JwtPayload {
+ sub: string;
+ role: string;
+}
 
 @Injectable()
 export class JwtAuthGuard {
@@ -20,7 +33,7 @@ export class JwtAuthGuard {
 
   if (isPublic) return true;
 
-  const request = context.switchToHttp().getRequest();
+  const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
   const authHeader = request.headers.authorization;
 
   if (!authHeader?.startsWith('Bearer ')) {
@@ -36,14 +49,14 @@ export class JwtAuthGuard {
   }
 
   try {
-   const payload = await this.jwtService.verifyAsync(jwtToken);
+   const payload = await this.jwtService.verifyAsync<JwtPayload>(jwtToken);
 
    request.user = {
     id: payload.sub,
     role: payload.role,
    };
 
-  } catch (error) {
+  } catch {
    throw new UnauthorizedException('Falha na validação do token interno');
   }
 

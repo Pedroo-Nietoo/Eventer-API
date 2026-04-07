@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, HttpStatus, HttpCode, Query, ParseUUIDPipe, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, HttpStatus, HttpCode, Query, ParseUUIDPipe } from '@nestjs/common';
 import { PaginationDto } from '@common/dtos/pagination.dto';
 import { CreateTicketTypeUseCase } from '@ticket-types/use-cases/create-ticket-type.usecase';
 import { ListTicketTypesUseCase } from '@ticket-types/use-cases/list-ticket-types.usecase';

@@ -7,6 +7,17 @@ import {
  Logger,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
+import { AuthenticatedUser } from '@common/decorators/current-user.decorator';
+
+interface ExtendedRequest extends Request {
+ startTime?: number;
+ user?: AuthenticatedUser & { sub?: string };
+}
+
+interface HttpExceptionResponse {
+ message?: string | string[];
+ error?: string;
+}
 
 @Catch()
 export class HttpExceptionFilter implements ExceptionFilter {
@@ -15,7 +26,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
  catch(exception: unknown, host: ArgumentsHost) {
   const ctx = host.switchToHttp();
   const response = ctx.getResponse<Response>();
-  const request = ctx.getRequest<Request & { startTime?: number; user?: any }>();
+  const request = ctx.getRequest<ExtendedRequest>();
 
   const durationMs = request.startTime ? Date.now() - request.startTime : null;
 
@@ -28,18 +39,27 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
   if (exception instanceof HttpException) {
    status = exception.getStatus();
-   const exceptionResponse = exception.getResponse() as any;
+   const exceptionResponse = exception.getResponse();
 
    if (typeof exceptionResponse === 'string') {
     message = exceptionResponse;
-   } else if (Array.isArray(exceptionResponse?.message)) {
-    message = 'Erro de validação nos dados enviados.';
-    details = exceptionResponse.message;
-   } else if (exceptionResponse?.message) {
-    message = exceptionResponse.message;
-   }
+   } else if (
+    typeof exceptionResponse === 'object' &&
+    exceptionResponse !== null
+   ) {
+    const typedResponse = exceptionResponse as HttpExceptionResponse;
 
-   errorType = exceptionResponse?.error || exception.name;
+    if (Array.isArray(typedResponse.message)) {
+     message = 'Erro de validação nos dados enviados.';
+     details = typedResponse.message;
+    } else if (typedResponse.message) {
+     message = typedResponse.message;
+    }
+
+    errorType = typedResponse.error || exception.name;
+   } else {
+    errorType = exception.name;
+   }
   }
 
   const errorMappings: Record<number, string> = {
@@ -53,15 +73,23 @@ export class HttpExceptionFilter implements ExceptionFilter {
    message = errorMappings[status] || 'Erro inesperado.';
   }
 
-  const sanitizedBody = { ...request.body };
-  if (sanitizedBody.password) {
-   sanitizedBody.password = '***Omitted***';
+  const rawBody = request.body as unknown;
+  let sanitizedBody: Record<string, unknown> = {};
+
+  if (typeof rawBody === 'object' && rawBody !== null) {
+   sanitizedBody = { ...(rawBody as Record<string, unknown>) };
+   if ('password' in sanitizedBody) {
+    sanitizedBody.password = '***Omitted***';
+   }
   }
 
+  const queryObj = request.query as Record<string, unknown>;
+  const paramsObj = request.params as Record<string, unknown>;
+
   const errorContext = {
-   body: Object.keys(sanitizedBody).length ? sanitizedBody : undefined,
-   query: Object.keys(request.query).length ? request.query : undefined,
-   params: Object.keys(request.params).length ? request.params : undefined,
+   body: Object.keys(sanitizedBody).length > 0 ? sanitizedBody : undefined,
+   query: Object.keys(queryObj).length > 0 ? queryObj : undefined,
+   params: Object.keys(paramsObj).length > 0 ? paramsObj : undefined,
    userId: request.user?.sub || request.user?.id || 'Unauthenticated',
    clientIp: request.ip,
   };
