@@ -1,7 +1,7 @@
 import { EventResponseDto } from "@events/dto/event-response.dto";
 import { Event } from "@events/entities/event.entity";
 
-interface NearbyEventRaw {
+export interface NearbyEventRaw {
  id: string;
  organizerId: string;
  slug: string;

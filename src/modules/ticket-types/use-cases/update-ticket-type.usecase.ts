@@ -1,5 +1,4 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
-import { FindTicketTypeUseCase } from './find-ticket-type.usecase';
 import { TicketTypeResponseDto } from '@ticket-types/dto/ticket-type-response.dto';
 import { UpdateTicketTypeDto } from '@ticket-types/dto/update-ticket-type.dto';
 import { TicketTypesRepository } from '@ticket-types/repository/ticket-type.repository';

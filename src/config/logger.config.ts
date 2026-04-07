@@ -2,6 +2,7 @@ import { WinstonModuleAsyncOptions, utilities as nestWinstonUtilities } from 'ne
 import * as winston from 'winston';
 import CloudWatchTransport from 'winston-cloudwatch';
 import { ConfigService } from '@nestjs/config';
+import { config } from 'process';
 
 interface LogInfo {
  level: string;
@@ -27,8 +28,8 @@ export const loggerConfigAsync: WinstonModuleAsyncOptions = {
      name: 'CloudWatch',
      logGroupName: configService.get<string>('AWS_CLOUDWATCH_LOG_GROUP') || 'nearby-api-logs',
      logStreamName: `api-${configService.get<string>('NODE_ENV') || 'development'}`,
-     // retentionInDays: 1, //todo configurar depois
-     silent: true, //todo configurar depois
+     retentionInDays: configService.get<number>('AWS_CLOUDWATCH_LOG_RETENTION_DAYS') || 1,
+     silent: configService.get<string>('NODE_ENV') === 'production',
      errorHandler: (err: unknown) => { console.error("Erro no CloudWatch:", err); },
      awsOptions: {
       region: configService.get<string>('AWS_REGION'),

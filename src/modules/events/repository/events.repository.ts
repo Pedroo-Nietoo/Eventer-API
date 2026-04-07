@@ -1,6 +1,6 @@
 import { BaseRepository } from '@common/repository/base.repository';
 import { Event } from '@events/entities/event.entity';
-import { EventMapper } from '@events/mappers/event.mapper';
+import { EventMapper, NearbyEventRaw } from '@events/mappers/event.mapper';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -35,7 +35,7 @@ export class EventsRepository extends BaseRepository<Event> {
       .where(`ST_DWithin(event.location, ${point}, :radius)`, { lat, lng, radius })
       .orderBy('distance', 'ASC')
       .limit(limit)
-      .getRawMany();
+      .getRawMany<NearbyEventRaw>();
 
     return rawResults.map((raw) => EventMapper.fromNearbyRaw(raw));
   }

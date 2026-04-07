@@ -47,7 +47,6 @@ export class CreateOrderUseCase {
 
     await this.ordersRepository.updateSessionId(savedOrder.id, session.id, manager);
 
-    //todo Trocar depois por OrderMap.toResponse
     return {
      orderId: savedOrder.id,
      checkoutUrl: session.url
