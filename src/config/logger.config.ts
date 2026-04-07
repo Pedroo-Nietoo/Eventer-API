@@ -2,7 +2,6 @@ import { WinstonModuleAsyncOptions, utilities as nestWinstonUtilities } from 'ne
 import * as winston from 'winston';
 import CloudWatchTransport from 'winston-cloudwatch';
 import { ConfigService } from '@nestjs/config';
-import { config } from 'process';
 
 interface LogInfo {
  level: string;
