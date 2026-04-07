@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { OrderStatus } from 'src/common/enums/order-status.enum';
-import { Order } from 'src/modules/orders/entities/order.entity';
-import { TicketTypesRepository } from 'src/modules/ticket-types/repository/ticket-type.repository';
+import { OrderStatus } from '@common/enums/order-status.enum';
+import { Order } from '@orders/entities/order.entity';
+import { TicketTypesRepository } from '@ticket-types/repository/ticket-type.repository';
 import { DataSource, LessThan } from 'typeorm';
 
 @Injectable()

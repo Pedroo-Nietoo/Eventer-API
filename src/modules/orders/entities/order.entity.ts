@@ -1,8 +1,8 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, DeleteDateColumn, ManyToOne, JoinColumn, Index } from 'typeorm';
-import { User } from 'src/modules/users/entities/user.entity';
-import { TicketType } from 'src/modules/ticket-types/entities/ticket-type.entity';
-import { ColumnNumericTransformer } from 'src/common/transformers/column-numeric-transformer';
-import { OrderStatus } from 'src/common/enums/order-status.enum';
+import { User } from '@users/entities/user.entity';
+import { TicketType } from '@ticket-types/entities/ticket-type.entity';
+import { ColumnNumericTransformer } from '@common/transformers/column-numeric-transformer';
+import { OrderStatus } from '@common/enums/order-status.enum';
 
 
 

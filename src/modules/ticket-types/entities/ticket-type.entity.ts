@@ -1,6 +1,6 @@
-import { ColumnNumericTransformer } from 'src/common/transformers/column-numeric-transformer';
-import { Event } from 'src/modules/events/entities/event.entity';
-import { Ticket } from 'src/modules/tickets/entities/ticket.entity';
+import { ColumnNumericTransformer } from '@common/transformers/column-numeric-transformer';
+import { Event } from '@events/entities/event.entity';
+import { Ticket } from '@tickets/entities/ticket.entity';
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn, UpdateDateColumn, JoinColumn, Index, DeleteDateColumn, OneToMany } from 'typeorm';
 
 @Entity('ticket_types')

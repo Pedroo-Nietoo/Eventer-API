@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
 
-import { PaginationDto } from 'src/common/dtos/pagination.dto';
-import { PaginatedResponse } from 'src/common/interfaces/paginated-response.interface';
-import { UsersRepository } from '../repository/users.repository';
-import { UserResponseDto } from '../dto/user-response.dto';
-import { UserMapper } from '../mappers/user.mapper';
+import { PaginationDto } from '@common/dtos/pagination.dto';
+import { PaginatedResponse } from '@common/interfaces/paginated-response.interface';
+import { UsersRepository } from '@users/repository/users.repository';
+import { UserResponseDto } from '@users/dto/user-response.dto';
+import { UserMapper } from '@users/mappers/user.mapper';
 
 @Injectable()
 export class ListUsersUseCase {

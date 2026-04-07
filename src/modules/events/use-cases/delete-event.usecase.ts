@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
-import { EventsRepository } from '../repository/events.repository';
-import { UserRole } from 'src/common/enums/role.enum';
+import { UserRole } from '@common/enums/role.enum';
+import { EventsRepository } from '@events/repository/events.repository';
 
 @Injectable()
 export class DeleteEventUseCase {

@@ -13,7 +13,7 @@ import {
  ApiExtraModels,
  getSchemaPath,
 } from '@nestjs/swagger';
-import { TicketTypeResponseDto } from '../dto/ticket-type-response.dto';
+import { TicketTypeResponseDto } from '@ticket-types/dto/ticket-type-response.dto';
 
 export const SwaggerTicketTypeController = {
  Main: () => applyDecorators(

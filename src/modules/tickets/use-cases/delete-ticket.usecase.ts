@@ -6,8 +6,8 @@ import {
  NotFoundException,
 } from '@nestjs/common';
 import { DataSource } from 'typeorm';
-import { Ticket, TicketStatus } from '../entities/ticket.entity';
-import { TicketType } from 'src/modules/ticket-types/entities/ticket-type.entity';
+import { Ticket, TicketStatus } from '@tickets/entities/ticket.entity';
+import { TicketType } from '@ticket-types/entities/ticket-type.entity';
 
 @Injectable()
 export class DeleteTicketUseCase {

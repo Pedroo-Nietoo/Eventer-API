@@ -1,7 +1,7 @@
+import { EventResponseDto } from '@events/dto/event-response.dto';
+import { EventMapper } from '@events/mappers/event.mapper';
+import { EventsRepository } from '@events/repository/events.repository';
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { EventsRepository } from '../repository/events.repository';
-import { EventMapper } from '../mappers/event.mapper';
-import { EventResponseDto } from '../dto/event-response.dto';
 
 @Injectable()
 export class FindEventUseCase {

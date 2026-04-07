@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { TicketStatus } from '../entities/ticket.entity';
+import { TicketStatus } from '@tickets/entities/ticket.entity';
 
 export class TicketResponseDto {
  @ApiProperty({ example: 'f39b6f84-7e5d-4a1e-9b3b-1f0e5a6d7c8b' })

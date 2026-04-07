@@ -1,6 +1,6 @@
-import { UserRole } from 'src/common/enums/role.enum';
-import { Event } from 'src/modules/events/entities/event.entity';
-import { Ticket } from 'src/modules/tickets/entities/ticket.entity';
+import { UserRole } from '@common/enums/role.enum';
+import { Event } from '@events/entities/event.entity';
+import { Ticket } from '@tickets/entities/ticket.entity';
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, DeleteDateColumn, Index, OneToMany } from 'typeorm';
 
 @Entity('users')

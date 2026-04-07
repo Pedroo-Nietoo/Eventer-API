@@ -1,3 +1,4 @@
+import { EventResponseDto } from '@events/dto/event-response.dto';
 import { applyDecorators } from '@nestjs/common';
 import {
  ApiOperation,
@@ -16,7 +17,6 @@ import {
  getSchemaPath,
  ApiQuery,
 } from '@nestjs/swagger';
-import { EventResponseDto } from '../dto/event-response.dto';
 
 export const SwaggerEventController = {
  Main: () => applyDecorators(

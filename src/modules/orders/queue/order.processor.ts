@@ -1,6 +1,6 @@
 import { Processor, WorkerHost } from '@nestjs/bullmq';
+import { CompleteOrderUseCase } from '@orders/usecase/complete-order.usecase';
 import { Job } from 'bullmq';
-import { CompleteOrderUseCase } from '../usecase/complete-order.usecase';
 
 @Processor('orders-queue')
 export class OrdersProcessor extends WorkerHost {

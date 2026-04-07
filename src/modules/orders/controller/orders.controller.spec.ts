@@ -1,11 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { CreateOrderUseCase } from '../usecase/create-order.usecase';
-import { CompleteOrderUseCase } from '../usecase/complete-order.usecase';
-import { FindOrderUseCase } from '../usecase/find-order.usecase';
-import { ListOrdersUseCase } from '../usecase/list-orders.usecase';
-import { UpdateOrderUseCase } from '../usecase/update-order.usecase';
-import { DeleteOrderUseCase } from '../usecase/delete-order.usecase';
-import { StripeService } from '../../../infra/stripe/stripe.service';
+import { CreateOrderUseCase } from '@orders/usecase/create-order.usecase';
+import { CompleteOrderUseCase } from '@orders/usecase/complete-order.usecase';
+import { FindOrderUseCase } from '@orders/usecase/find-order.usecase';
+import { ListOrdersUseCase } from '@orders/usecase/list-orders.usecase';
+import { UpdateOrderUseCase } from '@orders/usecase/update-order.usecase';
+import { DeleteOrderUseCase } from '@orders/usecase/delete-order.usecase';
+import { StripeService } from '@infra/stripe/stripe.service';
 import { OrdersController } from './orders.controller';
 
 describe('OrdersController', () => {

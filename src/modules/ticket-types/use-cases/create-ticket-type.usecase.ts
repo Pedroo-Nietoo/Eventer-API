@@ -4,10 +4,10 @@ import {
  Logger,
  NotFoundException,
 } from '@nestjs/common';
-import { TicketTypeMapper } from '../mappers/ticket-type.mapper';
-import { TicketTypeResponseDto } from '../dto/ticket-type-response.dto';
-import { CreateTicketTypeDto } from '../dto/create-ticket-type.dto';
-import { TicketTypesRepository } from '../repository/ticket-type.repository';
+import { TicketTypeMapper } from '@ticket-types/mappers/ticket-type.mapper';
+import { TicketTypeResponseDto } from '@ticket-types/dto/ticket-type-response.dto';
+import { CreateTicketTypeDto } from '@ticket-types/dto/create-ticket-type.dto';
+import { TicketTypesRepository } from '@ticket-types/repository/ticket-type.repository';
 
 @Injectable()
 export class CreateTicketTypeUseCase {

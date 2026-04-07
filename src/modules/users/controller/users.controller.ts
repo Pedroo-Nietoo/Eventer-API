@@ -10,18 +10,16 @@ import {
   ParseUUIDPipe,
   HttpCode,
   HttpStatus,
-  UseGuards,
 } from '@nestjs/common';
-import { PaginationDto } from 'src/common/dtos/pagination.dto';
-import { Public } from 'src/common/decorators/public.decorator';
-import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
-import { CreateUserDto } from '../dto/create-user.dto';
-import { UpdateUserDto } from '../dto/update-user.dto';
-import { CreateUserUseCase } from '../use-cases/create-user.usecase';
-import { FindUserUseCase } from '../use-cases/find-user.usecase';
-import { UpdateUserUseCase } from '../use-cases/update-user.usecase';
-import { ListUsersUseCase } from '../use-cases/list-users.usecase';
-import { DeleteUserUseCase } from '../use-cases/delete-user.usecase';
+import { PaginationDto } from '@common/dtos/pagination.dto';
+import { Public } from '@common/decorators/public.decorator';
+import { CreateUserDto } from '@users/dto/create-user.dto';
+import { UpdateUserDto } from '@users/dto/update-user.dto';
+import { CreateUserUseCase } from '@users/use-cases/create-user.usecase';
+import { FindUserUseCase } from '@users/use-cases/find-user.usecase';
+import { UpdateUserUseCase } from '@users/use-cases/update-user.usecase';
+import { ListUsersUseCase } from '@users/use-cases/list-users.usecase';
+import { DeleteUserUseCase } from '@users/use-cases/delete-user.usecase';
 import { SwaggerUserController as Doc } from './users.swagger';
 
 @Doc.Main()

@@ -5,11 +5,11 @@ import {
  Logger,
  NotFoundException,
 } from '@nestjs/common';
-import { UpdateOrderDto } from '../dto/update-order.dto';
-import { OrdersRepository } from '../repository/orders.repository';
-import { OrderMapper } from '../mappers/order.mapper';
-import { OrderResponseDto } from '../dto/order-response.dto';
-import { OrderStatus } from 'src/common/enums/order-status.enum';
+import { UpdateOrderDto } from '@orders/dto/update-order.dto';
+import { OrdersRepository } from '@orders/repository/orders.repository';
+import { OrderMapper } from '@orders/mappers/order.mapper';
+import { OrderResponseDto } from '@orders/dto/order-response.dto';
+import { OrderStatus } from '@common/enums/order-status.enum';
 
 @Injectable()
 export class UpdateOrderUseCase {

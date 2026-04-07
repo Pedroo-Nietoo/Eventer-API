@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { UsersRepository } from '../repository/users.repository';
-import { User } from '../entities/user.entity';
+import { UsersRepository } from '@users/repository/users.repository';
+import { User } from '@users/entities/user.entity';
 
 @Injectable()
 export class FindUserByEmailUseCase {

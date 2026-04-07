@@ -1,8 +1,7 @@
+import { ValidatedUser } from '@auth/types/validated-user.type';
 import { Injectable } from '@nestjs/common';
+import { FindUserByEmailUseCase } from '@users/use-cases/find-user-by-email.usecase';
 import * as bcrypt from 'bcrypt';
-import { FindUserByEmailUseCase } from '../../users/use-cases/find-user-by-email.usecase';
-import { User } from 'src/modules/users/entities/user.entity';
-import { ValidatedUser } from '../types/validated-user.type';
 
 @Injectable()
 export class ValidateUserUseCase {

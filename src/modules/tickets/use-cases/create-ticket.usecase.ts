@@ -6,13 +6,13 @@ import {
  NotFoundException,
 } from '@nestjs/common';
 import { DataSource } from 'typeorm';
-import { CreateTicketDto } from '../dto/create-ticket.dto';
-import { Ticket, TicketStatus } from '../entities/ticket.entity';
-import { TicketType } from 'src/modules/ticket-types/entities/ticket-type.entity';
-import { TicketMapper } from '../mappers/ticket.mapper';
-import { TicketResponseDto } from '../dto/ticket-response.dto';
+import { CreateTicketDto } from '@tickets/dto/create-ticket.dto';
+import { Ticket, TicketStatus } from '@tickets/entities/ticket.entity';
+import { TicketType } from '@ticket-types/entities/ticket-type.entity';
+import { TicketMapper } from '@tickets/mappers/ticket.mapper';
+import { TicketResponseDto } from '@tickets/dto/ticket-response.dto';
 import { DispatchTicketEmailUseCase } from './dispatch-ticket-email.usecase';
-import { GenerateTicketTokenService } from 'src/services/generate-ticket-token.service';
+import { GenerateTicketTokenService } from '@services/generate-ticket-token.service';
 
 @Injectable()
 export class CreateTicketUseCase {

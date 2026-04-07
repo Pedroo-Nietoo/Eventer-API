@@ -1,10 +1,10 @@
 import { Injectable, NotFoundException, InternalServerErrorException, Logger, ConflictException, ForbiddenException, BadRequestException } from '@nestjs/common';
-import { UpdateEventDto } from '../dto/update-event.dto';
-import { EventsRepository } from '../repository/events.repository';
-import { EventMapper } from '../mappers/event.mapper';
-import { EventResponseDto } from '../dto/event-response.dto';
-import generateSlug from 'src/common/utils/generate-slug';
-import { UserRole } from 'src/common/enums/role.enum';
+import generateSlug from '@common/utils/generate-slug';
+import { UserRole } from '@common/enums/role.enum';
+import { EventsRepository } from '@events/repository/events.repository';
+import { UpdateEventDto } from '@events/dto/update-event.dto';
+import { EventResponseDto } from '@events/dto/event-response.dto';
+import { EventMapper } from '@events/mappers/event.mapper';
 
 @Injectable()
 export class UpdateEventUseCase {

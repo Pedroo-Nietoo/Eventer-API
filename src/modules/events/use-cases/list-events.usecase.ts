@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { PaginationDto } from 'src/common/dtos/pagination.dto';
-import { PaginatedResponse } from 'src/common/interfaces/paginated-response.interface';
-import { EventsRepository } from '../repository/events.repository';
-import { EventResponseDto } from '../dto/event-response.dto';
-import { EventMapper } from '../mappers/event.mapper';
+import { PaginationDto } from '@common/dtos/pagination.dto';
+import { PaginatedResponse } from '@common/interfaces/paginated-response.interface';
+import { EventsRepository } from '@events/repository/events.repository';
+import { EventResponseDto } from '@events/dto/event-response.dto';
+import { EventMapper } from '@events/mappers/event.mapper';
 
 @Injectable()
 export class ListEventsUseCase {

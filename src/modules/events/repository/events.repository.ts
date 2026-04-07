@@ -1,9 +1,9 @@
+import { BaseRepository } from '@common/repository/base.repository';
+import { Event } from '@events/entities/event.entity';
+import { EventMapper } from '@events/mappers/event.mapper';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { BaseRepository } from 'src/common/repository/base.repository';
-import { Event } from '../entities/event.entity';
-import { EventMapper } from '../mappers/event.mapper';
 
 @Injectable()
 export class EventsRepository extends BaseRepository<Event> {

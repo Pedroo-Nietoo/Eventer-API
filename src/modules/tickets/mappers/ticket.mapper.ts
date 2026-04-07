@@ -1,5 +1,5 @@
-import { Ticket } from '../entities/ticket.entity';
-import { TicketResponseDto } from '../dto/ticket-response.dto';
+import { Ticket } from '@tickets/entities/ticket.entity';
+import { TicketResponseDto } from '@tickets/dto/ticket-response.dto';
 
 export class TicketMapper {
  static toResponse(entity: Ticket): TicketResponseDto {

@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { PaginationDto } from 'src/common/dtos/pagination.dto';
-import { PaginatedResponse } from 'src/common/interfaces/paginated-response.interface';
-import { OrdersRepository } from '../repository/orders.repository';
-import { OrderResponseDto } from '../dto/order-response.dto';
-import { OrderMapper } from '../mappers/order.mapper';
+import { PaginationDto } from '@common/dtos/pagination.dto';
+import { PaginatedResponse } from '@common/interfaces/paginated-response.interface';
+import { OrdersRepository } from '@orders/repository/orders.repository';
+import { OrderResponseDto } from '@orders/dto/order-response.dto';
+import { OrderMapper } from '@orders/mappers/order.mapper';
 
 @Injectable()
 export class ListOrdersUseCase {

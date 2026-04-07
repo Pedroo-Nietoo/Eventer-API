@@ -1,7 +1,7 @@
+import { SessionService } from '@infra/redis/session.service';
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { randomBytes } from 'crypto';
-import { SessionService } from 'src/infra/redis/session.service';
 
 @Injectable()
 export class LoginUseCase {

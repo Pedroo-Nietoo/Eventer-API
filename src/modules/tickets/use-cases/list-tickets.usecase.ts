@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { PaginationDto } from 'src/common/dtos/pagination.dto';
-import { PaginatedResponse } from 'src/common/interfaces/paginated-response.interface';
-import { TicketMapper } from '../mappers/ticket.mapper';
-import { TicketsRepository } from '../repository/ticket.repository';
-import { TicketResponseDto } from '../dto/ticket-response.dto';
+import { PaginationDto } from '@common/dtos/pagination.dto';
+import { PaginatedResponse } from '@common/interfaces/paginated-response.interface';
+import { TicketMapper } from '@tickets/mappers/ticket.mapper';
+import { TicketsRepository } from '@tickets/repository/ticket.repository';
+import { TicketResponseDto } from '@tickets/dto/ticket-response.dto';
 
 @Injectable()
 export class ListTicketsUseCase {

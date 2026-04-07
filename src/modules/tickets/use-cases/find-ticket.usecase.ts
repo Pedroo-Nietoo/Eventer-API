@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { TicketMapper } from '../mappers/ticket.mapper';
-import { TicketResponseDto } from '../dto/ticket-response.dto';
-import { TicketsRepository } from '../repository/ticket.repository';
+import { TicketMapper } from '@tickets/mappers/ticket.mapper';
+import { TicketResponseDto } from '@tickets/dto/ticket-response.dto';
+import { TicketsRepository } from '@tickets/repository/ticket.repository';
 
 @Injectable()
 export class FindTicketUseCase {

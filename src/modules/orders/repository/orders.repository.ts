@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, EntityManager } from 'typeorm';
-import { BaseRepository } from 'src/common/repository/base.repository';
-import { Order } from '../entities/order.entity';
-import { OrderStatus } from 'src/common/enums/order-status.enum';
+import { BaseRepository } from '@common/repository/base.repository';
+import { OrderStatus } from '@common/enums/order-status.enum';
+import { Order } from '@orders/entities/order.entity';
 
 @Injectable()
 export class OrdersRepository extends BaseRepository<Order> {

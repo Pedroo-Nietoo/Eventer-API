@@ -1,5 +1,5 @@
+import { SessionService } from '@infra/redis/session.service';
 import { Injectable, Logger } from '@nestjs/common';
-import { SessionService } from 'src/infra/redis/session.service';
 
 @Injectable()
 export class LogoutUseCase {

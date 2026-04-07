@@ -1,9 +1,9 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { OrdersRepository } from '../repository/orders.repository';
-import { OrderStatus } from 'src/common/enums/order-status.enum';
-import { CreateTicketUseCase } from 'src/modules/tickets/use-cases/create-ticket.usecase';
+import { OrderStatus } from '@common/enums/order-status.enum';
+import { CreateTicketUseCase } from '@tickets/use-cases/create-ticket.usecase';
 import { DataSource } from 'typeorm';
-import { TicketType } from 'src/modules/ticket-types/entities/ticket-type.entity';
+import { TicketType } from '@ticket-types/entities/ticket-type.entity';
+import { OrdersRepository } from '@orders/repository/orders.repository';
 
 @Injectable()
 export class CompleteOrderUseCase {

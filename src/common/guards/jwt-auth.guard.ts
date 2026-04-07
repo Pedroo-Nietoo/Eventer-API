@@ -1,8 +1,8 @@
 import { ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
-import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
-import { SessionService } from 'src/infra/redis/session.service';
+import { IS_PUBLIC_KEY } from '@common/decorators/public.decorator';
+import { SessionService } from '@infra/redis/session.service';
 
 @Injectable()
 export class JwtAuthGuard {

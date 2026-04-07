@@ -14,8 +14,8 @@ import {
  ApiExtraModels,
  getSchemaPath,
 } from '@nestjs/swagger';
-import { TicketResponseDto } from '../dto/ticket-response.dto';
-import { ValidateTicketResponseDto } from '../dto/validate-ticket-response.dto';
+import { TicketResponseDto } from '@tickets/dto/ticket-response.dto';
+import { ValidateTicketResponseDto } from '@tickets/dto/validate-ticket-response.dto';
 
 export const SwaggerTicketController = {
  Main: () => applyDecorators(

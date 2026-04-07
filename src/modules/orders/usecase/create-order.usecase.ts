@@ -1,10 +1,10 @@
 import { Injectable, Logger, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { DataSource } from 'typeorm';
-import { OrdersRepository } from '../repository/orders.repository';
-import { TicketTypesRepository } from 'src/modules/ticket-types/repository/ticket-type.repository';
-import { StripeService } from '../../../infra/stripe/stripe.service';
-import { OrderStatus } from 'src/common/enums/order-status.enum';
-import { CreateOrderDto } from '../dto/create-order.dto';
+import { OrdersRepository } from '@orders/repository/orders.repository';
+import { TicketTypesRepository } from '@ticket-types/repository/ticket-type.repository';
+import { StripeService } from '@infra/stripe/stripe.service';
+import { OrderStatus } from '@common/enums/order-status.enum';
+import { CreateOrderDto } from '@orders/dto/create-order.dto';
 
 @Injectable()
 export class CreateOrderUseCase {

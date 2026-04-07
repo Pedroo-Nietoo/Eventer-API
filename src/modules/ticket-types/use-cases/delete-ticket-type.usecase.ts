@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
-import { TicketTypesRepository } from '../repository/ticket-type.repository';
+import { TicketTypesRepository } from '@ticket-types/repository/ticket-type.repository';
 
 @Injectable()
 export class DeleteTicketTypeUseCase {

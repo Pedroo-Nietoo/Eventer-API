@@ -1,11 +1,10 @@
 import { Controller, Post, UseGuards, Request, Body, HttpCode, HttpStatus } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { LoginUseCase } from '../use-cases/login.usecase';
-import { LoginDto } from '../dto/login.dto';
 import { SwaggerAuthController as Doc } from './auth.swagger';
-import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
-import { LogoutUseCase } from '../use-cases/logout.usecase';
-import { Public } from 'src/common/decorators/public.decorator';
+import { Public } from '@common/decorators/public.decorator';
+import { LoginUseCase } from '@auth/use-cases/login.usecase';
+import { LogoutUseCase } from '@auth/use-cases/logout.usecase';
+import { LoginDto } from '@auth/dto/login.dto';
 
 @Doc.Main()
 @Controller('auth')

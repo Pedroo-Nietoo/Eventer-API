@@ -5,12 +5,11 @@ import {
  Logger,
 } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
-
-import { CreateUserDto } from '../dto/create-user.dto';
-import { UserResponseDto } from '../dto/user-response.dto';
-import { UserMapper } from '../mappers/user.mapper';
-import { UsersRepository } from '../repository/users.repository';
-import { UserRole } from 'src/common/enums/role.enum';
+import { CreateUserDto } from '@users/dto/create-user.dto';
+import { UserResponseDto } from '@users/dto/user-response.dto';
+import { UserMapper } from '@users/mappers/user.mapper';
+import { UsersRepository } from '@users/repository/users.repository';
+import { UserRole } from '@common/enums/role.enum';
 
 @Injectable()
 export class CreateUserUseCase {

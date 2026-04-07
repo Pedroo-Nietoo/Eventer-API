@@ -1,3 +1,5 @@
+import { LoginResponseDto } from '@auth/dto/login-response.dto';
+import { LoginDto } from '@auth/dto/login.dto';
 import { applyDecorators } from '@nestjs/common';
 import {
  ApiOperation,
@@ -6,8 +8,6 @@ import {
  ApiTags,
  ApiBody
 } from '@nestjs/swagger';
-import { LoginResponseDto } from '../dto/login-response.dto';
-import { LoginDto } from '../dto/login.dto';
 
 export const SwaggerAuthController = {
  Main: () => applyDecorators(

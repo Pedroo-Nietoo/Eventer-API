@@ -1,8 +1,8 @@
 import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
-import { OrdersRepository } from '../repository/orders.repository';
-import { OrderResponseDto } from '../dto/order-response.dto';
-import { OrderMapper } from '../mappers/order.mapper';
-import { UserRole } from 'src/common/enums/role.enum';
+import { OrdersRepository } from '@orders/repository/orders.repository';
+import { OrderResponseDto } from '@orders/dto/order-response.dto';
+import { OrderMapper } from '@orders/mappers/order.mapper';
+import { UserRole } from '@common/enums/role.enum';
 
 @Injectable()
 export class FindOrderUseCase {

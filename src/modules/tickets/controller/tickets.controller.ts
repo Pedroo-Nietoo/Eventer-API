@@ -1,17 +1,16 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, HttpCode, HttpStatus, Query, ParseUUIDPipe, UseGuards } from '@nestjs/common';
-import { CreateTicketDto } from '../dto/create-ticket.dto';
-import { UpdateTicketDto } from '../dto/update-ticket.dto';
-import { ValidateTicketDto } from '../dto/validate-ticket.dto';
-import { PaginationDto } from 'src/common/dtos/pagination.dto';
-import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
-import { CreateTicketUseCase } from '../use-cases/create-ticket.usecase';
-import { ValidateTicketUseCase } from '../use-cases/validate-ticket.usecase';
-import { ListTicketsUseCase } from '../use-cases/list-tickets.usecase';
-import { FindTicketUseCase } from '../use-cases/find-ticket.usecase';
-import { UpdateTicketUseCase } from '../use-cases/update-ticket.usecase';
-import { DeleteTicketUseCase } from '../use-cases/delete-ticket.usecase';
+import { CreateTicketDto } from '@tickets/dto/create-ticket.dto';
+import { UpdateTicketDto } from '@tickets/dto/update-ticket.dto';
+import { ValidateTicketDto } from '@tickets/dto/validate-ticket.dto';
+import { PaginationDto } from '@common/dtos/pagination.dto';
+import { CreateTicketUseCase } from '@tickets/use-cases/create-ticket.usecase';
+import { ValidateTicketUseCase } from '@tickets/use-cases/validate-ticket.usecase';
+import { ListTicketsUseCase } from '@tickets/use-cases/list-tickets.usecase';
+import { FindTicketUseCase } from '@tickets/use-cases/find-ticket.usecase';
+import { UpdateTicketUseCase } from '@tickets/use-cases/update-ticket.usecase';
+import { DeleteTicketUseCase } from '@tickets/use-cases/delete-ticket.usecase';
 import { SwaggerTicketController as Doc } from './tickets.swagger';
-import { CurrentUser } from 'src/common/decorators/current-user.decorator';
+import { CurrentUser } from '@common/decorators/current-user.decorator';
 
 @Doc.Main()
 @Controller('tickets')

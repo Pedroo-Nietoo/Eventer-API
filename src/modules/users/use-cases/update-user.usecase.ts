@@ -6,11 +6,10 @@ import {
  NotFoundException,
 } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
-
-import { UpdateUserDto } from '../dto/update-user.dto';
-import { UsersRepository } from '../repository/users.repository';
-import { UserMapper } from '../mappers/user.mapper';
-import { UserResponseDto } from '../dto/user-response.dto';
+import { UpdateUserDto } from '@users/dto/update-user.dto';
+import { UsersRepository } from '@users/repository/users.repository';
+import { UserMapper } from '@users/mappers/user.mapper';
+import { UserResponseDto } from '@users/dto/user-response.dto';
 
 @Injectable()
 export class UpdateUserUseCase {

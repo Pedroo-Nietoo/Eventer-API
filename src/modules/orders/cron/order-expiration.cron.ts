@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import { OrderExpirationService } from 'src/services/order-expiration.service';
+import { OrderExpirationService } from '@services/order-expiration.service';
 
 @Injectable()
 export class OrderExpirationCron {

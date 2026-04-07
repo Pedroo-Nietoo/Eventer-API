@@ -1,11 +1,11 @@
 import { ConflictException, Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
 import { createId } from '@paralleldrive/cuid2';
-import generateSlug from 'src/common/utils/generate-slug';
+import generateSlug from '@common/utils/generate-slug';
+import { EventsRepository } from '@events/repository/events.repository';
+import { EventResponseDto } from '@events/dto/event-response.dto';
+import { CreateEventDto } from '@events/dto/create-event.dto';
+import { EventMapper } from '@events/mappers/event.mapper';
 
-import { CreateEventDto } from '../dto/create-event.dto';
-import { EventResponseDto } from '../dto/event-response.dto';
-import { EventMapper } from '../mappers/event.mapper';
-import { EventsRepository } from '../repository/events.repository';
 
 @Injectable()
 export class CreateEventUseCase {

@@ -1,20 +1,19 @@
 import { Controller, Post, Body, UseGuards, Headers, Req, BadRequestException, Logger, Get, Query, Param, ParseUUIDPipe, Patch, Delete, HttpCode, HttpStatus } from '@nestjs/common';
-import { CurrentUser } from 'src/common/decorators/current-user.decorator';
-import { Public } from 'src/common/decorators/public.decorator';
-import { PaginationDto } from 'src/common/dtos/pagination.dto';
-import { CreateOrderDto } from '../dto/create-order.dto';
-import { UpdateOrderDto } from '../dto/update-order.dto';
-import { StripeService } from '../../../infra/stripe/stripe.service';
-import { CompleteOrderUseCase } from '../usecase/complete-order.usecase';
-import { CreateOrderUseCase } from '../usecase/create-order.usecase';
-import { FindOrderUseCase } from '../usecase/find-order.usecase';
-import { ListOrdersUseCase } from '../usecase/list-orders.usecase';
-import { UpdateOrderUseCase } from '../usecase/update-order.usecase';
-import { DeleteOrderUseCase } from '../usecase/delete-order.usecase';
+import { CurrentUser } from '@common/decorators/current-user.decorator';
+import { Public } from '@common/decorators/public.decorator';
+import { PaginationDto } from '@common/dtos/pagination.dto';
+import { StripeService } from '@infra/stripe/stripe.service';
 import { SwaggerOrderController as Doc } from './orders.swagger';
-import { UserRole } from 'src/common/enums/role.enum';
+import { UserRole } from '@common/enums/role.enum';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
+import { CreateOrderUseCase } from '@orders/usecase/create-order.usecase';
+import { FindOrderUseCase } from '@orders/usecase/find-order.usecase';
+import { ListOrdersUseCase } from '@orders/usecase/list-orders.usecase';
+import { UpdateOrderUseCase } from '@orders/usecase/update-order.usecase';
+import { DeleteOrderUseCase } from '@orders/usecase/delete-order.usecase';
+import { CreateOrderDto } from '@orders/dto/create-order.dto';
+import { UpdateOrderDto } from '@orders/dto/update-order.dto';
 
 @Doc.Main()
 @Controller('orders')

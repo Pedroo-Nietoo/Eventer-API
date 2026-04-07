@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { TicketsRepository } from '../repository/ticket.repository';
-import { MailService } from 'src/services/mail/mail.service';
-import { GenerateQrCodeImageService } from 'src/services/generate-qrcode-image.service';
+import { TicketsRepository } from '@tickets/repository/ticket.repository';
+import { MailService } from '@services/mail/mail.service';
+import { GenerateQrCodeImageService } from '@services/generate-qrcode-image.service';
 
 @Injectable()
 export class DispatchTicketEmailUseCase {

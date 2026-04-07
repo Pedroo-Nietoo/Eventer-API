@@ -1,5 +1,5 @@
-import { Event } from '../entities/event.entity';
-import { EventResponseDto } from '../dto/event-response.dto';
+import { EventResponseDto } from "@events/dto/event-response.dto";
+import { Event } from "@events/entities/event.entity";
 
 export class EventMapper {
  static toResponse(entity: Event): EventResponseDto {

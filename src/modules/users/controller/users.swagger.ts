@@ -15,7 +15,7 @@ import {
  ApiForbiddenResponse,
  ApiInternalServerErrorResponse
 } from '@nestjs/swagger';
-import { UserResponseDto } from '../dto/user-response.dto';
+import { UserResponseDto } from '@users/dto/user-response.dto';
 
 export const SwaggerUserController = {
  Main: () => applyDecorators(

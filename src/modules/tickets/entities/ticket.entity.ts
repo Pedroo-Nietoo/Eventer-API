@@ -1,6 +1,6 @@
-import { ColumnNumericTransformer } from 'src/common/transformers/column-numeric-transformer';
-import { TicketType } from 'src/modules/ticket-types/entities/ticket-type.entity';
-import { User } from 'src/modules/users/entities/user.entity';
+import { ColumnNumericTransformer } from '@common/transformers/column-numeric-transformer';
+import { TicketType } from '@ticket-types/entities/ticket-type.entity';
+import { User } from '@users/entities/user.entity';
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn, UpdateDateColumn, JoinColumn, Index, DeleteDateColumn } from 'typeorm';
 
 export enum TicketStatus {

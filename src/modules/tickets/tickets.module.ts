@@ -11,10 +11,10 @@ import { UpdateTicketUseCase } from './use-cases/update-ticket.usecase';
 import { DeleteTicketUseCase } from './use-cases/delete-ticket.usecase';
 import { TicketsRepository } from './repository/ticket.repository';
 import { DispatchTicketEmailUseCase } from './use-cases/dispatch-ticket-email.usecase';
-import { EventsModule } from '../events/events.module';
-import { GenerateTicketTokenService } from 'src/services/generate-ticket-token.service';
-import { GenerateQrCodeImageService } from 'src/services/generate-qrcode-image.service';
-import { MailService } from 'src/services/mail/mail.service';
+import { EventsModule } from '@events/events.module';
+import { GenerateTicketTokenService } from '@services/generate-ticket-token.service';
+import { GenerateQrCodeImageService } from '@services/generate-qrcode-image.service';
+import { MailService } from '@services/mail/mail.service';
 
 @Module({
   imports: [

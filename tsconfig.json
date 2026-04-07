@@ -20,6 +20,68 @@
     "forceConsistentCasingInFileNames": true,
     "noImplicitAny": false,
     "strictBindCallApply": false,
-    "noFallthroughCasesInSwitch": false
+    "noFallthroughCasesInSwitch": false,
+    "paths": {
+      "@services": [
+        "src/services"
+      ],
+      "@services/*": [
+        "src/services/*"
+      ],
+      "@infra": [
+        "src/infra"
+      ],
+      "@infra/*": [
+        "src/infra/*"
+      ],
+      "@config": [
+        "src/config"
+      ],
+      "@config/*": [
+        "src/config/*"
+      ],
+      "@common": [
+        "src/common"
+      ],
+      "@common/*": [
+        "src/common/*"
+      ],
+      "@auth": [
+        "src/modules/auth"
+      ],
+      "@auth/*": [
+        "src/modules/auth/*"
+      ],
+      "@events": [
+        "src/modules/events"
+      ],
+      "@events/*": [
+        "src/modules/events/*"
+      ],
+      "@orders": [
+        "src/modules/orders"
+      ],
+      "@orders/*": [
+        "src/modules/orders/*"
+      ],
+      "@ticket-types": [
+        "src/modules/ticket-types"
+      ],
+      "@ticket-types/*": [
+        "src/modules/ticket-types/*"
+      ],
+      "@tickets": [
+        "src/modules/tickets"
+      ],
+      "@tickets/*": [
+        "src/modules/tickets/*"
+      ],
+      "@users": [
+        "src/modules/users"
+      ],
+      "@users/*": [
+        "src/modules/users/*"
+      ]
+    }
   }
 }

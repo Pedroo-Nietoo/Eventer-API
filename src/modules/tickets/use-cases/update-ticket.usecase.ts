@@ -6,12 +6,12 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { DataSource } from 'typeorm';
-import { UpdateTicketDto } from '../dto/update-ticket.dto';
+import { UpdateTicketDto } from '@tickets/dto/update-ticket.dto';
 import { FindTicketUseCase } from './find-ticket.usecase';
-import { Ticket, TicketStatus } from '../entities/ticket.entity';
-import { TicketType } from 'src/modules/ticket-types/entities/ticket-type.entity';
-import { TicketResponseDto } from '../dto/ticket-response.dto';
-import { TicketMapper } from '../mappers/ticket.mapper';
+import { Ticket, TicketStatus } from '@tickets/entities/ticket.entity';
+import { TicketType } from '@ticket-types/entities/ticket-type.entity';
+import { TicketResponseDto } from '@tickets/dto/ticket-response.dto';
+import { TicketMapper } from '@tickets/mappers/ticket.mapper';
 
 @Injectable()
 export class UpdateTicketUseCase {

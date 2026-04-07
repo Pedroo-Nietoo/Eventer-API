@@ -1,6 +1,6 @@
+import { EventResponseDto } from '@events/dto/event-response.dto';
+import { EventsRepository } from '@events/repository/events.repository';
 import { Injectable } from '@nestjs/common';
-import { EventsRepository } from '../repository/events.repository';
-import { EventResponseDto } from '../dto/event-response.dto';
 
 @Injectable()
 export class FindNearbyEventsUseCase {

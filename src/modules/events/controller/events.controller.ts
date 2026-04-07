@@ -3,25 +3,24 @@ import {
   UseGuards, ParseUUIDPipe, HttpCode, HttpStatus, Req
 } from '@nestjs/common';
 
-import { PaginationDto } from 'src/common/dtos/pagination.dto';
-import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
-import { RolesGuard } from 'src/common/guards/roles.guard';
-import { Roles } from 'src/common/decorators/roles.decorator';
-import { UserRole } from 'src/common/enums/role.enum';
+import { PaginationDto } from '@common/dtos/pagination.dto';
+import { RolesGuard } from '@common/guards/roles.guard';
+import { Roles } from '@common/decorators/roles.decorator';
+import { UserRole } from '@common/enums/role.enum';
 
-import { CreateEventDto } from '../dto/create-event.dto';
-import { UpdateEventDto } from '../dto/update-event.dto';
 
-import { CreateEventUseCase } from '../use-cases/create-event.usecase';
-import { FindNearbyEventsUseCase } from '../use-cases/find-nearby-events.usecase';
-import { ListEventsUseCase } from '../use-cases/list-events.usecase';
-import { FindEventUseCase } from '../use-cases/find-event.usecase';
-import { UpdateEventUseCase } from '../use-cases/update-event.usecase';
-import { DeleteEventUseCase } from '../use-cases/delete-event.usecase';
-import { FindEventBySlugUseCase } from '../use-cases/find-event-by-slug.usecase';
 import { SwaggerEventController as Doc } from './events.swagger';
-import { CurrentUser } from 'src/common/decorators/current-user.decorator';
-import type { AuthenticatedUser } from 'src/common/decorators/current-user.decorator';
+import { CurrentUser } from '@common/decorators/current-user.decorator';
+import type { AuthenticatedUser } from '@common/decorators/current-user.decorator';
+import { CreateEventUseCase } from '@events/use-cases/create-event.usecase';
+import { FindNearbyEventsUseCase } from '@events/use-cases/find-nearby-events.usecase';
+import { ListEventsUseCase } from '@events/use-cases/list-events.usecase';
+import { FindEventUseCase } from '@events/use-cases/find-event.usecase';
+import { FindEventBySlugUseCase } from '@events/use-cases/find-event-by-slug.usecase';
+import { UpdateEventUseCase } from '@events/use-cases/update-event.usecase';
+import { DeleteEventUseCase } from '@events/use-cases/delete-event.usecase';
+import { CreateEventDto } from '@events/dto/create-event.dto';
+import { UpdateEventDto } from '@events/dto/update-event.dto';
 
 @Doc.Main()
 @UseGuards(RolesGuard)

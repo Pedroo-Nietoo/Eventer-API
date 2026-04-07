@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
-import { TicketStatus } from '../entities/ticket.entity';
-import { TicketsRepository } from '../repository/ticket.repository';
-import { ValidateTicketResponseDto } from '../dto/validate-ticket-response.dto';
+import { TicketStatus } from '@tickets/entities/ticket.entity';
+import { TicketsRepository } from '@tickets/repository/ticket.repository';
+import { ValidateTicketResponseDto } from '@tickets/dto/validate-ticket-response.dto';
 
 @Injectable()
 export class ValidateTicketUseCase {
