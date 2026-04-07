@@ -27,7 +27,7 @@ export const loggerConfigAsync: WinstonModuleAsyncOptions = {
      name: 'CloudWatch',
      logGroupName: configService.get<string>('AWS_CLOUDWATCH_LOG_GROUP') || 'nearby-api-logs',
      logStreamName: `api-${configService.get<string>('NODE_ENV') || 'development'}`,
-     retentionInDays: configService.get<number>('AWS_CLOUDWATCH_LOG_RETENTION_DAYS') || 1,
+     retentionInDays: Number(configService.get('AWS_CLOUDWATCH_LOG_RETENTION_DAYS')) || 1,
      silent: configService.get<string>('NODE_ENV') === 'production',
      errorHandler: (err: unknown) => { console.error("Erro no CloudWatch:", err); },
      awsOptions: {
