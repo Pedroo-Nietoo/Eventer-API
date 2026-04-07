@@ -7,6 +7,7 @@ import { UpdateOrderUseCase } from '@orders/usecase/update-order.usecase';
 import { DeleteOrderUseCase } from '@orders/usecase/delete-order.usecase';
 import { StripeService } from '@infra/stripe/stripe.service';
 import { OrdersController } from './orders.controller';
+import { getQueueToken } from '@nestjs/bullmq';
 
 describe('OrdersController', () => {
   let controller: OrdersController;
@@ -42,6 +43,10 @@ describe('OrdersController', () => {
         {
           provide: StripeService,
           useValue: { constructEvent: jest.fn() },
+        },
+        {
+          provide: getQueueToken('orders-queue'),
+          useValue: { add: jest.fn() },
         },
       ],
     }).compile();
