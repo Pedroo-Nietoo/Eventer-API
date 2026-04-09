@@ -15,6 +15,19 @@ services:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
       - postgres_data:/var/lib/postgresql/data
 
+  postgres_test:
+    image: postgis/postgis:16-3.4
+    container_name: postgres_test
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: events_test_db
+    ports:
+      - "5433:5432" 
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+
   redis:
     image: redis:7-alpine
     container_name: redis_nearby

@@ -13,11 +13,12 @@
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
-    "test": "jest",
-    "test:watch": "jest --watch",
-    "test:cov": "jest --coverage",
-    "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
+    "test": "jest --config jest.config.json",
+    "test:watch": "jest --config jest.config.json --watch",
+    "test:cov": "jest --config jest.config.json --coverage",
+    "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --config jest.config.json --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
+    "test:int": "jest --config ./test/jest-int.json",
     "typeorm": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js",
     "migration:generate": "npm run typeorm -- migration:generate -d src/infra/database/data-source.config.ts src/infra/database/migrations/$npm_config_name",
     "migration:run": "npm run typeorm -- migration:run -d src/infra/database/data-source.config.ts",
@@ -97,37 +98,5 @@
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.7.3",
     "typescript-eslint": "^8.20.0"
-  },
-  "jest": {
-    "moduleFileExtensions": [
-      "js",
-      "json",
-      "ts"
-    ],
-    "rootDir": "src",
-    "testRegex": ".*\\.spec\\.ts$",
-    "transform": {
-      "^.+\\.(t|j)s$": "ts-jest"
-    },
-    "transformIgnorePatterns": [
-      "/node_modules/(?!(@paralleldrive/cuid2|uuid|@noble)/)"
-    ],
-    "collectCoverageFrom": [
-      "**/*.(t|j)s"
-    ],
-    "coverageDirectory": "../coverage",
-    "testEnvironment": "node",
-    "moduleNameMapper": {
-      "^@services/(.*)$": "<rootDir>/services/$1",
-      "^@infra/(.*)$": "<rootDir>/infra/$1",
-      "^@config/(.*)$": "<rootDir>/config/$1",
-      "^@common/(.*)$": "<rootDir>/common/$1",
-      "^@auth/(.*)$": "<rootDir>/modules/auth/$1",
-      "^@events/(.*)$": "<rootDir>/modules/events/$1",
-      "^@orders/(.*)$": "<rootDir>/modules/orders/$1",
-      "^@ticket-types/(.*)$": "<rootDir>/modules/ticket-types/$1",
-      "^@tickets/(.*)$": "<rootDir>/modules/tickets/$1",
-      "^@users/(.*)$": "<rootDir>/modules/users/$1"
-    }
   }
 }

@@ -1,0 +1,23 @@
+{
+ "moduleFileExtensions": [
+  "js",
+  "json",
+  "ts"
+ ],
+ "rootDir": "..",
+ "testEnvironment": "node",
+ "testRegex": ".integration.spec.ts$",
+ "transform": {
+  "^.+\\.(t|j)s$": "ts-jest"
+ },
+ "moduleNameMapper": {
+  "^@events/(.*)$": "<rootDir>/src/modules/events/$1",
+  "^@users/(.*)$": "<rootDir>/src/modules/users/$1",
+  "^@orders/(.*)$": "<rootDir>/src/modules/orders/$1",
+  "^@tickets/(.*)$": "<rootDir>/src/modules/tickets/$1",
+  "^@ticket-types/(.*)$": "<rootDir>/src/modules/ticket-types/$1",
+  "^@common/(.*)$": "<rootDir>/src/common/$1",
+  "^@infra/(.*)$": "<rootDir>/src/infra/$1",
+  "^@auth/(.*)$": "<rootDir>/src/modules/auth/$1"
+ }
+}
