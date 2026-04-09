@@ -43,6 +43,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
    if (typeof exceptionResponse === 'string') {
     message = exceptionResponse;
+    errorType = exception.name;
    } else if (
     typeof exceptionResponse === 'object' &&
     exceptionResponse !== null

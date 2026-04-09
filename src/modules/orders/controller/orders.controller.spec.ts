@@ -1,10 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { CreateOrderUseCase } from '@orders/usecase/create-order.usecase';
-import { CompleteOrderUseCase } from '@orders/usecase/complete-order.usecase';
-import { FindOrderUseCase } from '@orders/usecase/find-order.usecase';
-import { ListOrdersUseCase } from '@orders/usecase/list-orders.usecase';
-import { UpdateOrderUseCase } from '@orders/usecase/update-order.usecase';
-import { DeleteOrderUseCase } from '@orders/usecase/delete-order.usecase';
+import { CreateOrderUseCase } from '@orders/use-cases/create-order.usecase';
+import { CompleteOrderUseCase } from '@orders/use-cases/complete-order.usecase';
+import { FindOrderUseCase } from '@orders/use-cases/find-order.usecase';
+import { ListOrdersUseCase } from '@orders/use-cases/list-orders.usecase';
+import { UpdateOrderUseCase } from '@orders/use-cases/update-order.usecase';
+import { DeleteOrderUseCase } from '@orders/use-cases/delete-order.usecase';
 import { StripeService } from '@infra/stripe/stripe.service';
 import { OrdersController } from './orders.controller';
 import { getQueueToken } from '@nestjs/bullmq';

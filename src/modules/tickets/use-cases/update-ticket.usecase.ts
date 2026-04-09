@@ -7,7 +7,6 @@ import {
 } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import { UpdateTicketDto } from '@tickets/dto/update-ticket.dto';
-import { FindTicketUseCase } from './find-ticket.usecase';
 import { Ticket, TicketStatus } from '@tickets/entities/ticket.entity';
 import { TicketType } from '@ticket-types/entities/ticket-type.entity';
 import { TicketMapper } from '@tickets/mappers/ticket.mapper';
@@ -19,8 +18,7 @@ export class UpdateTicketUseCase {
   private readonly logger = new Logger(UpdateTicketUseCase.name);
 
   constructor(
-    private readonly dataSource: DataSource,
-    private readonly findTicketUseCase: FindTicketUseCase,
+    private readonly dataSource: DataSource
   ) { }
 
   async execute(id: string, dto: UpdateTicketDto, userId: string): Promise<TicketResponseDto> {

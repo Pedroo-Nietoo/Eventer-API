@@ -1,5 +1,5 @@
 import { Processor, WorkerHost } from '@nestjs/bullmq';
-import { CompleteOrderUseCase } from '@orders/usecase/complete-order.usecase';
+import { CompleteOrderUseCase } from '@orders/use-cases/complete-order.usecase';
 import { Job } from 'bullmq';
 
 @Processor('orders-queue')
