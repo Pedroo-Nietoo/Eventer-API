@@ -1,4 +1,4 @@
-name: Nearby API Delivery
+name: Workflow | SandBox
 
 on:
   workflow_dispatch:
