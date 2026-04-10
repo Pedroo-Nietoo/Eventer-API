@@ -1,6 +1,5 @@
 import { DataSource } from 'typeorm';
 import { config } from 'dotenv';
-import { ConfigModule, ConfigService } from '@nestjs/config';
 
 config({ path: '.env.test' });
 
@@ -15,3 +14,5 @@ export const TestDataSource = new DataSource({
  migrations: ['src/infra/database/migrations/*.ts'],
  logging: false,
 });
+
+//todo trocar por configService
