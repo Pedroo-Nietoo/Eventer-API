@@ -1,7 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { UpdateTicketTypeUseCase } from './update-ticket-type.usecase';
 import { TicketTypesRepository } from '@ticket-types/repository/ticket-type.repository';
-import { TicketTypeMapper } from '@ticket-types/mappers/ticket-type.mapper';
 import { NotFoundException, BadRequestException } from '@nestjs/common';
 
 describe('UpdateTicketTypeUseCase', () => {
