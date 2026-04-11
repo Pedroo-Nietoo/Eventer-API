@@ -1,6 +1,4 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { UsersModule } from '@users/users.module';
@@ -18,6 +16,7 @@ import { JwtAuthGuard } from '@common/guards/jwt-auth.guard';
 import { StorageModule } from '@infra/aws/s3/storage.module';
 import { WinstonModule } from 'nest-winston';
 import { loggerConfigAsync } from '@config/logger.config';
+import { HealthModule } from './modules/health/health.module';
 
 @Module({
   imports: [
@@ -25,10 +24,12 @@ import { loggerConfigAsync } from '@config/logger.config';
       isGlobal: true,
     }),
     ScheduleModule.forRoot(),
-    ThrottlerModule.forRoot([{
-      ttl: 60000,
-      limit: 10,
-    }]),
+    ThrottlerModule.forRoot([
+      {
+        ttl: 60000,
+        limit: 10,
+      },
+    ]),
     WinstonModule.forRootAsync(loggerConfigAsync),
     TypeOrmModule.forRootAsync(databaseConfig),
     UsersModule,
@@ -37,12 +38,11 @@ import { loggerConfigAsync } from '@config/logger.config';
     TicketsModule,
     TicketTypeModule,
     OrdersModule,
+    HealthModule,
     RedisModule,
-    StorageModule
+    StorageModule,
   ],
-  controllers: [AppController],
   providers: [
-    AppService,
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,
@@ -53,4 +53,4 @@ import { loggerConfigAsync } from '@config/logger.config';
     },
   ],
 })
-export class AppModule { }
+export class AppModule {}
