@@ -5,15 +5,15 @@ import { TicketTypesRepository } from '@ticket-types/repository/ticket-type.repo
 
 @Injectable()
 export class FindTicketTypeUseCase {
- constructor(private readonly ticketTypesRepository: TicketTypesRepository) { }
+  constructor(private readonly ticketTypesRepository: TicketTypesRepository) {}
 
- async execute(id: string): Promise<TicketTypeResponseDto> {
-  const ticketType = await this.ticketTypesRepository.findById(id);
+  async execute(id: string): Promise<TicketTypeResponseDto> {
+    const ticketType = await this.ticketTypesRepository.findById(id);
 
-  if (!ticketType) {
-   throw new NotFoundException('Tipo de ingresso não encontrado.');
+    if (!ticketType) {
+      throw new NotFoundException('Tipo de ingresso não encontrado.');
+    }
+
+    return TicketTypeMapper.toResponse(ticketType);
   }
-
-  return TicketTypeMapper.toResponse(ticketType);
- }
 }

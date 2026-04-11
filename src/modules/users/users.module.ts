@@ -22,9 +22,6 @@ import { FindUserByEmailUseCase } from './use-cases/find-user-by-email.usecase';
     UpdateUserUseCase,
     DeleteUserUseCase,
   ],
-  exports: [
-    UsersRepository,
-    FindUserByEmailUseCase,
-  ],
+  exports: [UsersRepository, FindUserByEmailUseCase],
 })
-export class UsersModule { }
+export class UsersModule {}

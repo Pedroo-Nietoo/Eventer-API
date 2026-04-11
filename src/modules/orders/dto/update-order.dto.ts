@@ -4,8 +4,8 @@ import { OrderStatus } from '@common/enums/order-status.enum';
 import { CreateOrderDto } from './create-order.dto';
 
 export class UpdateOrderDto extends PartialType(CreateOrderDto) {
- @ApiProperty({ enum: OrderStatus, required: false })
- @IsOptional()
- @IsEnum(OrderStatus)
- status?: OrderStatus;
+  @ApiProperty({ enum: OrderStatus, required: false })
+  @IsOptional()
+  @IsEnum(OrderStatus)
+  status?: OrderStatus;
 }

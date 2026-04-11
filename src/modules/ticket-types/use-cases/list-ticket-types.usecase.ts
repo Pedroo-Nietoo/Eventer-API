@@ -7,23 +7,26 @@ import { TicketTypesRepository } from '@ticket-types/repository/ticket-type.repo
 
 @Injectable()
 export class ListTicketTypesUseCase {
- constructor(private readonly ticketTypesRepository: TicketTypesRepository) { }
+  constructor(private readonly ticketTypesRepository: TicketTypesRepository) {}
 
- async execute(paginationDto: PaginationDto): Promise<PaginatedResponse<TicketTypeResponseDto>> {
-  const { page = 1, limit = 20 } = paginationDto;
-  const skip = (page - 1) * limit;
+  async execute(
+    paginationDto: PaginationDto,
+  ): Promise<PaginatedResponse<TicketTypeResponseDto>> {
+    const { page = 1, limit = 20 } = paginationDto;
+    const skip = (page - 1) * limit;
 
-  const [ticketTypes, total] = await this.ticketTypesRepository.findAllWithEvent(skip, limit);
+    const [ticketTypes, total] =
+      await this.ticketTypesRepository.findAllWithEvent(skip, limit);
 
-  return {
-   data: TicketTypeMapper.toResponseList(ticketTypes),
-   meta: {
-    totalItems: total,
-    itemCount: ticketTypes.length,
-    itemsPerPage: limit,
-    totalPages: Math.ceil(total / limit),
-    currentPage: page,
-   },
-  };
- }
+    return {
+      data: TicketTypeMapper.toResponseList(ticketTypes),
+      meta: {
+        totalItems: total,
+        itemCount: ticketTypes.length,
+        itemsPerPage: limit,
+        totalPages: Math.ceil(total / limit),
+        currentPage: page,
+      },
+    };
+  }
 }

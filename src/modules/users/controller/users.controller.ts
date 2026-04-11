@@ -31,7 +31,7 @@ export class UsersController {
     private readonly findUserUseCase: FindUserUseCase,
     private readonly updateUserUseCase: UpdateUserUseCase,
     private readonly deleteUserUseCase: DeleteUserUseCase,
-  ) { }
+  ) {}
 
   @Doc.Create()
   @Public()

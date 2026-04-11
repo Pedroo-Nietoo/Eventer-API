@@ -1,4 +1,9 @@
-import { Injectable, Logger, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import { OrdersRepository } from '@orders/repository/orders.repository';
 import { TicketTypesRepository } from '@ticket-types/repository/ticket-type.repository';
@@ -8,53 +13,66 @@ import { CreateOrderDto } from '@orders/dto/create-order.dto';
 
 @Injectable()
 export class CreateOrderUseCase {
- private readonly logger = new Logger(CreateOrderUseCase.name);
+  private readonly logger = new Logger(CreateOrderUseCase.name);
 
- constructor(
-  private readonly ordersRepository: OrdersRepository,
-  private readonly ticketTypesRepository: TicketTypesRepository,
-  private readonly stripeService: StripeService,
-  private readonly dataSource: DataSource,
- ) { }
+  constructor(
+    private readonly ordersRepository: OrdersRepository,
+    private readonly ticketTypesRepository: TicketTypesRepository,
+    private readonly stripeService: StripeService,
+    private readonly dataSource: DataSource,
+  ) {}
 
- async execute(userId: string, dto: CreateOrderDto) {
-  const { ticketTypeId, quantity } = dto;
+  async execute(userId: string, dto: CreateOrderDto) {
+    const { ticketTypeId, quantity } = dto;
 
-  const ticketType = await this.ticketTypesRepository.findById(ticketTypeId);
-  if (!ticketType) {
-   throw new NotFoundException('Lote de ingressos não encontrado.');
+    const ticketType = await this.ticketTypesRepository.findById(ticketTypeId);
+    if (!ticketType) {
+      throw new NotFoundException('Lote de ingressos não encontrado.');
+    }
+
+    return await this.dataSource.transaction(async (manager) => {
+      await this.ticketTypesRepository.decrementStock(
+        ticketTypeId,
+        quantity,
+        manager,
+      );
+
+      try {
+        const savedOrder = await this.ordersRepository.createOrder(
+          {
+            userId,
+            ticketTypeId,
+            quantity,
+            unitPrice: ticketType.price,
+            totalPrice: ticketType.price * quantity,
+            status: OrderStatus.PENDING,
+          },
+          manager,
+        );
+
+        const session = await this.stripeService.createCheckoutSession(
+          savedOrder.id,
+          ticketType.name,
+          ticketType.price,
+          quantity,
+        );
+
+        await this.ordersRepository.updateSessionId(
+          savedOrder.id,
+          session.id,
+          manager,
+        );
+
+        return {
+          orderId: savedOrder.id,
+          checkoutUrl: session.url,
+        };
+      } catch (error) {
+        this.logger.error('Erro no fluxo de criação de pedido:', error);
+        throw new InternalServerErrorException(
+          'Falha ao iniciar processo de pagamento.',
+        );
+      }
+    });
   }
-
-  return await this.dataSource.transaction(async (manager) => {
-   await this.ticketTypesRepository.decrementStock(ticketTypeId, quantity, manager);
-
-   try {
-    const savedOrder = await this.ordersRepository.createOrder({
-     userId,
-     ticketTypeId,
-     quantity,
-     unitPrice: ticketType.price,
-     totalPrice: ticketType.price * quantity,
-     status: OrderStatus.PENDING
-    }, manager);
-
-    const session = await this.stripeService.createCheckoutSession(
-     savedOrder.id,
-     ticketType.name,
-     ticketType.price,
-     quantity
-    );
-
-    await this.ordersRepository.updateSessionId(savedOrder.id, session.id, manager);
-
-    return {
-     orderId: savedOrder.id,
-     checkoutUrl: session.url
-    };
-   } catch (error) {
-    this.logger.error('Erro no fluxo de criação de pedido:', error);
-    throw new InternalServerErrorException('Falha ao iniciar processo de pagamento.');
-   }
-  });
- }
 }

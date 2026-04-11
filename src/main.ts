@@ -7,7 +7,9 @@ import { setupSecurity } from '@config/security.config';
 import { setupGlobals } from '@config/globals.config';
 
 async function bootstrap() {
-  const app = await NestFactory.create<NestExpressApplication>(AppModule, { rawBody: true });
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+    rawBody: true,
+  });
   const configService = app.get(ConfigService);
 
   setupSecurity(app, configService);

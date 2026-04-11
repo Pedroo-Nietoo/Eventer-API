@@ -20,7 +20,7 @@ export class RedisHealthIndicator {
 
       return indicator.up();
     } catch (error) {
-      throw indicator.down({
+      return indicator.down({
         message: error instanceof Error ? error.message : 'Unknown error',
       });
     }

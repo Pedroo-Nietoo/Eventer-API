@@ -9,31 +9,31 @@ import { User } from '@users/entities/user.entity';
 
 @Injectable()
 export class ListUsersUseCase {
- constructor(private readonly usersRepository: UsersRepository) { }
+  constructor(private readonly usersRepository: UsersRepository) {}
 
- async execute(
-  paginationDto: PaginationDto,
- ): Promise<PaginatedResponse<UserResponseDto>> {
-  const { page = 1, limit = 20 } = paginationDto;
-  const skip = (page - 1) * limit;
+  async execute(
+    paginationDto: PaginationDto,
+  ): Promise<PaginatedResponse<UserResponseDto>> {
+    const { page = 1, limit = 20 } = paginationDto;
+    const skip = (page - 1) * limit;
 
-  const order: FindOptionsOrder<User> = { createdAt: 'DESC' };
+    const order: FindOptionsOrder<User> = { createdAt: 'DESC' };
 
-  const [users, total] = await this.usersRepository.findAndCount({
-   skip,
-   take: limit,
-   order,
-  });
+    const [users, total] = await this.usersRepository.findAndCount({
+      skip,
+      take: limit,
+      order,
+    });
 
-  return {
-   data: UserMapper.toResponseList(users),
-   meta: {
-    totalItems: total,
-    itemCount: users.length,
-    itemsPerPage: limit,
-    totalPages: Math.ceil(total / limit),
-    currentPage: page,
-   },
-  };
- }
+    return {
+      data: UserMapper.toResponseList(users),
+      meta: {
+        totalItems: total,
+        itemCount: users.length,
+        itemsPerPage: limit,
+        totalPages: Math.ceil(total / limit),
+        currentPage: page,
+      },
+    };
+  }
 }

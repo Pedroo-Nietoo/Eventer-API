@@ -3,19 +3,17 @@ import { Injectable, Logger } from '@nestjs/common';
 
 @Injectable()
 export class LogoutUseCase {
- private readonly logger = new Logger(LogoutUseCase.name);
+  private readonly logger = new Logger(LogoutUseCase.name);
 
- constructor(
-  private readonly sessionService: SessionService,
- ) { }
+  constructor(private readonly sessionService: SessionService) {}
 
- async execute(token: string): Promise<void> {
-  const deleted = await this.sessionService.deleteSession(token);
+  async execute(token: string): Promise<void> {
+    const deleted = await this.sessionService.deleteSession(token);
 
-  if (deleted) {
-   this.logger.log(`Token removido com sucesso: ${token}`);
-  } else {
-   this.logger.warn(`Token não encontrado ou já expirado: ${token}`);
+    if (deleted) {
+      this.logger.log(`Token removido com sucesso: ${token}`);
+    } else {
+      this.logger.warn(`Token não encontrado ou já expirado: ${token}`);
+    }
   }
- }
 }

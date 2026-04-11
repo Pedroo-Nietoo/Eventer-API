@@ -1,8 +1,8 @@
 import {
- ConflictException,
- Injectable,
- InternalServerErrorException,
- Logger,
+  ConflictException,
+  Injectable,
+  InternalServerErrorException,
+  Logger,
 } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { CreateUserDto } from '@users/dto/create-user.dto';
@@ -14,36 +14,36 @@ import { DatabaseError } from '@common/interfaces/database-error.interface';
 
 @Injectable()
 export class CreateUserUseCase {
- private readonly logger = new Logger(CreateUserUseCase.name);
+  private readonly logger = new Logger(CreateUserUseCase.name);
 
- constructor(private readonly usersRepository: UsersRepository) { }
+  constructor(private readonly usersRepository: UsersRepository) {}
 
- async execute(dto: CreateUserDto): Promise<UserResponseDto> {
-  try {
-   const role = dto.role || UserRole.USER;
-   const hashedPassword = await bcrypt.hash(dto.password, 10);
+  async execute(dto: CreateUserDto): Promise<UserResponseDto> {
+    try {
+      const role = dto.role || UserRole.USER;
+      const hashedPassword = await bcrypt.hash(dto.password, 10);
 
-   const user = this.usersRepository.create({
-    ...dto,
-    role,
-    password: hashedPassword,
-   });
+      const user = this.usersRepository.create({
+        ...dto,
+        role,
+        password: hashedPassword,
+      });
 
-   const savedUser = await this.usersRepository.save(user);
+      const savedUser = await this.usersRepository.save(user);
 
-   return UserMapper.toResponse(savedUser);
-  } catch (error: unknown) {
-   const dbError = error as DatabaseError;
+      return UserMapper.toResponse(savedUser);
+    } catch (error: unknown) {
+      const dbError = error as DatabaseError;
 
-   if (dbError.code === '23505' || dbError.code === 'ER_DUP_ENTRY') {
-    throw new ConflictException('Este e-mail já está em uso.');
-   }
+      if (dbError.code === '23505' || dbError.code === 'ER_DUP_ENTRY') {
+        throw new ConflictException('Este e-mail já está em uso.');
+      }
 
-   this.logger.error('Erro ao criar usuário', error);
+      this.logger.error('Erro ao criar usuário', error);
 
-   throw new InternalServerErrorException(
-    'Erro interno ao tentar criar o usuário.',
-   );
+      throw new InternalServerErrorException(
+        'Erro interno ao tentar criar o usuário.',
+      );
+    }
   }
- }
 }

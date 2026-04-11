@@ -3,13 +3,13 @@ import { UsersRepository } from '@users/repository/users.repository';
 
 @Injectable()
 export class DeleteUserUseCase {
- constructor(private readonly usersRepository: UsersRepository) { }
+  constructor(private readonly usersRepository: UsersRepository) {}
 
- async execute(id: string): Promise<void> {
-  const result = await this.usersRepository.softDelete(id);
+  async execute(id: string): Promise<void> {
+    const result = await this.usersRepository.softDelete(id);
 
-  if (result.affected === 0) {
-   throw new NotFoundException(`Usuário com o ID ${id} não encontrado.`);
+    if (result.affected === 0) {
+      throw new NotFoundException(`Usuário com o ID ${id} não encontrado.`);
+    }
   }
- }
 }

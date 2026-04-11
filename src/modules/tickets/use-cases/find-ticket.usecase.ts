@@ -5,15 +5,15 @@ import { TicketsRepository } from '@tickets/repository/ticket.repository';
 
 @Injectable()
 export class FindTicketUseCase {
- constructor(private readonly ticketsRepository: TicketsRepository) { }
+  constructor(private readonly ticketsRepository: TicketsRepository) {}
 
- async execute(id: string): Promise<TicketResponseDto> {
-  const ticket = await this.ticketsRepository.findByIdWithRelations(id);
+  async execute(id: string): Promise<TicketResponseDto> {
+    const ticket = await this.ticketsRepository.findByIdWithRelations(id);
 
-  if (!ticket) {
-   throw new NotFoundException('Ingresso não encontrado.');
+    if (!ticket) {
+      throw new NotFoundException('Ingresso não encontrado.');
+    }
+
+    return TicketMapper.toResponse(ticket);
   }
-
-  return TicketMapper.toResponse(ticket);
- }
 }

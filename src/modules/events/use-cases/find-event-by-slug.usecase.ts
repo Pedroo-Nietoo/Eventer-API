@@ -5,15 +5,15 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 
 @Injectable()
 export class FindEventBySlugUseCase {
- constructor(private readonly eventsRepository: EventsRepository) { }
+  constructor(private readonly eventsRepository: EventsRepository) {}
 
- async execute(slug: string): Promise<EventResponseDto> {
-  const event = await this.eventsRepository.findBySlug(slug);
+  async execute(slug: string): Promise<EventResponseDto> {
+    const event = await this.eventsRepository.findBySlug(slug);
 
-  if (!event) {
-   throw new NotFoundException(`Evento com slug ${slug} não encontrado.`);
+    if (!event) {
+      throw new NotFoundException(`Evento com slug ${slug} não encontrado.`);
+    }
+
+    return EventMapper.toResponse(event);
   }
-
-  return EventMapper.toResponse(event);
- }
 }

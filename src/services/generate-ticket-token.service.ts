@@ -4,14 +4,14 @@ import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class GenerateTicketTokenService {
- execute(): { ticketId: string, token: string } {
-  const ticketId = uuidv4();
+  execute(): { ticketId: string; token: string } {
+    const ticketId = uuidv4();
 
-  const token = randomBytes(16).toString('hex');
+    const token = randomBytes(16).toString('hex');
 
-  return {
-   ticketId,
-   token
-  };
- }
+    return {
+      ticketId,
+      token,
+    };
+  }
 }

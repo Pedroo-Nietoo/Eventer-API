@@ -5,40 +5,40 @@ import { ROLES_KEY, RolesOptions } from '@common/decorators/roles.decorator';
 import { AuthenticatedUser } from '@common/decorators/current-user.decorator';
 
 interface AuthenticatedRequest extends Request {
- user?: AuthenticatedUser;
+  user?: AuthenticatedUser;
 }
 
 @Injectable()
 export class RolesGuard implements CanActivate {
- constructor(private reflector: Reflector) { }
+  constructor(private reflector: Reflector) {}
 
- canActivate(context: ExecutionContext): boolean {
-  const rolesOptions = this.reflector.getAllAndOverride<RolesOptions>(ROLES_KEY, [
-   context.getHandler(),
-   context.getClass(),
-  ]);
+  canActivate(context: ExecutionContext): boolean {
+    const rolesOptions = this.reflector.getAllAndOverride<RolesOptions>(
+      ROLES_KEY,
+      [context.getHandler(), context.getClass()],
+    );
 
-  if (!rolesOptions) {
-   return true;
+    if (!rolesOptions) {
+      return true;
+    }
+
+    const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
+    const user = request.user;
+
+    if (!user || !user.role) {
+      return false;
+    }
+
+    const { allow, deny } = rolesOptions;
+
+    if (deny && deny.includes(user.role)) {
+      return false;
+    }
+
+    if (allow && allow.length > 0) {
+      return allow.includes(user.role);
+    }
+
+    return true;
   }
-
-  const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
-  const user = request.user;
-
-  if (!user || !user.role) {
-   return false;
-  }
-
-  const { allow, deny } = rolesOptions;
-
-  if (deny && deny.includes(user.role)) {
-   return false;
-  }
-
-  if (allow && allow.length > 0) {
-   return allow.includes(user.role);
-  }
-
-  return true;
- }
 }

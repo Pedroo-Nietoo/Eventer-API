@@ -17,11 +17,7 @@ import { GenerateQrCodeImageService } from '@services/generate-qrcode-image.serv
 import { MailService } from '@services/mail/mail.service';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([Ticket]),
-    ConfigModule,
-    EventsModule
-  ],
+  imports: [TypeOrmModule.forFeature([Ticket]), ConfigModule, EventsModule],
   controllers: [TicketsController],
   providers: [
     TicketsRepository,
@@ -38,4 +34,4 @@ import { MailService } from '@services/mail/mail.service';
   ],
   exports: [TicketsRepository, CreateTicketUseCase],
 })
-export class TicketsModule { }
+export class TicketsModule {}

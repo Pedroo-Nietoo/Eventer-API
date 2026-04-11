@@ -17,11 +17,13 @@ import { TicketResponseDto } from '@tickets/dto/ticket-response.dto';
 export class UpdateTicketUseCase {
   private readonly logger = new Logger(UpdateTicketUseCase.name);
 
-  constructor(
-    private readonly dataSource: DataSource
-  ) { }
+  constructor(private readonly dataSource: DataSource) {}
 
-  async execute(id: string, dto: UpdateTicketDto, userId: string): Promise<TicketResponseDto> {
+  async execute(
+    id: string,
+    dto: UpdateTicketDto,
+    userId: string,
+  ): Promise<TicketResponseDto> {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
@@ -33,10 +35,15 @@ export class UpdateTicketUseCase {
       });
 
       if (!ticket) {
-        throw new NotFoundException('Ingresso não encontrado para atualização.');
+        throw new NotFoundException(
+          'Ingresso não encontrado para atualização.',
+        );
       }
 
-      if (dto.status === TicketStatus.CANCELLED && ticket.status !== TicketStatus.CANCELLED) {
+      if (
+        dto.status === TicketStatus.CANCELLED &&
+        ticket.status !== TicketStatus.CANCELLED
+      ) {
         await queryRunner.manager
           .createQueryBuilder()
           .update(TicketType)
@@ -45,16 +52,23 @@ export class UpdateTicketUseCase {
           .execute();
       }
 
-      if (ticket.status === TicketStatus.CANCELLED && dto.status === TicketStatus.VALID) {
+      if (
+        ticket.status === TicketStatus.CANCELLED &&
+        dto.status === TicketStatus.VALID
+      ) {
         const updateResult = await queryRunner.manager
           .createQueryBuilder()
           .update(TicketType)
           .set({ availableQuantity: () => 'available_quantity - 1' })
-          .where('id = :id AND available_quantity > 0', { id: ticket.ticketType.id })
+          .where('id = :id AND available_quantity > 0', {
+            id: ticket.ticketType.id,
+          })
           .execute();
 
         if (updateResult.affected === 0) {
-          throw new BadRequestException('Não há estoque disponível para reativar este ingresso.');
+          throw new BadRequestException(
+            'Não há estoque disponível para reativar este ingresso.',
+          );
         }
       }
 
@@ -74,11 +88,15 @@ export class UpdateTicketUseCase {
         });
 
         if (!newTicketType) {
-          throw new NotFoundException('O novo tipo de ingresso informado não existe.');
+          throw new NotFoundException(
+            'O novo tipo de ingresso informado não existe.',
+          );
         }
 
         if (newTicketType.event.id !== ticket.ticketType.event.id) {
-          throw new BadRequestException('Não é possível transferir um ingresso para um evento diferente.');
+          throw new BadRequestException(
+            'Não é possível transferir um ingresso para um evento diferente.',
+          );
         }
 
         const targetStatus = dto.status || ticket.status;
@@ -88,11 +106,15 @@ export class UpdateTicketUseCase {
             .createQueryBuilder()
             .update(TicketType)
             .set({ availableQuantity: () => 'available_quantity - 1' })
-            .where('id = :id AND available_quantity > 0', { id: dto.ticketTypeId })
+            .where('id = :id AND available_quantity > 0', {
+              id: dto.ticketTypeId,
+            })
             .execute();
 
           if (updateResult.affected === 0) {
-            throw new BadRequestException('O novo lote selecionado não possui estoque disponível.');
+            throw new BadRequestException(
+              'O novo lote selecionado não possui estoque disponível.',
+            );
           }
         }
 
@@ -111,7 +133,9 @@ export class UpdateTicketUseCase {
       });
 
       if (!updatedTicket) {
-        throw new NotFoundException('Ingresso não encontrado após atualização.');
+        throw new NotFoundException(
+          'Ingresso não encontrado após atualização.',
+        );
       }
 
       await queryRunner.commitTransaction();
@@ -120,15 +144,24 @@ export class UpdateTicketUseCase {
     } catch (error: unknown) {
       await queryRunner.rollbackTransaction();
 
-      if (error instanceof NotFoundException || error instanceof BadRequestException) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof BadRequestException
+      ) {
         throw error;
       }
 
-      const message = error instanceof Error ? error.message : 'Erro desconhecido';
+      const message =
+        error instanceof Error ? error.message : 'Erro desconhecido';
       const stack = error instanceof Error ? error.stack : 'Sem stack trace';
 
-      this.logger.error(`Erro ao atualizar o ingresso ${id}: ${message}`, stack);
-      throw new InternalServerErrorException('Falha ao atualizar os dados do ingresso.');
+      this.logger.error(
+        `Erro ao atualizar o ingresso ${id}: ${message}`,
+        stack,
+      );
+      throw new InternalServerErrorException(
+        'Falha ao atualizar os dados do ingresso.',
+      );
     } finally {
       await queryRunner.release();
     }

@@ -1,6 +1,16 @@
 import {
-  Controller, Get, Post, Body, Patch, Param, Delete, Query,
-  UseGuards, ParseUUIDPipe, HttpCode, HttpStatus
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Query,
+  UseGuards,
+  ParseUUIDPipe,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
 import { PaginationDto } from '@common/dtos/pagination.dto';
 import { RolesGuard } from '@common/guards/roles.guard';
@@ -31,12 +41,15 @@ export class EventsController {
     private readonly findEventBySlugUseCase: FindEventBySlugUseCase,
     private readonly updateEventUseCase: UpdateEventUseCase,
     private readonly deleteEventUseCase: DeleteEventUseCase,
-  ) { }
+  ) {}
 
   @Doc.Create()
   @Roles({ deny: [UserRole.USER] })
   @Post()
-  create(@Body() createEventDto: CreateEventDto, @CurrentUser('id') userId: string) {
+  create(
+    @Body() createEventDto: CreateEventDto,
+    @CurrentUser('id') userId: string,
+  ) {
     return this.createEventUseCase.execute(createEventDto, userId);
   }
 
@@ -74,13 +87,13 @@ export class EventsController {
   update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateEventDto: UpdateEventDto,
-    @CurrentUser() user: AuthenticatedUser
+    @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.updateEventUseCase.execute(
       id,
       updateEventDto,
       user.id,
-      user.role
+      user.role,
     );
   }
 
@@ -88,7 +101,10 @@ export class EventsController {
   @Roles({ deny: [UserRole.USER] })
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  remove(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
+  remove(
+    @Param('id', ParseUUIDPipe) id: string,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
     return this.deleteEventUseCase.execute(id, user.id, user.role);
   }
 }

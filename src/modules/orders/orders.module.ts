@@ -41,11 +41,9 @@ import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
       adapter: BullMQAdapter,
     }),
     TicketTypeModule,
-    TicketsModule
+    TicketsModule,
   ],
-  controllers: [
-    OrdersController
-  ],
+  controllers: [OrdersController],
   providers: [
     OrdersRepository,
     CreateOrderUseCase,
@@ -57,10 +55,8 @@ import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
     StripeService,
     OrderExpirationService,
     OrderExpirationCron,
-    OrdersProcessor
+    OrdersProcessor,
   ],
-  exports: [
-    OrdersRepository,
-  ],
+  exports: [OrdersRepository],
 })
-export class OrdersModule { }
+export class OrdersModule {}

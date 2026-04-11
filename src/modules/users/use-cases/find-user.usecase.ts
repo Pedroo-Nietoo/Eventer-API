@@ -6,15 +6,15 @@ import { UserResponseDto } from '@users/dto/user-response.dto';
 
 @Injectable()
 export class FindUserUseCase {
- constructor(private readonly usersRepository: UsersRepository) { }
+  constructor(private readonly usersRepository: UsersRepository) {}
 
- async execute(id: string): Promise<UserResponseDto> {
-  const user = await this.usersRepository.findById(id);
+  async execute(id: string): Promise<UserResponseDto> {
+    const user = await this.usersRepository.findById(id);
 
-  if (!user) {
-   throw new NotFoundException(`Usuário com o ID ${id} não encontrado.`);
+    if (!user) {
+      throw new NotFoundException(`Usuário com o ID ${id} não encontrado.`);
+    }
+
+    return UserMapper.toResponse(user);
   }
-
-  return UserMapper.toResponse(user);
- }
 }

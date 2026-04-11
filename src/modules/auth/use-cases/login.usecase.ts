@@ -6,20 +6,20 @@ import { AuthenticatedUser } from '@common/decorators/current-user.decorator';
 
 @Injectable()
 export class LoginUseCase {
- constructor(
-  private readonly sessionService: SessionService,
-  private readonly jwtService: JwtService,
- ) { }
+  constructor(
+    private readonly sessionService: SessionService,
+    private readonly jwtService: JwtService,
+  ) {}
 
- async execute(user: AuthenticatedUser) {
-  const payload = { sub: user.id, role: user.role };
+  async execute(user: AuthenticatedUser) {
+    const payload = { sub: user.id, role: user.role };
 
-  const jwtToken = await this.jwtService.signAsync(payload);
+    const jwtToken = await this.jwtService.signAsync(payload);
 
-  const opaqueToken = randomBytes(32).toString('hex');
+    const opaqueToken = randomBytes(32).toString('hex');
 
-  await this.sessionService.createSession(opaqueToken, jwtToken);
+    await this.sessionService.createSession(opaqueToken, jwtToken);
 
-  return { access_token: opaqueToken };
- }
+    return { access_token: opaqueToken };
+  }
 }

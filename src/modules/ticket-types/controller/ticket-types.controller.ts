@@ -1,4 +1,16 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, HttpStatus, HttpCode, Query, ParseUUIDPipe } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  HttpStatus,
+  HttpCode,
+  Query,
+  ParseUUIDPipe,
+} from '@nestjs/common';
 import { PaginationDto } from '@common/dtos/pagination.dto';
 import { CreateTicketTypeUseCase } from '@ticket-types/use-cases/create-ticket-type.usecase';
 import { ListTicketTypesUseCase } from '@ticket-types/use-cases/list-ticket-types.usecase';
@@ -18,7 +30,7 @@ export class TicketTypesController {
     private readonly findTicketTypeUseCase: FindTicketTypeUseCase,
     private readonly updateTicketTypeUseCase: UpdateTicketTypeUseCase,
     private readonly deleteTicketTypeUseCase: DeleteTicketTypeUseCase,
-  ) { }
+  ) {}
 
   @Doc.Create()
   @Post()
@@ -40,7 +52,10 @@ export class TicketTypesController {
 
   @Doc.Update()
   @Patch(':id')
-  update(@Param('id', ParseUUIDPipe) id: string, @Body() updateTicketTypeDto: UpdateTicketTypeDto) {
+  update(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() updateTicketTypeDto: UpdateTicketTypeDto,
+  ) {
     return this.updateTicketTypeUseCase.execute(id, updateTicketTypeDto);
   }
 

@@ -1,4 +1,12 @@
-import { Injectable, NotFoundException, InternalServerErrorException, Logger, ConflictException, ForbiddenException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  InternalServerErrorException,
+  Logger,
+  ConflictException,
+  ForbiddenException,
+  BadRequestException,
+} from '@nestjs/common';
 import generateSlug from '@common/utils/generate-slug';
 import { UserRole } from '@common/enums/role.enum';
 import { EventsRepository } from '@events/repository/events.repository';
@@ -9,78 +17,84 @@ import { DatabaseError } from '@common/interfaces/database-error.interface';
 
 @Injectable()
 export class UpdateEventUseCase {
- private readonly logger = new Logger(UpdateEventUseCase.name);
+  private readonly logger = new Logger(UpdateEventUseCase.name);
 
- constructor(private readonly eventsRepository: EventsRepository) { }
+  constructor(private readonly eventsRepository: EventsRepository) {}
 
- async execute(
-  id: string,
-  dto: UpdateEventDto,
-  userId: string,
-  userRole: UserRole,
- ): Promise<EventResponseDto> {
-  try {
-   const event = await this.eventsRepository.findById(id);
+  async execute(
+    id: string,
+    dto: UpdateEventDto,
+    userId: string,
+    userRole: UserRole,
+  ): Promise<EventResponseDto> {
+    try {
+      const event = await this.eventsRepository.findById(id);
 
-   if (!event) {
-    throw new NotFoundException(`Evento com ID ${id} não encontrado.`);
-   }
+      if (!event) {
+        throw new NotFoundException(`Evento com ID ${id} não encontrado.`);
+      }
 
-   if (event.organizerId !== userId && userRole !== UserRole.ADMIN) {
-    throw new ForbiddenException('Você não tem permissão para editar este evento.');
-   }
+      if (event.organizerId !== userId && userRole !== UserRole.ADMIN) {
+        throw new ForbiddenException(
+          'Você não tem permissão para editar este evento.',
+        );
+      }
 
-   if (!dto || Object.keys(dto).length === 0) {
-    return EventMapper.toResponse(event);
-   }
+      if (!dto || Object.keys(dto).length === 0) {
+        return EventMapper.toResponse(event);
+      }
 
-   if (dto.slug) {
-    dto.slug = generateSlug(dto.slug);
-   }
+      if (dto.slug) {
+        dto.slug = generateSlug(dto.slug);
+      }
 
-   if (dto.latitude !== undefined || dto.longitude !== undefined) {
-    if (dto.latitude === undefined || dto.longitude === undefined) {
-     throw new BadRequestException(
-      'Para atualizar a localização, forneça latitude e longitude.',
-     );
+      if (dto.latitude !== undefined || dto.longitude !== undefined) {
+        if (dto.latitude === undefined || dto.longitude === undefined) {
+          throw new BadRequestException(
+            'Para atualizar a localização, forneça latitude e longitude.',
+          );
+        }
+      }
+
+      const updatedData: Partial<typeof event> = { ...dto };
+
+      if (dto.latitude !== undefined && dto.longitude !== undefined) {
+        updatedData.location = {
+          type: 'Point',
+          coordinates: [dto.longitude, dto.latitude],
+        };
+      }
+
+      Object.assign(event, updatedData);
+
+      const savedEvent = await this.eventsRepository.save(event);
+
+      return EventMapper.toResponse(savedEvent);
+    } catch (error: unknown) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof ForbiddenException ||
+        error instanceof BadRequestException
+      ) {
+        throw error;
+      }
+
+      const dbError = error as DatabaseError;
+
+      if (dbError.code === '23505' || dbError.code === 'ER_DUP_ENTRY') {
+        throw new ConflictException(
+          'Conflito de dados no evento (slug já existente).',
+        );
+      }
+
+      this.logger.error(
+        `Erro ao atualizar evento ID=${id}`,
+        dbError.stack ?? 'Sem stack trace',
+      );
+
+      throw new InternalServerErrorException(
+        'Erro interno ao atualizar o evento.',
+      );
     }
-   }
-
-   const updatedData: Partial<typeof event> = { ...dto };
-
-   if (dto.latitude !== undefined && dto.longitude !== undefined) {
-    updatedData.location = {
-     type: 'Point',
-     coordinates: [dto.longitude, dto.latitude],
-    };
-   }
-
-   Object.assign(event, updatedData);
-
-   const savedEvent = await this.eventsRepository.save(event);
-
-   return EventMapper.toResponse(savedEvent);
-  } catch (error: unknown) {
-   if (
-    error instanceof NotFoundException ||
-    error instanceof ForbiddenException ||
-    error instanceof BadRequestException
-   ) {
-    throw error;
-   }
-
-   const dbError = error as DatabaseError;
-
-   if (dbError.code === '23505' || dbError.code === 'ER_DUP_ENTRY') {
-    throw new ConflictException('Conflito de dados no evento (slug já existente).');
-   }
-
-   this.logger.error(
-    `Erro ao atualizar evento ID=${id}`,
-    dbError.stack ?? 'Sem stack trace'
-   );
-
-   throw new InternalServerErrorException('Erro interno ao atualizar o evento.');
   }
- }
 }

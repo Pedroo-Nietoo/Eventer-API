@@ -13,7 +13,10 @@ export class TicketTypesRepository extends BaseRepository<TicketType> {
     super(ticketTypeRepo);
   }
 
-  async findAllWithEvent(skip: number, take: number): Promise<[TicketType[], number]> {
+  async findAllWithEvent(
+    skip: number,
+    take: number,
+  ): Promise<[TicketType[], number]> {
     return this.ticketTypeRepo.findAndCount({
       relations: {
         event: true,
@@ -26,12 +29,17 @@ export class TicketTypesRepository extends BaseRepository<TicketType> {
     });
   }
 
-  async decrementStock(id: string, quantity: number, manager: EntityManager): Promise<void> {
-    const result = await manager.getRepository(TicketType)
+  async decrementStock(
+    id: string,
+    quantity: number,
+    manager: EntityManager,
+  ): Promise<void> {
+    const result = await manager
+      .getRepository(TicketType)
       .createQueryBuilder()
       .update(TicketType)
       .set({ availableQuantity: () => `available_quantity - ${quantity}` })
-      .where("id = :id AND available_quantity >= :quantity", { id, quantity })
+      .where('id = :id AND available_quantity >= :quantity', { id, quantity })
       .execute();
 
     if (result.affected === 0) {
@@ -39,12 +47,17 @@ export class TicketTypesRepository extends BaseRepository<TicketType> {
     }
   }
 
-  async incrementStock(id: string, quantity: number, manager: EntityManager): Promise<void> {
-    await manager.getRepository(TicketType)
+  async incrementStock(
+    id: string,
+    quantity: number,
+    manager: EntityManager,
+  ): Promise<void> {
+    await manager
+      .getRepository(TicketType)
       .createQueryBuilder()
       .update(TicketType)
       .set({ availableQuantity: () => `available_quantity + ${quantity}` })
-      .where("id = :id", { id })
+      .where('id = :id', { id })
       .execute();
   }
 }

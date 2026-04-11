@@ -1,4 +1,20 @@
-import { Controller, Post, Body, Headers, Req, BadRequestException, Logger, Get, Query, Param, ParseUUIDPipe, Patch, Delete, HttpCode, HttpStatus } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  Headers,
+  Req,
+  BadRequestException,
+  Logger,
+  Get,
+  Query,
+  Param,
+  ParseUUIDPipe,
+  Patch,
+  Delete,
+  HttpCode,
+  HttpStatus,
+} from '@nestjs/common';
 import { CurrentUser } from '@common/decorators/current-user.decorator';
 import { Public } from '@common/decorators/public.decorator';
 import { PaginationDto } from '@common/dtos/pagination.dto';
@@ -17,8 +33,6 @@ import { UpdateOrderDto } from '@orders/dto/update-order.dto';
 import type Stripe from 'stripe';
 import type { StripeRequest } from '@common/interfaces/stripe-request.interface';
 
-
-
 @Doc.Main()
 @Controller('orders')
 export class OrdersController {
@@ -32,7 +46,7 @@ export class OrdersController {
     private readonly deleteOrderUseCase: DeleteOrderUseCase,
     private readonly stripeService: StripeService,
     @InjectQueue('orders-queue') private readonly ordersQueue: Queue,
-  ) { }
+  ) {}
 
   @Post()
   async createOrder(
@@ -48,7 +62,8 @@ export class OrdersController {
     @Headers('stripe-signature') signature: string,
     @Req() req: StripeRequest,
   ) {
-    if (!signature) throw new BadRequestException('Missing stripe-signature header');
+    if (!signature)
+      throw new BadRequestException('Missing stripe-signature header');
 
     let event: Stripe.Event;
     try {
@@ -60,20 +75,23 @@ export class OrdersController {
     }
 
     if (event.type === 'checkout.session.completed') {
-      const session = event.data.object as Stripe.Checkout.Session;
+      const session = event.data.object;
       const orderId = session.metadata?.orderId;
 
       if (orderId) {
-        this.logger.log(`Encaminhando pedido ${orderId} para a fila de processamento.`);
+        this.logger.log(
+          `Encaminhando pedido ${orderId} para a fila de processamento.`,
+        );
 
-        await this.ordersQueue.add('complete-order-job',
+        await this.ordersQueue.add(
+          'complete-order-job',
           { orderId },
           {
             attempts: 5,
             backoff: { type: 'exponential', delay: 2000 },
             removeOnComplete: { age: 3600, count: 1000 },
-            removeOnFail: { age: 24 * 3600 }
-          }
+            removeOnFail: { age: 24 * 3600 },
+          },
         );
       }
     }

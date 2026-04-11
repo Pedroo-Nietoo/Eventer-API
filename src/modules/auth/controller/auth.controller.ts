@@ -1,4 +1,11 @@
-import { Controller, Post, UseGuards, Request, HttpCode, HttpStatus } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  UseGuards,
+  Request,
+  HttpCode,
+  HttpStatus,
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import type { Request as ExpressRequest } from 'express';
 import { SwaggerAuthController as Doc } from './auth.swagger';
@@ -12,8 +19,8 @@ import { type AuthenticatedUser } from '@common/decorators/current-user.decorato
 export class AuthController {
   constructor(
     private readonly loginUseCase: LoginUseCase,
-    private readonly logoutUseCase: LogoutUseCase
-  ) { }
+    private readonly logoutUseCase: LogoutUseCase,
+  ) {}
 
   @Doc.Login()
   @UseGuards(AuthGuard('local'))

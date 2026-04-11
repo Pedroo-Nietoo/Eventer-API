@@ -1,4 +1,16 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, HttpCode, HttpStatus, Query, ParseUUIDPipe } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  HttpCode,
+  HttpStatus,
+  Query,
+  ParseUUIDPipe,
+} from '@nestjs/common';
 import { CreateTicketDto } from '@tickets/dto/create-ticket.dto';
 import { UpdateTicketDto } from '@tickets/dto/update-ticket.dto';
 import { ValidateTicketDto } from '@tickets/dto/validate-ticket.dto';
@@ -22,11 +34,14 @@ export class TicketsController {
     private readonly findTicketUseCase: FindTicketUseCase,
     private readonly updateTicketUseCase: UpdateTicketUseCase,
     private readonly deleteTicketUseCase: DeleteTicketUseCase,
-  ) { }
+  ) {}
 
   @Doc.Create()
   @Post()
-  create(@Body() createTicketDto: CreateTicketDto, @CurrentUser('id') loggedUserId: string) {
+  create(
+    @Body() createTicketDto: CreateTicketDto,
+    @CurrentUser('id') loggedUserId: string,
+  ) {
     return this.createTicketUseCase.execute(createTicketDto, loggedUserId);
   }
 
@@ -54,7 +69,7 @@ export class TicketsController {
   update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateTicketDto: UpdateTicketDto,
-    @CurrentUser('id') userId: string
+    @CurrentUser('id') userId: string,
   ) {
     return this.updateTicketUseCase.execute(id, updateTicketDto, userId);
   }

@@ -32,7 +32,11 @@ export class EventsRepository extends BaseRepository<Event> {
       .addSelect(`ST_Distance(event.location, ${point})`, 'distance')
       .addSelect('ST_X(event.location::geometry)', 'longitude')
       .addSelect('ST_Y(event.location::geometry)', 'latitude')
-      .where(`ST_DWithin(event.location, ${point}, :radius)`, { lat, lng, radius })
+      .where(`ST_DWithin(event.location, ${point}, :radius)`, {
+        lat,
+        lng,
+        radius,
+      })
       .orderBy('distance', 'ASC')
       .limit(limit)
       .getRawMany<NearbyEventRaw>();

@@ -1,3 +1,3 @@
 export interface StripeRequest extends Request {
- rawBody: Buffer;
+  rawBody: Buffer;
 }

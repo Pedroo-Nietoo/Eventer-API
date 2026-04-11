@@ -22,4 +22,4 @@ import { CreateTicketTypeUseCase } from './use-cases/create-ticket-type.usecase'
   ],
   exports: [TicketTypesRepository],
 })
-export class TicketTypeModule { }
+export class TicketTypeModule {}
