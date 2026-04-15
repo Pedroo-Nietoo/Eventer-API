@@ -1,0 +1,149 @@
+name: Workflow Sandbox
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+  workflow_dispatch:
+    inputs:
+      action:
+        description: "Selecione a ação desejada:"
+        required: true
+        default: "Build & Test"
+        type: choice
+        options:
+          - "Build Only"
+          - "Build & Test"
+          - "Deploy"
+      enable_sonar:
+        description: "Habilitar análise do SonarQube?"
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  build:
+    name: Build Application
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run build
+
+  test:
+    name: Run Tests
+    needs: build
+    if: github.event_name != 'workflow_dispatch' || inputs.action == 'Build & Test' || inputs.action == 'Deploy'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+      - run: npm ci
+
+      - name: Unit Tests & Coverage
+        run: npm run test:cov
+
+      - name: Add Coverage Summary
+        if: always()
+        run: |
+          # 1. Gera a lista de arquivos incompletos
+          INCOMPLETE_FILES=$(npm run test:cov | \
+          grep -E "\.ts|\.js" | \
+          grep -v "All files" | \
+          tr -s " " | \
+          sed 's/|//g' | \
+          awk '{ if ($2 < 100 || $3 < 100 || $4 < 100 || $5 < 100) print "| **" $1 "** | " $2 "% | " $3 "% | " $4 "% | " $5 "% |" }')
+
+          # 2. Exibe tabela ou mensagem de sucesso
+          if [ -z "$INCOMPLETE_FILES" ]; then
+            echo "### ✅ Todos os arquivos atingiram 100% de cobertura!" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "### 🚩 Arquivos com Cobertura Incompleta" >> $GITHUB_STEP_SUMMARY
+            echo "| Arquivo | % Stmts | % Branch | % Funcs | % Lines |" >> $GITHUB_STEP_SUMMARY
+            echo "| :--- | :---: | :---: | :---: | :---: |" >> $GITHUB_STEP_SUMMARY
+            echo "$INCOMPLETE_FILES" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📊 Resumo Geral" >> $GITHUB_STEP_SUMMARY
+
+          TOTAL_LINE=$(npm run test:cov | grep "All files" | sed 's/|//g' | tr -s " ")
+
+          echo "* **Statements:** $(echo "$TOTAL_LINE" | awk '{print $3}')%" >> $GITHUB_STEP_SUMMARY
+          echo "* **Branches:** $(echo "$TOTAL_LINE" | awk '{print $4}')% (Mínimo: 90%)" >> $GITHUB_STEP_SUMMARY
+          echo "* **Lines:** $(echo "$TOTAL_LINE" | awk '{print $6}')%" >> $GITHUB_STEP_SUMMARY
+
+      - name: Upload Coverage Artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage/
+          retention-days: 1
+  security:
+    name: Security & Quality Scans
+    needs: [build, test]
+    if: |
+      always() &&
+      needs.build.result == 'success' &&
+      (needs.test.result == 'success' || needs.test.result == 'failure' || needs.test.result == 'skipped') &&
+      (github.event_name != 'workflow_dispatch' || inputs.enable_sonar == true)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download Coverage Artifact
+        if: needs.test.result == 'success' || needs.test.result == 'failure'
+        uses: actions/download-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage/
+
+      - name: SonarQube Scan
+        uses: sonarsource/sonarqube-scan-action@master
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.projectKey=${{ github.repository_owner }}_${{ github.event.repository.name }}
+            -Dsonar.organization=pedroo-nietoo
+            -Dsonar.sources=src
+            -Dsonar.tests=src
+            -Dsonar.test.inclusions=src/**/*.spec.ts
+            -Dsonar.exclusions=src/**/*.spec.ts
+            -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
+      - name: SonarQube Quality Gate Check
+        id: sonarqube-quality-gate-check
+        uses: sonarsource/sonarqube-quality-gate-action@master
+        timeout-minutes: 5
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+  deploy:
+    name: Deploy application
+    needs: [build, test, security]
+    if: |
+      always() &&
+      needs.build.result == 'success' &&
+      needs.test.result == 'success' &&
+      needs.security.result == 'success' &&
+      github.event_name == 'workflow_dispatch' && inputs.action == 'Deploy'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: |
+          echo "Build, Testes e Segurança validados."
+          echo "Iniciando Deploy para AWS (Ambiente de Dev)..."
