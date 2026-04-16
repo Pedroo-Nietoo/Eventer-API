@@ -110,7 +110,8 @@ async function runSeed() {
     console.log('🛒 Criando pedidos...');
 
     const order = orderRepo.create({
-      stripeSessionId: 'cs_test_' + uuidv4().replaceAll(/-/g, '').substring(0, 24),
+      stripeSessionId:
+        'cs_test_' + uuidv4().replaceAll(/-/g, '').substring(0, 24),
       status: OrderStatus.PAID,
       user: commonUser,
       ticketType: ticketTypeVip,
@@ -143,7 +144,6 @@ async function runSeed() {
       Organizador: contato@produtora.com / Senha123!
       Comum: joao@gmail.com / Senha123!
     `);
-
   } catch (error) {
     console.error('❌ Erro durante o seeding:', error);
   } finally {
@@ -153,4 +153,4 @@ async function runSeed() {
   }
 }
 
-runSeed();
+void runSeed();

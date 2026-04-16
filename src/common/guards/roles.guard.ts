@@ -10,7 +10,7 @@ interface AuthenticatedRequest extends Request {
 
 @Injectable()
 export class RolesGuard implements CanActivate {
-  constructor(private readonly reflector: Reflector) { }
+  constructor(private readonly reflector: Reflector) {}
 
   canActivate(context: ExecutionContext): boolean {
     const rolesOptions = this.reflector.getAllAndOverride<RolesOptions>(

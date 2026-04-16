@@ -11,12 +11,13 @@ import { UsersRepository } from '@users/repository/users.repository';
 import { UserMapper } from '@users/mappers/user.mapper';
 import { UserResponseDto } from '@users/dto/user-response.dto';
 import { DatabaseError } from '@common/interfaces/database-error.interface';
+import { User } from '@users/entities/user.entity';
 
 @Injectable()
 export class UpdateUserUseCase {
   private readonly logger = new Logger(UpdateUserUseCase.name);
 
-  constructor(private readonly usersRepository: UsersRepository) { }
+  constructor(private readonly usersRepository: UsersRepository) {}
 
   async execute(id: string, dto: UpdateUserDto): Promise<UserResponseDto> {
     const user = await this.getUserOrThrow(id);
@@ -46,7 +47,7 @@ export class UpdateUserUseCase {
     return !dto || Object.keys(dto).length === 0;
   }
 
-  private async applyUpdates(user: any, dto: UpdateUserDto): Promise<void> {
+  private async applyUpdates(user: User, dto: UpdateUserDto): Promise<void> {
     const { password, ...updateData } = dto;
 
     if (password) {
@@ -61,7 +62,9 @@ export class UpdateUserUseCase {
     const conflictCodes = ['23505', 'ER_DUP_ENTRY'];
 
     if (dbError.code && conflictCodes.includes(dbError.code)) {
-      throw new ConflictException('Este e-mail já está em uso por outro usuário.');
+      throw new ConflictException(
+        'Este e-mail já está em uso por outro usuário.',
+      );
     }
 
     this.logger.error(
@@ -69,6 +72,8 @@ export class UpdateUserUseCase {
       dbError.stack ?? 'Sem stack trace',
     );
 
-    throw new InternalServerErrorException('Erro interno ao atualizar o usuário.');
+    throw new InternalServerErrorException(
+      'Erro interno ao atualizar o usuário.',
+    );
   }
 }

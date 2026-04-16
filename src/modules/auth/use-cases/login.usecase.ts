@@ -9,7 +9,7 @@ export class LoginUseCase {
   constructor(
     private readonly sessionService: SessionService,
     private readonly jwtService: JwtService,
-  ) { }
+  ) {}
 
   async execute(user: AuthenticatedUser) {
     const payload = { sub: user.id, role: user.role };

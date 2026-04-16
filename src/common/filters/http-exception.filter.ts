@@ -37,7 +37,9 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
     const exceptionData = this.parseException(exception);
     const context = this.getErrorContext(request);
-    const durationMs = request.startTime ? Date.now() - request.startTime : null;
+    const durationMs = request.startTime
+      ? Date.now() - request.startTime
+      : null;
     const stack = exception instanceof Error ? exception.stack : undefined;
 
     const errorLogData = {
@@ -94,38 +96,54 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const isValidationError = Array.isArray(typedRes.message);
 
     return {
-      message: isValidationError ? 'Erro de validação nos dados enviados.' : typedRes.message,
+      message: isValidationError
+        ? 'Erro de validação nos dados enviados.'
+        : typedRes.message,
       details: isValidationError ? (typedRes.message as string[]) : undefined,
       errorType: typedRes.error || defaultName,
     };
   }
 
-  private applyDefaultStatusMessages(status: number, currentMessage: string | string[]): string | string[] {
+  private applyDefaultStatusMessages(
+    status: number,
+    currentMessage: string | string[],
+  ): string | string[] {
     const errorMappings: Record<number, string> = {
       [HttpStatus.UNAUTHORIZED]: 'Acesso negado. Autenticação necessária.',
-      [HttpStatus.FORBIDDEN]: 'Você não tem permissão para acessar este recurso.',
-      [HttpStatus.TOO_MANY_REQUESTS]: 'Excesso de requisições realizadas. Por favor, tente novamente mais tarde.',
+      [HttpStatus.FORBIDDEN]:
+        'Você não tem permissão para acessar este recurso.',
+      [HttpStatus.TOO_MANY_REQUESTS]:
+        'Excesso de requisições realizadas. Por favor, tente novamente mais tarde.',
       [HttpStatus.INTERNAL_SERVER_ERROR]: 'Erro interno no servidor.',
     };
 
-    const isEmpty = !currentMessage || (typeof currentMessage === 'string' && currentMessage.trim() === '');
-    return isEmpty ? (errorMappings[status] || 'Erro inesperado.') : currentMessage;
+    const isEmpty =
+      !currentMessage ||
+      (typeof currentMessage === 'string' && currentMessage.trim() === '');
+    return isEmpty
+      ? errorMappings[status] || 'Erro inesperado.'
+      : currentMessage;
   }
 
   private getErrorContext(request: ExtendedRequest) {
     return {
-      body: this.getSanitizedBody(request.body),
-      query: this.getEmptyAsUndefined(request.query),
-      params: this.getEmptyAsUndefined(request.params),
+      body: this.getSanitizedBody(request.body as unknown),
+      query: this.getEmptyAsUndefined(request.query as unknown),
+      params: this.getEmptyAsUndefined(request.params as unknown),
       userId: request.user?.sub || request.user?.id || 'Unauthenticated',
       clientIp: request.ip,
     };
   }
 
-  private getSanitizedBody(body: any) {
-    if (!body || typeof body !== 'object') return undefined;
+  private getSanitizedBody(body: unknown): Record<string, unknown> | undefined {
+    if (!body || typeof body !== 'object' || Array.isArray(body)) {
+      return undefined;
+    }
 
-    const sanitized = { ...body };
+    const sanitized: Record<string, unknown> = {
+      ...(body as Record<string, unknown>),
+    };
+
     if ('password' in sanitized) {
       sanitized.password = '***Omitted***';
     }
@@ -133,7 +151,13 @@ export class HttpExceptionFilter implements ExceptionFilter {
     return Object.keys(sanitized).length > 0 ? sanitized : undefined;
   }
 
-  private getEmptyAsUndefined(obj: any) {
-    return obj && Object.keys(obj).length > 0 ? obj : undefined;
+  private getEmptyAsUndefined(
+    obj: unknown,
+  ): Record<string, unknown> | undefined {
+    if (obj && typeof obj === 'object' && !Array.isArray(obj)) {
+      const record = obj as Record<string, unknown>;
+      return Object.keys(record).length > 0 ? record : undefined;
+    }
+    return undefined;
   }
 }

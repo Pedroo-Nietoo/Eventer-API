@@ -13,7 +13,7 @@ export class CompleteOrderUseCase {
     private readonly ordersRepository: OrdersRepository,
     private readonly dataSource: DataSource,
     private readonly createTicketUseCase: CreateTicketUseCase,
-  ) { }
+  ) {}
 
   async execute(orderId: string): Promise<void> {
     const order = await this.ordersRepository.findById(orderId);
