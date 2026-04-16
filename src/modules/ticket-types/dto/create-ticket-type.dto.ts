@@ -20,7 +20,7 @@ export class CreateTicketTypeDto {
   @IsOptional()
   description?: string;
 
-  @ApiProperty({ example: 250.0 })
+  @ApiProperty({ example: 250.99 })
   @IsNumber({ maxDecimalPlaces: 2 })
   @Min(0)
   price: number;

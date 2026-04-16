@@ -3,7 +3,7 @@ import { MailService } from './mail.service';
 import { ConfigService } from '@nestjs/config';
 import { InternalServerErrorException } from '@nestjs/common';
 import { Resend } from 'resend';
-import * as fs from 'fs/promises';
+import * as fs from 'node:fs/promises';
 import * as handlebars from 'handlebars';
 import puppeteer from 'puppeteer';
 

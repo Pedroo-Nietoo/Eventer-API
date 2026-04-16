@@ -13,12 +13,12 @@ import { RedisHealthIndicator } from './redis.health';
 @Controller('health')
 export class HealthController {
   constructor(
-    private health: HealthCheckService,
-    private db: TypeOrmHealthIndicator,
-    private disk: DiskHealthIndicator,
-    private memory: MemoryHealthIndicator,
-    private redis: RedisHealthIndicator,
-  ) {}
+    private readonly health: HealthCheckService,
+    private readonly db: TypeOrmHealthIndicator,
+    private readonly disk: DiskHealthIndicator,
+    private readonly memory: MemoryHealthIndicator,
+    private readonly redis: RedisHealthIndicator,
+  ) { }
 
   @Get()
   @HealthCheck()

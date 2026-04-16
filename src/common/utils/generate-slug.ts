@@ -2,6 +2,6 @@ export default function generateSlug(title: string): string {
   return title
     .toLowerCase()
     .trim()
-    .replace(/[\s\W-]+/g, '-')
-    .replace(/^-+|-+$/g, '');
+    .replaceAll(/[^a-z0-9]+/g, '-')
+    .replaceAll(/^-+|-+$/g, '');
 }

@@ -12,7 +12,7 @@ describe('TicketMapper', () => {
     qrCode: 'abc-123-qr',
     status: TicketStatus.VALID,
     createdAt: baseDate,
-    purchasePrice: 150.00,
+    purchasePrice: 150.99,
     user: {
      id: 'user-456',
      username: 'pedronieto',
@@ -22,7 +22,7 @@ describe('TicketMapper', () => {
     ticketType: {
      id: 'lote-789',
      name: 'Lote VIP',
-     price: 150.00,
+     price: 150.99,
      totalQuantity: 100,
      event: {
       id: 'event-000',
@@ -41,7 +41,7 @@ describe('TicketMapper', () => {
     qrCode: 'abc-123-qr',
     status: TicketStatus.VALID,
     createdAt: baseDate,
-    purchasePrice: 150.00,
+    purchasePrice: 150.99,
     user: {
      id: 'user-456',
      username: 'pedronieto',
@@ -50,7 +50,7 @@ describe('TicketMapper', () => {
     ticketType: {
      id: 'lote-789',
      name: 'Lote VIP',
-     price: 150.00,
+     price: 150.99,
      event: {
       id: 'event-000',
       title: 'NestJS Summit',
@@ -69,12 +69,12 @@ describe('TicketMapper', () => {
     qrCode: 'xyz-999-qr',
     status: TicketStatus.CANCELLED,
     createdAt: baseDate,
-    purchasePrice: 50.00,
+    purchasePrice: 50.99,
 
     ticketType: {
      id: 'lote-333',
      name: 'Pista',
-     price: 50.00,
+     price: 50.99,
 
     },
    } as any;

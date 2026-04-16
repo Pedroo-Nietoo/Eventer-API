@@ -5,7 +5,6 @@ import { GenerateTicketTokenService } from '@services/generate-ticket-token.serv
 import { DispatchTicketEmailUseCase } from './dispatch-ticket-email.usecase';
 import { TicketMapper } from '@tickets/mappers/ticket.mapper';
 import { BadRequestException, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
-import { TicketStatus } from '@tickets/entities/ticket.entity';
 
 describe('CreateTicketUseCase', () => {
  let useCase: CreateTicketUseCase;

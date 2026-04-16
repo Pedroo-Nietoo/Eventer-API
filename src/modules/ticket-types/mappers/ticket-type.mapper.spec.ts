@@ -1,5 +1,4 @@
 import { TicketTypeMapper } from './ticket-type.mapper';
-import { TicketType } from '@ticket-types/entities/ticket-type.entity';
 
 describe('TicketTypeMapper', () => {
  const baseDate = new Date('2026-06-15T10:00:00Z');
@@ -11,7 +10,7 @@ describe('TicketTypeMapper', () => {
     id: 'lote-123',
     name: 'Lote VIP',
     description: 'Acesso antecipado',
-    price: 150.00,
+    price: 150.99,
     totalQuantity: 100,
     availableQuantity: 50,
     createdAt: baseDate,
@@ -27,7 +26,7 @@ describe('TicketTypeMapper', () => {
     id: 'lote-123',
     name: 'Lote VIP',
     description: 'Acesso antecipado',
-    price: 150.00,
+    price: 150.99,
     totalQuantity: 100,
     availableQuantity: 50,
     createdAt: baseDate,
@@ -41,7 +40,7 @@ describe('TicketTypeMapper', () => {
    const mockEntityWithoutEvent = {
     id: 'lote-789',
     name: 'Lote Pista',
-    price: 50.00,
+    price: 50.99,
 
    } as any;
 

@@ -23,7 +23,7 @@ export class TicketResponseDto {
     example: {
       id: 'tt-456',
       name: 'Lote VIP',
-      price: 150.0,
+      price: 150.99,
       event: { id: 'e-789', title: 'Nearby Festival' },
     },
   })
@@ -34,6 +34,6 @@ export class TicketResponseDto {
     event?: { id: string; title?: string };
   };
 
-  @ApiPropertyOptional({ example: 150.0 })
+  @ApiPropertyOptional({ example: 150.99 })
   purchasePrice?: number;
 }

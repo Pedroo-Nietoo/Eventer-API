@@ -9,7 +9,7 @@ import Stripe from 'stripe';
 @Injectable()
 export class StripeService {
   private readonly logger = new Logger(StripeService.name);
-  private stripe: Stripe;
+  private readonly stripe: Stripe;
 
   constructor(private readonly configService: ConfigService) {
     this.stripe = new Stripe(

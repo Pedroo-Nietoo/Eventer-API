@@ -10,7 +10,7 @@ interface AuthenticatedRequest extends Request {
 
 @Injectable()
 export class RolesGuard implements CanActivate {
-  constructor(private reflector: Reflector) {}
+  constructor(private readonly reflector: Reflector) { }
 
   canActivate(context: ExecutionContext): boolean {
     const rolesOptions = this.reflector.getAllAndOverride<RolesOptions>(
@@ -25,13 +25,13 @@ export class RolesGuard implements CanActivate {
     const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
     const user = request.user;
 
-    if (!user || !user.role) {
+    if (!user?.role) {
       return false;
     }
 
     const { allow, deny } = rolesOptions;
 
-    if (deny && deny.includes(user.role)) {
+    if (deny?.includes(user.role)) {
       return false;
     }
 

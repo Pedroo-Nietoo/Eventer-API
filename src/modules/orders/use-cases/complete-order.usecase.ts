@@ -13,12 +13,12 @@ export class CompleteOrderUseCase {
     private readonly ordersRepository: OrdersRepository,
     private readonly dataSource: DataSource,
     private readonly createTicketUseCase: CreateTicketUseCase,
-  ) {}
+  ) { }
 
   async execute(orderId: string): Promise<void> {
     const order = await this.ordersRepository.findById(orderId);
 
-    if (!order || order.status !== OrderStatus.PENDING) {
+    if (order?.status !== OrderStatus.PENDING) {
       this.logger.warn(
         `Pedido ${orderId} ignorado (Status atual: ${order?.status})`,
       );

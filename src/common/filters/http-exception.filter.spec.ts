@@ -49,103 +49,159 @@ describe('HttpExceptionFilter', () => {
   expect(filter).toBeDefined();
  });
 
- it('deve processar uma HttpException padrão (Ex: 404 Not Found)', () => {
-  const exception = new HttpException('Recurso não encontrado', HttpStatus.NOT_FOUND);
+ describe('Processamento de Exceptions', () => {
+  it('deve processar uma HttpException com mensagem em string', () => {
+   const exception = new HttpException('Erro customizado', HttpStatus.BAD_REQUEST);
 
-  filter.catch(exception, mockArgumentsHost);
+   filter.catch(exception, mockArgumentsHost);
 
-  expect(mockResponse.status).toHaveBeenCalledWith(HttpStatus.NOT_FOUND);
-  expect(mockResponse.json).toHaveBeenCalledWith(
-   expect.objectContaining({
-    statusCode: HttpStatus.NOT_FOUND,
-    message: 'Recurso não encontrado',
-    error: 'HttpException',
-    path: '/api/v1/users',
-   })
-  );
+   expect(mockResponse.status).toHaveBeenCalledWith(400);
+   expect(mockResponse.json).toHaveBeenCalledWith(
+    expect.objectContaining({
+     message: 'Erro customizado',
+     error: 'HttpException',
+    }),
+   );
+  });
+
+  it('deve formatar erros de validação (array de mensagens)', () => {
+   const validationResponse = {
+    message: ['email invalid', 'password short'],
+    error: 'Bad Request',
+   };
+   const exception = new HttpException(validationResponse, HttpStatus.BAD_REQUEST);
+
+   filter.catch(exception, mockArgumentsHost);
+
+   expect(mockResponse.json).toHaveBeenCalledWith(
+    expect.objectContaining({
+     message: 'Erro de validação nos dados enviados.',
+     details: ['email invalid', 'password short'],
+    }),
+   );
+  });
+
+  it('deve processar erros genéricos como 500 Internal Server Error', () => {
+   const error = new Error('Crash total');
+
+   filter.catch(error, mockArgumentsHost);
+
+   expect(mockResponse.status).toHaveBeenCalledWith(500);
+   expect(mockResponse.json).toHaveBeenCalledWith(
+    expect.objectContaining({
+     error: 'InternalServerError',
+     message: 'Erro interno no servidor.',
+    }),
+   );
+  });
+
+  it('deve usar o nome da exceção se o objeto de resposta não tiver o campo error', () => {
+   const exception = new HttpException({ message: 'Algo falhou' }, HttpStatus.AMBIGUOUS);
+
+   filter.catch(exception, mockArgumentsHost);
+
+   expect(mockResponse.json).toHaveBeenCalledWith(
+    expect.objectContaining({
+     error: 'HttpException',
+    }),
+   );
+  });
  });
 
- it('deve formatar arrays de validação gerados pelo class-validator', () => {
-  const validationResponse = {
-   message: ['email is not valid', 'password is too short'],
-   error: 'Bad Request',
-   statusCode: 400,
-  };
-  const exception = new HttpException(validationResponse, HttpStatus.BAD_REQUEST);
+ describe('Mensagens de Status Mapeadas', () => {
+  it('deve aplicar mensagem padrão para 401 Unauthorized se a mensagem vier vazia', () => {
+   const exception = new HttpException('', HttpStatus.UNAUTHORIZED);
 
-  filter.catch(exception, mockArgumentsHost);
+   filter.catch(exception, mockArgumentsHost);
 
-  expect(mockResponse.status).toHaveBeenCalledWith(HttpStatus.BAD_REQUEST);
-  expect(mockResponse.json).toHaveBeenCalledWith(
-   expect.objectContaining({
-    statusCode: HttpStatus.BAD_REQUEST,
-    message: 'Erro de validação nos dados enviados.',
-    details: ['email is not valid', 'password is too short'],
-   })
-  );
+   expect(mockResponse.json).toHaveBeenCalledWith(
+    expect.objectContaining({
+     message: 'Acesso negado. Autenticação necessária.',
+    }),
+   );
+  });
+
+  it('deve aplicar "Erro inesperado." para status desconhecidos sem mensagem', () => {
+   const exception = new HttpException('', HttpStatus.I_AM_A_TEAPOT);
+
+   filter.catch(exception, mockArgumentsHost);
+
+   expect(mockResponse.json).toHaveBeenCalledWith(
+    expect.objectContaining({
+     message: 'Erro inesperado.',
+    }),
+   );
+  });
  });
 
- it('deve processar erros genéricos (não-HttpException) como 500 Internal Server Error', () => {
-  const unexpectedError = new TypeError('Cannot read property of undefined');
+ describe('Contexto e Higienização (Logging)', () => {
+  it('deve omitir senhas no log do body', () => {
+   mockRequest.body = { user: 'admin', password: '123' };
+   const exception = new HttpException('Erro', 400);
 
-  filter.catch(unexpectedError, mockArgumentsHost);
+   filter.catch(exception, mockArgumentsHost);
 
-  expect(mockResponse.status).toHaveBeenCalledWith(HttpStatus.INTERNAL_SERVER_ERROR);
-  expect(mockResponse.json).toHaveBeenCalledWith(
-   expect.objectContaining({
-    statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-    message: 'Erro interno no servidor.',
-    error: 'InternalServerError',
-   })
-  );
- });
+   const loggerSpy = Logger.prototype.error as jest.Mock;
+   const logData = JSON.parse(loggerSpy.mock.calls[0][0]);
 
- it('deve aplicar as mensagens padrão mapeadas para status específicos (Ex: 429 Too Many Requests)', () => {
-  const exception = new HttpException('', HttpStatus.TOO_MANY_REQUESTS);
+   expect(logData.context.body.password).toBe('***Omitted***');
+   expect(logData.context.body.user).toBe('admin');
+  });
 
-  filter.catch(exception, mockArgumentsHost);
+  it('deve retornar undefined para query/params/body se estiverem vazios', () => {
+   mockRequest.body = null;
+   mockRequest.query = {};
+   mockRequest.params = {};
+   const exception = new HttpException('Erro', 400);
 
-  expect(mockResponse.json).toHaveBeenCalledWith(
-   expect.objectContaining({
-    statusCode: HttpStatus.TOO_MANY_REQUESTS,
-    message: 'Excesso de requisições realizadas. Por favor, tente novamente mais tarde.',
-   })
-  );
- });
+   filter.catch(exception, mockArgumentsHost);
 
- it('deve higienizar o campo "password" no body antes de enviar para o Logger', () => {
-  mockRequest.body = {
-   email: 'pedro@test.com',
-   password: 'minha-senha-secreta',
-  };
-  const exception = new HttpException('Erro genérico', HttpStatus.BAD_REQUEST);
+   const loggerSpy = Logger.prototype.error as jest.Mock;
+   const logData = JSON.parse(loggerSpy.mock.calls[0][0]);
 
-  filter.catch(exception, mockArgumentsHost);
+   expect(logData.context.body).toBeUndefined();
+   expect(logData.context.query).toBeUndefined();
+   expect(logData.context.params).toBeUndefined();
+  });
 
-  const loggerSpy = Logger.prototype.error as jest.Mock;
-  const logCallString = loggerSpy.mock.calls[0][0];
-  const logData = JSON.parse(logCallString);
+  it('deve identificar o usuário via "sub" se disponível, senão "id"', () => {
+   mockRequest.user = { sub: 'subject-456' };
+   filter.catch(new Error(), mockArgumentsHost);
 
-  expect(logData.context.body.email).toBe('pedro@test.com');
-  expect(logData.context.body.password).toBe('***Omitted***');
-  expect(logData.context.body.password).not.toBe('minha-senha-secreta');
- });
+   let logData = JSON.parse((Logger.prototype.error as jest.Mock).mock.calls[0][0]);
+   expect(logData.context.userId).toBe('subject-456');
 
- it('deve registrar corretamente o contexto e a duração no Logger', () => {
-  mockRequest.query = { search: 'show' };
-  const exception = new HttpException('Teste de Log', HttpStatus.BAD_REQUEST);
+   jest.clearAllMocks();
+   mockRequest.user = { id: 'id-789' };
+   filter.catch(new Error(), mockArgumentsHost);
 
-  filter.catch(exception, mockArgumentsHost);
+   logData = JSON.parse((Logger.prototype.error as jest.Mock).mock.calls[0][0]);
+   expect(logData.context.userId).toBe('id-789');
 
-  expect(Logger.prototype.error).toHaveBeenCalled();
-  const loggerSpy = Logger.prototype.error as jest.Mock;
-  const logData = JSON.parse(loggerSpy.mock.calls[0][0]);
+   jest.clearAllMocks();
+   delete mockRequest.user;
+   filter.catch(new Error(), mockArgumentsHost);
 
-  expect(logData.event).toBe('http_request_error');
-  expect(logData.url).toBe('/api/v1/users');
-  expect(logData.statusCode).toBe(400);
-  expect(logData.context.userId).toBe('user-123');
-  expect(logData.context.query).toEqual({ search: 'show' });
-  expect(typeof logData.durationMs).toBe('number');
+   logData = JSON.parse((Logger.prototype.error as jest.Mock).mock.calls[0][0]);
+   expect(logData.context.userId).toBe('Unauthenticated');
+  });
+
+  it('deve calcular durationMs como null se startTime não existir', () => {
+   delete mockRequest.startTime;
+   filter.catch(new Error(), mockArgumentsHost);
+
+   const loggerSpy = Logger.prototype.error as jest.Mock;
+   const logData = JSON.parse(loggerSpy.mock.calls[0][0]);
+
+   expect(logData.durationMs).toBeNull();
+  });
+
+  it('deve logar o stack trace se a exceção for uma instância de Error', () => {
+   const error = new Error('Stack test');
+   filter.catch(error, mockArgumentsHost);
+
+   const loggerSpy = Logger.prototype.error as jest.Mock;
+   expect(loggerSpy.mock.calls[0][1]).toBeDefined();
+  });
  });
 });

@@ -1,9 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { UpdateTicketUseCase } from './update-ticket.usecase';
 import { DataSource } from 'typeorm';
-import { TicketStatus, Ticket } from '@tickets/entities/ticket.entity';
+import { TicketStatus } from '@tickets/entities/ticket.entity';
 import { FindTicketUseCase } from './find-ticket.usecase';
-import { TicketMapper } from '@tickets/mappers/ticket.mapper';
 import {
   BadRequestException,
   InternalServerErrorException,

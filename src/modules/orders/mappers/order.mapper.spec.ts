@@ -1,5 +1,4 @@
 import { OrderMapper } from './order.mapper';
-import { Order } from '@orders/entities/order.entity';
 import { OrderStatus } from '@common/enums/order-status.enum';
 
 describe('OrderMapper', () => {
@@ -31,7 +30,7 @@ describe('OrderMapper', () => {
     ticketTypeId: 'lote-789',
     quantity: 2,
     unitPrice: 75.5,
-    totalPrice: 151.0,
+    totalPrice: 151,
     status: OrderStatus.PAID,
     createdAt: baseDate,
     updatedAt: baseDate,

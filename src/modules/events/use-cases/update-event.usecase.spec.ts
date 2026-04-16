@@ -16,7 +16,7 @@ import * as generateSlugHelper from '@common/utils/generate-slug';
 
 jest.mock('@common/utils/generate-slug', () => ({
  __esModule: true,
- default: jest.fn((val: string) => val.toLowerCase().replace(/ /g, '-')),
+ default: jest.fn((val: string) => val.toLowerCase().replaceAll(/ /g, '-')),
 }));
 
 describe('UpdateEventUseCase', () => {

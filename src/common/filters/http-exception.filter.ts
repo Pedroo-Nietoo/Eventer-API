@@ -19,6 +19,13 @@ interface HttpExceptionResponse {
   error?: string;
 }
 
+interface ParsedException {
+  status: number;
+  message: string | string[];
+  errorType: string;
+  details?: string[];
+}
+
 @Catch()
 export class HttpExceptionFilter implements ExceptionFilter {
   private readonly logger = new Logger('HttpException');
@@ -28,97 +35,105 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const response = ctx.getResponse<Response>();
     const request = ctx.getRequest<ExtendedRequest>();
 
-    const durationMs = request.startTime
-      ? Date.now() - request.startTime
-      : null;
-
-    let status = HttpStatus.INTERNAL_SERVER_ERROR;
-    let message: string | string[] = 'Erro interno no servidor.';
-    let errorType = 'InternalServerError';
-    let details: string[] | undefined;
-
+    const exceptionData = this.parseException(exception);
+    const context = this.getErrorContext(request);
+    const durationMs = request.startTime ? Date.now() - request.startTime : null;
     const stack = exception instanceof Error ? exception.stack : undefined;
-
-    if (exception instanceof HttpException) {
-      status = exception.getStatus();
-      const exceptionResponse = exception.getResponse();
-
-      if (typeof exceptionResponse === 'string') {
-        message = exceptionResponse;
-        errorType = exception.name;
-      } else if (
-        typeof exceptionResponse === 'object' &&
-        exceptionResponse !== null
-      ) {
-        const typedResponse = exceptionResponse as HttpExceptionResponse;
-
-        if (Array.isArray(typedResponse.message)) {
-          message = 'Erro de validação nos dados enviados.';
-          details = typedResponse.message;
-        } else if (typedResponse.message) {
-          message = typedResponse.message;
-        }
-
-        errorType = typedResponse.error || exception.name;
-      } else {
-        errorType = exception.name;
-      }
-    }
-
-    const errorMappings: Record<number, string> = {
-      [HttpStatus.UNAUTHORIZED]: 'Acesso negado. Autenticação necessária.',
-      [HttpStatus.FORBIDDEN]:
-        'Você não tem permissão para acessar este recurso.',
-      [HttpStatus.TOO_MANY_REQUESTS]:
-        'Excesso de requisições realizadas. Por favor, tente novamente mais tarde.',
-      [HttpStatus.INTERNAL_SERVER_ERROR]: 'Erro interno no servidor.',
-    };
-
-    if (!message || (typeof message === 'string' && message.trim() === '')) {
-      message = errorMappings[status] || 'Erro inesperado.';
-    }
-
-    const rawBody = request.body as unknown;
-    let sanitizedBody: Record<string, unknown> = {};
-
-    if (typeof rawBody === 'object' && rawBody !== null) {
-      sanitizedBody = { ...(rawBody as Record<string, unknown>) };
-      if ('password' in sanitizedBody) {
-        sanitizedBody.password = '***Omitted***';
-      }
-    }
-
-    const queryObj = request.query as Record<string, unknown>;
-    const paramsObj = request.params as Record<string, unknown>;
-
-    const errorContext = {
-      body: Object.keys(sanitizedBody).length > 0 ? sanitizedBody : undefined,
-      query: Object.keys(queryObj).length > 0 ? queryObj : undefined,
-      params: Object.keys(paramsObj).length > 0 ? paramsObj : undefined,
-      userId: request.user?.sub || request.user?.id || 'Unauthenticated',
-      clientIp: request.ip,
-    };
 
     const errorLogData = {
       event: 'http_request_error',
       method: request.method,
       url: request.url,
-      statusCode: status,
+      statusCode: exceptionData.status,
       durationMs,
-      errorType,
-      message: Array.isArray(details) && details.length > 0 ? details : message,
-      context: errorContext,
+      errorType: exceptionData.errorType,
+      message: exceptionData.details || exceptionData.message,
+      context,
     };
 
     this.logger.error(JSON.stringify(errorLogData), stack);
 
-    response.status(status).json({
-      statusCode: status,
-      error: errorType,
-      message,
-      details,
+    response.status(exceptionData.status).json({
+      statusCode: exceptionData.status,
+      error: exceptionData.errorType,
+      message: exceptionData.message,
+      details: exceptionData.details,
       timestamp: new Date().toISOString(),
       path: request.url,
     });
+  }
+
+  private parseException(exception: unknown): ParsedException {
+    let status = HttpStatus.INTERNAL_SERVER_ERROR;
+    let message: string | string[] = '';
+    let errorType = 'InternalServerError';
+    let details: string[] | undefined;
+
+    if (exception instanceof HttpException) {
+      status = exception.getStatus();
+      const res = exception.getResponse();
+
+      const parsed = this.extractHttpExceptionData(res, exception.name);
+
+      message = parsed.message ?? '';
+      errorType = parsed.errorType || exception.name;
+      details = parsed.details;
+    }
+
+    message = this.applyDefaultStatusMessages(status, message);
+
+    return { status, message, errorType, details };
+  }
+
+  private extractHttpExceptionData(res: string | object, defaultName: string) {
+    if (typeof res === 'string') {
+      return { message: res, errorType: defaultName };
+    }
+
+    const typedRes = res as HttpExceptionResponse;
+    const isValidationError = Array.isArray(typedRes.message);
+
+    return {
+      message: isValidationError ? 'Erro de validação nos dados enviados.' : typedRes.message,
+      details: isValidationError ? (typedRes.message as string[]) : undefined,
+      errorType: typedRes.error || defaultName,
+    };
+  }
+
+  private applyDefaultStatusMessages(status: number, currentMessage: string | string[]): string | string[] {
+    const errorMappings: Record<number, string> = {
+      [HttpStatus.UNAUTHORIZED]: 'Acesso negado. Autenticação necessária.',
+      [HttpStatus.FORBIDDEN]: 'Você não tem permissão para acessar este recurso.',
+      [HttpStatus.TOO_MANY_REQUESTS]: 'Excesso de requisições realizadas. Por favor, tente novamente mais tarde.',
+      [HttpStatus.INTERNAL_SERVER_ERROR]: 'Erro interno no servidor.',
+    };
+
+    const isEmpty = !currentMessage || (typeof currentMessage === 'string' && currentMessage.trim() === '');
+    return isEmpty ? (errorMappings[status] || 'Erro inesperado.') : currentMessage;
+  }
+
+  private getErrorContext(request: ExtendedRequest) {
+    return {
+      body: this.getSanitizedBody(request.body),
+      query: this.getEmptyAsUndefined(request.query),
+      params: this.getEmptyAsUndefined(request.params),
+      userId: request.user?.sub || request.user?.id || 'Unauthenticated',
+      clientIp: request.ip,
+    };
+  }
+
+  private getSanitizedBody(body: any) {
+    if (!body || typeof body !== 'object') return undefined;
+
+    const sanitized = { ...body };
+    if ('password' in sanitized) {
+      sanitized.password = '***Omitted***';
+    }
+
+    return Object.keys(sanitized).length > 0 ? sanitized : undefined;
+  }
+
+  private getEmptyAsUndefined(obj: any) {
+    return obj && Object.keys(obj).length > 0 ? obj : undefined;
   }
 }
