@@ -7,8 +7,10 @@ import {
   MemoryHealthIndicator,
 } from '@nestjs/terminus';
 import { Public } from '@common/decorators/public.decorator';
-import { RedisHealthIndicator } from './redis.health';
+import { SwaggerHealthController as Doc } from './health.swagger';
+import { RedisHealthIndicator } from '../redis.health';
 
+@Doc.Main()
 @Public()
 @Controller('health')
 export class HealthController {
@@ -18,8 +20,9 @@ export class HealthController {
     private readonly disk: DiskHealthIndicator,
     private readonly memory: MemoryHealthIndicator,
     private readonly redis: RedisHealthIndicator,
-  ) {}
+  ) { }
 
+  @Doc.CheckAll()
   @Get()
   @HealthCheck()
   checkAll() {

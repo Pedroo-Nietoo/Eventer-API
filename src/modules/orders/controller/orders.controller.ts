@@ -46,8 +46,9 @@ export class OrdersController {
     private readonly deleteOrderUseCase: DeleteOrderUseCase,
     private readonly stripeService: StripeService,
     @InjectQueue('orders-queue') private readonly ordersQueue: Queue,
-  ) {}
+  ) { }
 
+  @Doc.Create()
   @Post()
   async createOrder(
     @Body() createOrderDto: CreateOrderDto,
@@ -56,6 +57,7 @@ export class OrdersController {
     return this.createOrderUseCase.execute(userId, createOrderDto);
   }
 
+  @Doc.Webhook()
   @Public()
   @Post('webhook')
   async handleIncomingEvents(

@@ -23,9 +23,9 @@ export const SwaggerUserController = {
   Create: () =>
     applyDecorators(
       ApiOperation({
-        summary: 'Cria um novo usuário',
+        summary: 'Cria um novo usuário (Público)',
         description:
-          'Permite o registro de novos usuários. Por padrão, o papel (role) atribuído é USER.',
+          'Permite o registro de novos usuários. Rota pública que não exige token JWT. Por padrão, o papel (role) atribuído é USER.',
       }),
       ApiCreatedResponse({
         description: 'Usuário criado com sucesso.',
@@ -76,12 +76,6 @@ export const SwaggerUserController = {
       }),
       ApiForbiddenResponse({
         description: 'Acesso negado. Sem permissão para acessar o recurso.',
-      }),
-      ApiInternalServerErrorResponse({
-        description: 'Erro interno do servidor.',
-      }),
-      ApiInternalServerErrorResponse({
-        description: 'Erro interno do servidor.',
       }),
       ApiInternalServerErrorResponse({
         description: 'Erro interno do servidor.',

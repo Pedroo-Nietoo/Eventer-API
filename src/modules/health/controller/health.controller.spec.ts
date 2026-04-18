@@ -6,7 +6,7 @@ import {
  DiskHealthIndicator,
  MemoryHealthIndicator,
 } from '@nestjs/terminus';
-import { RedisHealthIndicator } from './redis.health';
+import { RedisHealthIndicator } from '../redis.health';
 
 describe('HealthController', () => {
  let controller: HealthController;
