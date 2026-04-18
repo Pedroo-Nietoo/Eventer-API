@@ -1,0 +1,92 @@
+@startuml Sequence_AsyncPayment
+skinparam roundcorner 10
+skinparam maxmessagesize 150
+skinparam sequence {
+    ArrowColor #2c3e50
+    LifeLineBorderColor #34495e
+    LifeLineBackgroundColor White
+    ParticipantBackgroundColor #ecf0f1
+    ParticipantBorderColor #2c3e50
+    BoxBackgroundColor #f9f9fa
+}
+
+title Fluxo de Pagamento e Emissão de Ingressos (Stripe + BullMQ)
+
+actor Usuário as User
+participant "App / Frontend" as Front
+box "API Rest (Síncrono)"
+    participant "OrdersController" as Controller
+    participant "CreateOrder\nUseCase" as CreateOrder
+end box
+box "Fila (BullMQ)" #e8f4f8
+    queue "Redis\n(orders-queue)" as Redis
+end box
+box "Worker (Assíncrono)"
+    participant "OrdersProcessor\n(WorkerHost)" as Worker
+    participant "CompleteOrder\nUseCase" as CompleteOrder
+    participant "CreateTicket\nUseCase" as CreateTicket
+    participant "DispatchTicketEmail\nUseCase" as EmailUseCase
+end box
+database "PostgreSQL\n(TypeORM)" as DB
+participant "Stripe API" as Stripe
+participant "Resend API" as Resend
+
+== 1. Iniciando o Pedido de Compra ==
+User -> Front: Clicar em "Comprar (Qtd: 2)"
+Front -> Controller: POST /orders {ticketTypeId, quantity}
+Controller -> CreateOrder: execute(userId, dto)
+
+CreateOrder -> DB: check stock (TicketType)
+CreateOrder -> DB: BEGIN TRANSACTION
+CreateOrder -> DB: update available_quantity (decrement)
+CreateOrder -> DB: insert Order (status: PENDING)
+
+CreateOrder -> Stripe: createCheckoutSession(orderId, price, quantity)
+Stripe --> CreateOrder: sessionUrl, sessionId
+
+CreateOrder -> DB: update session_id on Order
+CreateOrder -> DB: COMMIT TRANSACTION
+
+CreateOrder --> Controller: { orderId, checkoutUrl }
+Controller --> Front: HTTP 201 Created (Redirect URL)
+Front -> Stripe: Redireciona usuário para Checkout Stripe
+
+== 2. Pagamento e Webhook (Assíncrono) ==
+note over Stripe: Usuário paga com Cartão
+Stripe -> Controller: POST /orders/webhook (checkout.session.completed)
+note over Controller: Valida header stripe-signature
+
+Controller -> Redis: BullMQ.add('complete-order-job', { orderId })
+Redis --> Controller: job added
+Controller --> Stripe: HTTP 200 OK (received: true)
+
+== 3. Processamento do Pedido ==
+Redis -[#blue]-> Worker: process(job)
+Worker -> CompleteOrder: execute(orderId)
+
+CompleteOrder -> DB: findOrder(orderId)
+DB --> CompleteOrder: order (status: PENDING, quantity: 2)
+CompleteOrder -> DB: updateOrder(orderId, status: PAID)
+
+loop para cada ingresso (Ex: 2 vezes)
+    CompleteOrder -> CreateTicket: execute(dto, userId)
+    CreateTicket -> DB: BEGIN TRANSACTION
+    CreateTicket -> CreateTicket: generateTicketToken() (QR Code JWT)
+    CreateTicket -> DB: insert Ticket (status: VALID, qrCode)
+    CreateTicket -> DB: COMMIT TRANSACTION
+    CreateTicket --> CompleteOrder: TicketResponseDto
+    
+    note over CreateTicket, EmailUseCase: Fire and Forget (sem await)
+    CreateTicket -> EmailUseCase: execute(ticketId, token) (Assíncrono)
+end
+
+CompleteOrder --> Worker: finalizado
+Worker --> Redis: job concluído
+
+== 4. Disparo do E-mail ==
+EmailUseCase -> DB: find Ticket & User relations
+DB --> EmailUseCase: Ticket data (email, event title)
+EmailUseCase -> EmailUseCase: GenerateQrCodeImage (Buffer)
+EmailUseCase -> Resend: sendTicketEmail(email, QRCode)
+Resend --> EmailUseCase: accepted
+@enduml

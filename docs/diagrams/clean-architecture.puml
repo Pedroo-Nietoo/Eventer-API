@@ -1,0 +1,41 @@
+@startuml CleanArchitecture_Fiel
+skinparam componentStyle uml2
+skinparam roundcorner 10
+skinparam padding 3
+
+left to right direction
+
+title Arquitetura do Módulo de Pedidos (Baseada no Código)
+
+package "1. Entrada (Adapters)" #e8f4f8 {
+  [OrdersController\n(REST API)] as Controller
+  [OrdersProcessor\n(Worker BullMQ)] as Worker
+}
+
+package "2. Aplicação (Use Cases)" #eafaf1 {
+  [CreateOrder\nUseCase] as Create
+  [CompleteOrder\nUseCase] as Complete
+}
+
+package "3. Domínio & Persistência" #fef9e7 {
+  [Order Entity] as Order
+  [OrdersRepository\n(TypeORM)] as Repo
+}
+
+package "4. Serviços Externos" #fdf2e9 {
+  [StripeService] as Stripe
+  [CreateTicket\nUseCase] as CreateTicket
+}
+
+Controller --> Create : "chama"
+Worker --> Complete : "chama"
+
+Create --> Order : "cria"
+Create --> Repo : "usa para salvar"
+Create --> Stripe : "gera sessão"
+
+Complete --> Repo : "busca/atualiza"
+Complete --> Order : "altera status"
+Complete --> CreateTicket : "dispara emissão"
+
+@enduml

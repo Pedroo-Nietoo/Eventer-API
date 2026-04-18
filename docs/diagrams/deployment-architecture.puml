@@ -1,0 +1,61 @@
+@startuml Deployment
+hide empty members
+skinparam linetype polyline
+skinparam componentStyle uml2
+skinparam roundcorner 8
+skinparam defaultTextAlignment center
+
+skinparam node {
+  BackgroundColor White
+  BorderColor #2c3e50
+}
+
+title Arquitetura de Implantação - Nearby API
+
+actor "Cliente\n(Web / Mobile)" as Client
+
+cloud "Serviços de Terceiros" as ThirdParty {
+  component "Stripe API\n(Gateway de Pagamento)" as Stripe
+  component "Resend API\n(Envio de E-mails)" as Resend
+}
+
+cloud "AWS (Amazon Web Services)" as AWS {
+  component "Amazon S3\n(Armazenamento de Imagens)" as S3
+  component "CloudFront\n(CDN)" as CDN
+  component "CloudWatch\n(Monitoramento e Logs)" as CloudWatch
+  
+  S3 ..> CDN : "Origem"
+}
+
+node "Ambiente de Hospedagem (VPS / Cloud)" {
+
+  node "Aplicação NestJS" {
+    component "Nearby API" as API {
+      port "REST API\n(Porta HTTP)" as API_Port
+      
+      [Throttler (Rate Limit)]
+      [JWT Auth Guard]
+      [Winston Logger]
+    }
+  }
+
+  node "Infraestrutura de Dados (Docker)" {
+    database "PostgreSQL + PostGIS\n(Porta 5432)" as DB
+    queue "Redis\n(Porta 6379)" as Redis
+  }
+}
+
+Client ==down==> API_Port : "HTTPS (REST)"
+Client -right-> CDN : "Carrega Fotos e Capas"
+
+API ==down==> DB : "TypeORM\n(TCP/IP)"
+API ==down==> Redis : "BullMQ (Filas)\n& Cache"
+
+API -right-> S3 : "AWS SDK\n(Presigned URLs / Uploads)"
+API -up-> CloudWatch : "Winston\n(Transporte de Logs)"
+
+API -up-> Stripe : "Gera Checkout Session"
+Stripe -down-> API_Port : "Webhooks (checkout.completed)"
+API -up-> Resend : "Dispara E-mail (Ingresso QR)"
+
+@enduml

@@ -1,0 +1,99 @@
+@startuml Diagrama de Classes
+title Diagrama de Classes - Domínio da Nearby API
+
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+
+enum UserRole {
+  ADMIN
+  USER
+  EVENT_CREATOR
+}
+
+enum TicketStatus {
+  VALID
+  USED
+  CANCELLED
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+class User {
+  + id: String
+  + username: String
+  + email: String
+  - password: String
+  + profilePicture: String
+  + role: UserRole
+  + createdAt: Date
+  + updatedAt: Date
+  + deletedAt: Date
+}
+
+class Event {
+  + id: String
+  + slug: String
+  + title: String
+  + description: String
+  + coverImageUrl: String
+  + eventDate: Date
+  + location: Point
+  + organizerId: String
+  + createdAt: Date
+  + updatedAt: Date
+  + deletedAt: Date
+}
+
+class TicketType {
+  + id: String
+  + name: String
+  + description: String
+  + price: Number
+  + totalQuantity: Number
+  + availableQuantity: Number
+  + createdAt: Date
+  + updatedAt: Date
+  + deletedAt: Date
+}
+
+class Ticket {
+  + id: String
+  + qrCode: String
+  + status: TicketStatus
+  + purchasePrice: Number
+  + createdAt: Date
+  + updatedAt: Date
+  + deletedAt: Date
+}
+
+class Order {
+  + id: String
+  + stripeSessionId: String
+  + status: OrderStatus
+  + userId: String
+  + ticketTypeId: String
+  + quantity: Number
+  + unitPrice: Number
+  + totalPrice: Number
+  + createdAt: Date
+  + updatedAt: Date
+  + deletedAt: Date
+}
+
+User "1" --> "*" Event : organiza >
+Event "1" --> "*" TicketType : contém >
+TicketType "1" --> "*" Ticket : gera >
+User "1" --> "*" Ticket : possui >
+User "1" --> "*" Order : realiza >
+TicketType "1" --> "*" Order : compra de >
+
+User --> UserRole : papel >
+Ticket --> TicketStatus : status >
+Order --> OrderStatus : status >
+
+@enduml

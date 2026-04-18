@@ -1,0 +1,83 @@
+@startuml ERD
+hide circle
+skinparam linetype ortho
+
+entity User {
+  id: uuid
+  username: string
+  email: string
+  password: string
+  profilePicture: string
+  role: UserRole
+  created_at: timestamp
+  updated_at: timestamp
+  deleted_at: timestamp
+}
+
+enum UserRole {
+  ADMIN
+  USER
+  EVENT_CREATOR
+}
+
+entity Event {
+  id: uuid
+  organizer_id: uuid
+  slug: string
+  title: string
+  description: text
+  coverImageUrl: string
+  event_date: timestamp
+  location: geography
+  created_at: timestamp
+  updated_at: timestamp
+  deleted_at: timestamp
+}
+
+entity TicketType {
+  id: uuid
+  event_id: uuid
+  name: string
+  description: text
+  price: decimal
+  total_quantity: int
+  available_quantity: int
+  created_at: timestamp
+  updated_at: timestamp
+  deleted_at: timestamp
+}
+
+entity Ticket {
+  id: uuid
+  user_id: uuid
+  ticket_type_id: uuid
+  qr_code: string
+  status: TicketStatus
+  purchase_price: decimal
+  created_at: timestamp
+  updated_at: timestamp
+  deleted_at: timestamp
+}
+
+entity Order {
+  id: uuid
+  user_id: uuid
+  ticket_type_id: uuid
+  stripe_session_id: string
+  status: OrderStatus
+  quantity: int
+  unit_price: decimal
+  total_price: decimal
+  created_at: timestamptz
+  updated_at: timestamp
+  deleted_at: timestamp
+}
+
+User ||--o{ Event : "organiza (EVENT_CREATOR)"
+Event ||--o{ TicketType : "define lotes"
+TicketType ||--o{ Ticket : "origina"
+User ||--o{ Ticket : "possui"
+User ||--o{ Order : "realiza"
+TicketType ||--o{ Order : "referente a"
+
+@enduml
