@@ -20,7 +20,7 @@ export class HealthController {
     private readonly disk: DiskHealthIndicator,
     private readonly memory: MemoryHealthIndicator,
     private readonly redis: RedisHealthIndicator,
-  ) { }
+  ) {}
 
   @Doc.CheckAll()
   @Get()

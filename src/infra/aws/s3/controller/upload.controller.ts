@@ -6,7 +6,7 @@ import { StorageService } from '@infra/aws/s3/service/storage.service';
 @Doc.Main()
 @Controller('uploads')
 export class UploadController {
-  constructor(private readonly storageService: StorageService) { }
+  constructor(private readonly storageService: StorageService) {}
 
   @Doc.GetPresignedUrl()
   @Post('presigned-url')

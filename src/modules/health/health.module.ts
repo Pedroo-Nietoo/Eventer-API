@@ -9,4 +9,4 @@ import { HealthController } from './controller/health.controller';
   controllers: [HealthController],
   providers: [RedisHealthIndicator],
 })
-export class HealthModule { }
+export class HealthModule {}

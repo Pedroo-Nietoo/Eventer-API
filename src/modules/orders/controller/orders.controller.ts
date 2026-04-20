@@ -46,7 +46,7 @@ export class OrdersController {
     private readonly deleteOrderUseCase: DeleteOrderUseCase,
     private readonly stripeService: StripeService,
     @InjectQueue('orders-queue') private readonly ordersQueue: Queue,
-  ) { }
+  ) {}
 
   @Doc.Create()
   @Post()

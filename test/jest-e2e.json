@@ -1,7 +1,18 @@
 {
-  "extends": "../jest.config.json",
+  "moduleFileExtensions": [
+    "js",
+    "json",
+    "ts"
+  ],
   "rootDir": ".",
+  "testEnvironment": "node",
   "testRegex": ".e2e-spec.ts$",
+  "transform": {
+    "^.+\\.(t|j)s$": "ts-jest"
+  },
+  "transformIgnorePatterns": [
+    "/node_modules/(?!(@paralleldrive/cuid2|uuid|@noble)/)"
+  ],
   "moduleNameMapper": {
     "^@auth/(.*)$": "<rootDir>/../src/modules/auth/$1",
     "^@events/(.*)$": "<rootDir>/../src/modules/events/$1",
@@ -10,6 +21,8 @@
     "^@tickets/(.*)$": "<rootDir>/../src/modules/tickets/$1",
     "^@ticket-types/(.*)$": "<rootDir>/../src/modules/ticket-types/$1",
     "^@common/(.*)$": "<rootDir>/../src/common/$1",
-    "^@infra/(.*)$": "<rootDir>/../src/infra/$1"
+    "^@infra/(.*)$": "<rootDir>/../src/infra/$1",
+    "^@services/(.*)$": "<rootDir>/../src/services/$1",
+    "^@config/(.*)$": "<rootDir>/../src/config/$1"
   }
 }
