@@ -24,7 +24,7 @@ export class TicketResponseDto {
       id: 'tt-456',
       name: 'Lote VIP',
       price: 150.99,
-      event: { id: 'e-789', title: 'Nearby Festival' },
+      event: { id: 'e-789', title: 'Eventer Festival' },
     },
   })
   ticketType: {

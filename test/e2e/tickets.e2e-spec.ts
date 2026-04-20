@@ -49,7 +49,7 @@ describe('TicketsController (e2e)', () => {
 
     const userDto = {
       username: 'Comprador E2E',
-      email: 'comprador@nearby.com',
+      email: 'comprador@eventer.com',
       password: 'Password123!',
     };
 

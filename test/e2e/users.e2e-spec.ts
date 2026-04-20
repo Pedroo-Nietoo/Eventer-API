@@ -42,7 +42,7 @@ describe('UsersController (e2e)', () => {
       it('Deve criar um usuário com sucesso', async () => {
         const createUserDto = {
           username: 'User E2E',
-          email: 'testee2e@nearby.com',
+          email: 'testee2e@eventer.com',
           password: 'Password123!',
         };
 
@@ -60,7 +60,7 @@ describe('UsersController (e2e)', () => {
       it('Não deve permitir a criação de usuário com e-mail duplicado', async () => {
         const createUserDto = {
           username: 'User Duplicado',
-          email: 'duplicado@nearby.com',
+          email: 'duplicado@eventer.com',
           password: 'Password123!',
         };
 
@@ -83,7 +83,7 @@ describe('UsersController (e2e)', () => {
     beforeEach(async () => {
       const userDto = {
         username: 'Auth User',
-        email: 'auth@nearby.com',
+        email: 'auth@eventer.com',
         password: 'Password123!',
       };
 
@@ -129,7 +129,7 @@ describe('UsersController (e2e)', () => {
           .expect(200);
 
         expect(response.body.id).toBe(userId);
-        expect(response.body.email).toBe('auth@nearby.com');
+        expect(response.body.email).toBe('auth@eventer.com');
       });
 
       it('Deve retornar 404 caso o usuário não exista', async () => {

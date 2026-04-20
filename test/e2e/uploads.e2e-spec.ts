@@ -42,12 +42,12 @@ describe('UploadController (e2e)', () => {
     const hashedPassword = await bcrypt.hash('Password123!', 10);
     const [user] = await dataSource.query(
       `INSERT INTO "users" (username, email, password, role) VALUES ($1, $2, $3, $4) RETURNING id`,
-      ['Upload User', 'upload@nearby.com', hashedPassword, UserRole.USER]
+      ['Upload User', 'upload@eventer.com', hashedPassword, UserRole.USER]
     );
 
     const loginRes = await request(app.getHttpServer())
       .post('/auth/login')
-      .send({ email: 'upload@nearby.com', password: 'Password123!' });
+      .send({ email: 'upload@eventer.com', password: 'Password123!' });
 
     accessToken = loginRes.body.access_token;
   });

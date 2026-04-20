@@ -23,9 +23,9 @@ import { LogoutUseCase } from './use-cases/logout.usecase';
         signOptions: {
           expiresIn: (configService.get<string>('JWT_EXPIRES_IN') ||
             '24h') as '24h',
-          issuer: configService.get<string>('JWT_ISSUER') || 'nearby-api',
+          issuer: configService.get<string>('JWT_ISSUER') || 'eventer-api',
           audience:
-            configService.get<string>('JWT_AUDIENCE') || 'nearby-api-users',
+            configService.get<string>('JWT_AUDIENCE') || 'eventer-api-users',
         },
       }),
     }),
@@ -34,4 +34,4 @@ import { LogoutUseCase } from './use-cases/logout.usecase';
   providers: [LocalStrategy, ValidateUserUseCase, LoginUseCase, LogoutUseCase],
   exports: [JwtModule],
 })
-export class AuthModule {}
+export class AuthModule { }

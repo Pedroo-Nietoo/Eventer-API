@@ -15,8 +15,8 @@ describe('StorageService', () => {
  let configService: ConfigService;
 
  const mockEnvConfig: Record<string, string> = {
-  AWS_S3_BUCKET_NAME: 'nearby-api-bucket',
-  AWS_CLOUDFRONT_URL: 'https://cdn.nearbyapi.com/',
+  AWS_S3_BUCKET_NAME: 'eventer-api-bucket',
+  AWS_CLOUDFRONT_URL: 'https://cdn.eventerapi.com/',
   AWS_REGION: 'us-east-1',
   AWS_ACCESS_KEY_ID: 'fake-access-key',
   AWS_SECRET_ACCESS_KEY: 'fake-secret-key',
@@ -66,7 +66,7 @@ describe('StorageService', () => {
 
    expect(uuid.v4).toHaveBeenCalled();
 
-   expect(result.finalUrl).toBe(`https://cdn.nearbyapi.com/users/${fakeUuid}.jpeg`);
+   expect(result.finalUrl).toBe(`https://cdn.eventerapi.com/users/${fakeUuid}.jpeg`);
    expect(result.presignedUrl).toBe(fakePresignedUrl);
 
    expect(getSignedUrl).toHaveBeenCalledWith(
@@ -77,7 +77,7 @@ describe('StorageService', () => {
   });
 
   it('deve formatar corretamente a URL se o CloudFront não tiver barra no final', async () => {
-   mockEnvConfig['AWS_CLOUDFRONT_URL'] = 'https://cdn.nearbyapi.com';
+   mockEnvConfig['AWS_CLOUDFRONT_URL'] = 'https://cdn.eventerapi.com';
 
    const newService = new StorageService(configService);
 
@@ -86,9 +86,9 @@ describe('StorageService', () => {
 
    const result = await newService.generatePresignedUrl('banner.png', 'image/png', 'events');
 
-   expect(result.finalUrl).toBe(`https://cdn.nearbyapi.com/events/${fakeUuid}.png`);
+   expect(result.finalUrl).toBe(`https://cdn.eventerapi.com/events/${fakeUuid}.png`);
 
-   mockEnvConfig['AWS_CLOUDFRONT_URL'] = 'https://cdn.nearbyapi.com/';
+   mockEnvConfig['AWS_CLOUDFRONT_URL'] = 'https://cdn.eventerapi.com/';
   });
 
   it('deve capturar erros do SDK da AWS e lançar InternalServerErrorException', async () => {

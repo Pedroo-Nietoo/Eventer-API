@@ -21,7 +21,7 @@ export const loggerConfigAsync: WinstonModuleAsyncOptions = {
         new winston.transports.Console({
           format: winston.format.combine(
             winston.format.timestamp(),
-            nestWinstonUtilities.format.nestLike('Nearby API', {
+            nestWinstonUtilities.format.nestLike('Eventer API', {
               colors: true,
             }),
           ),

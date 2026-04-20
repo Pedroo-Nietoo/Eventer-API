@@ -65,7 +65,7 @@ describe('OrdersController (e2e)', () => {
 
     const userDto = {
       username: 'Comprador Pedido',
-      email: 'pedido@nearby.com',
+      email: 'pedido@eventer.com',
       password: 'Password123!',
     };
 

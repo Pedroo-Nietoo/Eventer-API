@@ -38,7 +38,7 @@ async function runSeed() {
 
     const adminUser = userRepo.create({
       username: 'Admin Root',
-      email: 'admin@nearby.com',
+      email: 'admin@eventer.com',
       password: defaultPassword,
       role: UserRole.ADMIN,
     });
@@ -65,8 +65,8 @@ async function runSeed() {
     console.log('📅 Criando eventos...');
 
     const mainEvent = eventRepo.create({
-      title: 'Nearby Tech Summit 2026',
-      slug: 'nearby-tech-summit-2026',
+      title: 'Eventer Tech Summit 2026',
+      slug: 'eventer-tech-summit-2026',
       description: 'O maior evento de tecnologia e startups da região.',
       coverImageUrl: 'https://exemplo.com/imagem-evento.jpg',
       eventDate: new Date(new Date().setMonth(new Date().getMonth() + 2)),
@@ -140,7 +140,7 @@ async function runSeed() {
     console.log('🎉 Seeding concluído com sucesso!');
     console.log(`
       Credenciais para teste:
-      Admin: admin@nearby.com / Senha123!
+      Admin: admin@eventer.com / Senha123!
       Organizador: contato@produtora.com / Senha123!
       Comum: joao@gmail.com / Senha123!
     `);

@@ -3,7 +3,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 export function setupSwagger(app: INestApplication): void {
   const config = new DocumentBuilder()
-    .setTitle('Nearby API 📍')
+    .setTitle('Eventer API 📍')
     .setDescription('API para gestão de eventos, ingressos e geolocalização.')
     .setVersion('1.0')
     .addBearerAuth({

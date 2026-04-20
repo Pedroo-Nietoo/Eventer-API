@@ -10,7 +10,7 @@ skinparam node {
   BorderColor #2c3e50
 }
 
-title Arquitetura de Implantação - Nearby API
+title Arquitetura de Implantação - Eventer API
 
 actor "Cliente\n(Web / Mobile)" as Client
 
@@ -30,7 +30,7 @@ cloud "AWS (Amazon Web Services)" as AWS {
 node "Ambiente de Hospedagem (VPS / Cloud)" {
 
   node "Aplicação NestJS" {
-    component "Nearby API" as API {
+    component "Eventer API" as API {
       port "REST API\n(Porta HTTP)" as API_Port
       
       [Throttler (Rate Limit)]

@@ -3,7 +3,7 @@ version: '3.8'
 services:
   postgres:
     image: postgis/postgis:16-3.4
-    container_name: postgres_postgis
+    container_name: eventer_postgres
     restart: always
     environment:
       POSTGRES_USER: ${DB_USER}
@@ -22,7 +22,7 @@ services:
 
   postgres_test:
     image: postgis/postgis:16-3.4
-    container_name: postgres_test
+    container_name: eventer_test_postgres
     restart: always
     env_file:
       - .env.test
@@ -42,7 +42,7 @@ services:
 
   redis:
     image: redis:7-alpine
-    container_name: redis_nearby
+    container_name: eventer_redis
     restart: always
     ports:
       - "6379:6379"

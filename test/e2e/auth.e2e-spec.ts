@@ -10,103 +10,103 @@ import { UserRole } from '@common/enums/role.enum';
 import * as bcrypt from 'bcrypt';
 
 describe('AuthController (e2e)', () => {
- let app: INestApplication;
- let dataSource: DataSource;
+  let app: INestApplication;
+  let dataSource: DataSource;
 
- const testUser = {
-  username: 'Usuário de Autenticação',
-  email: 'autenticacao@nearby.com',
-  password: 'Password123!',
- };
+  const testUser = {
+    username: 'Usuário de Autenticação',
+    email: 'autenticacao@eventer.com',
+    password: 'Password123!',
+  };
 
- beforeAll(async () => {
-  class MockStorageModule { }
+  beforeAll(async () => {
+    class MockStorageModule { }
 
-  const moduleFixture: TestingModule = await Test.createTestingModule({
-   imports: [AppModule],
-  })
-   .overrideModule(StorageModule)
-   .useModule(MockStorageModule)
-   .overrideGuard(ThrottlerGuard)
-   .useValue({ canActivate: () => true })
-   .compile();
+    const moduleFixture: TestingModule = await Test.createTestingModule({
+      imports: [AppModule],
+    })
+      .overrideModule(StorageModule)
+      .useModule(MockStorageModule)
+      .overrideGuard(ThrottlerGuard)
+      .useValue({ canActivate: () => true })
+      .compile();
 
-  app = moduleFixture.createNestApplication();
-  app.useGlobalPipes(new ValidationPipe({ transform: true, whitelist: true }));
-  await app.init();
+    app = moduleFixture.createNestApplication();
+    app.useGlobalPipes(new ValidationPipe({ transform: true, whitelist: true }));
+    await app.init();
 
-  dataSource = app.get<DataSource>(getDataSourceToken());
+    dataSource = app.get<DataSource>(getDataSourceToken());
 
-  await dataSource.query('TRUNCATE TABLE "users" CASCADE;');
+    await dataSource.query('TRUNCATE TABLE "users" CASCADE;');
 
-  const hashedPassword = await bcrypt.hash(testUser.password, 10);
-  await dataSource.query(
-   `INSERT INTO "users" (username, email, password, role) VALUES ($1, $2, $3, $4)`,
-   [testUser.username, testUser.email, hashedPassword, UserRole.USER],
-  );
- });
-
- afterAll(async () => {
-  await app.close();
- });
-
- describe('POST /auth/login', () => {
-  it('Deve realizar login com sucesso e retornar o access_token (Opaque Token)', async () => {
-   const response = await request(app.getHttpServer())
-    .post('/auth/login')
-    .send({ email: testUser.email, password: testUser.password })
-    .expect(200);
-
-   expect(response.body).toHaveProperty('access_token');
-   expect(typeof response.body.access_token).toBe('string');
+    const hashedPassword = await bcrypt.hash(testUser.password, 10);
+    await dataSource.query(
+      `INSERT INTO "users" (username, email, password, role) VALUES ($1, $2, $3, $4)`,
+      [testUser.username, testUser.email, hashedPassword, UserRole.USER],
+    );
   });
 
-  it('Deve retornar 401 Unauthorized para senha incorreta', async () => {
-   const response = await request(app.getHttpServer())
-    .post('/auth/login')
-    .send({ email: testUser.email, password: 'SenhaIncorreta123!' })
-    .expect(401);
-
-   expect(response.body.message).toBe('E-mail ou senha incorretos.');
+  afterAll(async () => {
+    await app.close();
   });
 
-  it('Deve retornar 401 Unauthorized para e-mail não cadastrado', async () => {
-   const response = await request(app.getHttpServer())
-    .post('/auth/login')
-    .send({ email: 'email_fantasma@nearby.com', password: testUser.password })
-    .expect(401);
+  describe('POST /auth/login', () => {
+    it('Deve realizar login com sucesso e retornar o access_token (Opaque Token)', async () => {
+      const response = await request(app.getHttpServer())
+        .post('/auth/login')
+        .send({ email: testUser.email, password: testUser.password })
+        .expect(200);
 
-   expect(response.body.message).toBe('E-mail ou senha incorretos.');
-  });
- });
+      expect(response.body).toHaveProperty('access_token');
+      expect(typeof response.body.access_token).toBe('string');
+    });
 
- describe('POST /auth/logout', () => {
-  let validToken: string;
+    it('Deve retornar 401 Unauthorized para senha incorreta', async () => {
+      const response = await request(app.getHttpServer())
+        .post('/auth/login')
+        .send({ email: testUser.email, password: 'SenhaIncorreta123!' })
+        .expect(401);
 
-  beforeEach(async () => {
-   const loginRes = await request(app.getHttpServer())
-    .post('/auth/login')
-    .send({ email: testUser.email, password: testUser.password });
+      expect(response.body.message).toBe('E-mail ou senha incorretos.');
+    });
 
-   validToken = loginRes.body.access_token;
-  });
+    it('Deve retornar 401 Unauthorized para e-mail não cadastrado', async () => {
+      const response = await request(app.getHttpServer())
+        .post('/auth/login')
+        .send({ email: 'email_fantasma@eventer.com', password: testUser.password })
+        .expect(401);
 
-  it('Deve realizar o logout com sucesso (204 No Content) e deletar do Redis', async () => {
-   await request(app.getHttpServer())
-    .post('/auth/logout')
-    .set('Authorization', `Bearer ${validToken}`)
-    .expect(204);
-
-   await request(app.getHttpServer())
-    .get('/users?page=1&limit=5')
-    .set('Authorization', `Bearer ${validToken}`)
-    .expect(401);
+      expect(response.body.message).toBe('E-mail ou senha incorretos.');
+    });
   });
 
-  it('Deve retornar 401 Unauthorized se tentar fazer logout sem enviar o token', async () => {
-   await request(app.getHttpServer())
-    .post('/auth/logout')
-    .expect(401);
+  describe('POST /auth/logout', () => {
+    let validToken: string;
+
+    beforeEach(async () => {
+      const loginRes = await request(app.getHttpServer())
+        .post('/auth/login')
+        .send({ email: testUser.email, password: testUser.password });
+
+      validToken = loginRes.body.access_token;
+    });
+
+    it('Deve realizar o logout com sucesso (204 No Content) e deletar do Redis', async () => {
+      await request(app.getHttpServer())
+        .post('/auth/logout')
+        .set('Authorization', `Bearer ${validToken}`)
+        .expect(204);
+
+      await request(app.getHttpServer())
+        .get('/users?page=1&limit=5')
+        .set('Authorization', `Bearer ${validToken}`)
+        .expect(401);
+    });
+
+    it('Deve retornar 401 Unauthorized se tentar fazer logout sem enviar o token', async () => {
+      await request(app.getHttpServer())
+        .post('/auth/logout')
+        .expect(401);
+    });
   });
- });
 });

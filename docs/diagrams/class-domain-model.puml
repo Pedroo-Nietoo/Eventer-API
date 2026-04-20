@@ -1,5 +1,5 @@
 @startuml Diagrama de Classes
-title Diagrama de Classes - Domínio da Nearby API
+title Diagrama de Classes - Domínio da Eventer API
 
 skinparam classAttributeIconSize 0
 skinparam linetype ortho

@@ -28,12 +28,12 @@ export const SwaggerUploadController = {
               type: 'string',
               description: 'URL temporária do S3 para fazer o PUT do ficheiro.',
               example:
-                'https://nearby-api-bucket.s3.us-east-1.amazonaws.com/users/1234abcd.jpeg?X-Amz-Algorithm=AWS4-HMAC-SHA256&...',
+                'https://eventer-api-bucket.s3.us-east-1.amazonaws.com/users/1234abcd.jpeg?X-Amz-Algorithm=AWS4-HMAC-SHA256&...',
             },
             finalUrl: {
               type: 'string',
               description: 'URL pública final do ficheiro via CloudFront.',
-              example: 'https://cdn.nearbyapi.com/users/1234abcd.jpeg',
+              example: 'https://cdn.eventerapi.com/users/1234abcd.jpeg',
             },
           },
         },
