@@ -19,23 +19,42 @@ export function setupSecurity(
     credentials: true,
   });
 
+  const isProduction = configService.get<string>('NODE_ENV') === 'production';
+  const cloudFrontUrl = configService.get<string>('AWS_CLOUDFRONT_URL') || '';
+
+  const cloudFrontDomain = cloudFrontUrl ? new URL(cloudFrontUrl).hostname : '';
+
   app.use(
     helmet({
       contentSecurityPolicy: {
         directives: {
           defaultSrc: [`'self'`],
-          scriptSrc: [`'self'`],
-          styleSrc: [`'self'`, `'unsafe-inline'`],
-          imgSrc: [`'self'`, 'data:', 'validator.swagger.io'],
+          scriptSrc: [
+            `'self'`,
+            `'unsafe-inline'`,
+            `'unsafe-eval'`,
+          ],
+          styleSrc: [
+            `'self'`,
+            `'unsafe-inline'`
+          ],
+          imgSrc: [
+            `'self'`,
+            'data:',
+            'validator.swagger.io',
+            cloudFrontDomain,
+          ].filter(Boolean),
           frameAncestors: [`'none'`],
           connectSrc: [
             `'self'`,
             ...(corsOrigins ? corsOrigins.split(',') : []),
           ],
           objectSrc: [`'none'`],
-          upgradeInsecureRequests: [],
+
+          ...(isProduction ? { upgradeInsecureRequests: [] } : {}),
         },
       },
+      crossOriginResourcePolicy: { policy: 'cross-origin' },
     }),
   );
 }
