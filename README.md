@@ -55,6 +55,9 @@ $ cp .env.example .env
 
 # Start the containers
 $ docker compose up -d
+
+# Run database migrations
+$ npm run migration:run
 ```
 
 ## Compile and run the project
