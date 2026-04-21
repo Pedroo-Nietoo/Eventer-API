@@ -1,11 +1,11 @@
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=Pedroo-Nietoo_Nearby-API&metric=alert_status&token=4fb6cbaab02a304080d642a465504391ac180fd4)](https://sonarcloud.io/summary/new_code?id=Pedroo-Nietoo_Nearby-API)
-[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=Pedroo-Nietoo_Nearby-API&metric=coverage&token=4fb6cbaab02a304080d642a465504391ac180fd4)](https://sonarcloud.io/summary/new_code?id=Pedroo-Nietoo_Nearby-API)
-[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=Pedroo-Nietoo_Nearby-API&metric=reliability_rating&token=4fb6cbaab02a304080d642a465504391ac180fd4)](https://sonarcloud.io/summary/new_code?id=Pedroo-Nietoo_Nearby-API)
-[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=Pedroo-Nietoo_Nearby-API&metric=security_rating&token=4fb6cbaab02a304080d642a465504391ac180fd4)](https://sonarcloud.io/summary/new_code?id=Pedroo-Nietoo_Nearby-API)
-[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=Pedroo-Nietoo_Nearby-API&metric=sqale_rating&token=4fb6cbaab02a304080d642a465504391ac180fd4)](https://sonarcloud.io/summary/new_code?id=Pedroo-Nietoo_Nearby-API)
-[![MIT License](https://img.shields.io/badge/license-MIT-green.svg?style=flat)](https://github.com/Pedroo-Nietoo/Nearby-API/blob/main/LICENSE)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=Pedroo-Nietoo_Eventer-API&metric=alert_status&token=4fb6cbaab02a304080d642a465504391ac180fd4)](https://sonarcloud.io/summary/new_code?id=Pedroo-Nietoo_Eventer-API)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=Pedroo-Nietoo_Eventer-API&metric=coverage&token=4fb6cbaab02a304080d642a465504391ac180fd4)](https://sonarcloud.io/summary/new_code?id=Pedroo-Nietoo_Eventer-API)
+[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=Pedroo-Nietoo_Eventer-API&metric=reliability_rating&token=4fb6cbaab02a304080d642a465504391ac180fd4)](https://sonarcloud.io/summary/new_code?id=Pedroo-Nietoo_Eventer-API)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=Pedroo-Nietoo_Eventer-API&metric=security_rating&token=4fb6cbaab02a304080d642a465504391ac180fd4)](https://sonarcloud.io/summary/new_code?id=Pedroo-Nietoo_Eventer-API)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=Pedroo-Nietoo_Eventer-API&metric=sqale_rating&token=4fb6cbaab02a304080d642a465504391ac180fd4)](https://sonarcloud.io/summary/new_code?id=Pedroo-Nietoo_Eventer-API)
+[![MIT License](https://img.shields.io/badge/license-MIT-green.svg?style=flat)](https://github.com/Pedroo-Nietoo/Eventer-API/blob/main/LICENSE)
 
-# Nearby API
+# Eventer API
 
 <p>
   <img src="https://img.shields.io/badge/NestJS-E0234E?style=for-the-badge&logo=nestjs&logoColor=white" alt="NestJS" />
@@ -21,7 +21,7 @@
 
 ### Description
 
-API for the Nearby app, which allows users to create and manage events, as well as find nearby events based on their location. The API is built using NestJS and TypeScript, and it uses Redis for caching and BullMQ for job queues.
+API for the Eventer app, which allows users to create and manage events, as well as find nearby events based on their location. The API is built using NestJS and TypeScript, and it uses Redis for caching and BullMQ for job queues.
 
 ## Resources
 
@@ -89,8 +89,8 @@ The project has two different documentations:
 - The **project diagrams** can be found in the `docs/diagrams` folder.
 
 ### Demo
-You can access the demo of the API on [this link](https://nearby-api.fly.dev/api/docs). The credentials for the admin user are:
-- Email: `admin@nearby.com`
+You can access the demo of the API on [this link](https://eventer-api.fly.dev/api/docs). The credentials for the admin user are:
+- Email: `admin@eventer.com`
 - Password: `Admin123!`
 
 > [!NOTE]  
@@ -99,7 +99,7 @@ You can access the demo of the API on [this link](https://nearby-api.fly.dev/api
 
 ## License
 
-Nearby-API is [MIT licensed](https://github.com/Pedroo-Nietoo/Nearby-API/blob/main/LICENSE).
+Eventer-API is [MIT licensed](https://github.com/Pedroo-Nietoo/Eventer-API/blob/main/LICENSE).
 
 
 <p align="center">
