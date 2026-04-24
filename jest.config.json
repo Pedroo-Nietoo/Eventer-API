@@ -15,13 +15,15 @@
  "collectCoverageFrom": [
   "**/*.(t|j)s",
   "!**/*.module.ts",
+  "!**/*.config.ts",
   "!**/*.dto.ts",
   "!**/*.entity.ts",
   "!**/*.enum.ts",
   "!**/*.decorator.ts",
   "!**/*.config.ts",
   "!**/*.mock.ts",
-  "!**/main.ts"
+  "!**/main.ts",
+  "!**/infra/database/migration/**"
  ],
  "coverageDirectory": "../coverage",
  "testEnvironment": "node",
