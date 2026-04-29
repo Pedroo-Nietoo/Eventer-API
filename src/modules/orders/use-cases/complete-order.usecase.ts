@@ -18,55 +18,66 @@ export class CompleteOrderUseCase {
   async execute(orderId: string): Promise<void> {
     const order = await this.ordersRepository.findById(orderId);
 
-    if (order?.status !== OrderStatus.PENDING) {
+    if (!order || order.status !== OrderStatus.PENDING) {
       this.logger.warn(
-        `Pedido ${orderId} ignorado (Status atual: ${order?.status})`,
+        `Pedido ${orderId} ignorado (Status atual: ${order?.status || 'Nulo'})`,
       );
       return;
     }
-    await this.ordersRepository.updateStatus(orderId, OrderStatus.PAID);
-    this.logger.log(`Status do pedido ${orderId} atualizado para PAID.`);
-
-    const queryRunner = this.dataSource.createQueryRunner();
-    await queryRunner.connect();
-
-    let ticketType: TicketType | null = null;
 
     try {
-      ticketType = await queryRunner.manager.findOne<TicketType>(TicketType, {
-        where: { id: order.ticketTypeId },
-        relations: { event: true },
-        select: {
-          event: { id: true },
-        },
-      });
-    } finally {
-      await queryRunner.release();
-    }
-
-    if (!ticketType) {
-      throw new NotFoundException(
-        'Lote de ingressos não encontrado para emitir o bilhete.',
+      await this.ordersRepository.updateStatus(orderId, OrderStatus.PAID);
+      this.logger.log(`Status do pedido ${orderId} atualizado para PAID.`);
+    } catch (error) {
+      this.logger.error(
+        `Falha crítica ao atualizar status do pedido ${orderId} para PAID:`,
+        error,
       );
+      throw error;
     }
 
-    const eventId = ticketType.event.id;
+    const queryRunner = this.dataSource.createQueryRunner();
 
-    for (let i = 0; i < order.quantity; i++) {
-      try {
-        await this.createTicketUseCase.execute(
-          {
-            ticketTypeId: order.ticketTypeId,
-            eventId: eventId,
-          },
-          order.userId,
-        );
-      } catch (error: unknown) {
-        this.logger.error(
-          `Erro ao emitir o ingresso ${i + 1} de ${order.quantity} para o pedido ${orderId}`,
-          error,
+    try {
+      await queryRunner.connect();
+      const ticketType = await queryRunner.manager.findOne<TicketType>(
+        TicketType,
+        {
+          where: { id: order.ticketTypeId },
+          relations: { event: true },
+          select: { event: { id: true } },
+        },
+      );
+
+      if (!ticketType) {
+        throw new NotFoundException(
+          'Lote de ingressos não encontrado para emitir o bilhete.',
         );
       }
+
+      const eventId = ticketType.event.id;
+
+      for (let i = 0; i < order.quantity; i++) {
+        try {
+          await this.createTicketUseCase.execute(
+            { ticketTypeId: order.ticketTypeId, eventId: eventId },
+            order.userId,
+          );
+        } catch (error: unknown) {
+          this.logger.error(
+            `Erro ao emitir o ingresso ${i + 1} de ${order.quantity} para o pedido ${orderId}`,
+            error,
+          );
+        }
+      }
+    } catch (error) {
+      this.logger.error(
+        `Erro durante a fase de emissão de bilhetes do pedido ${orderId}:`,
+        error,
+      );
+      throw error;
+    } finally {
+      await queryRunner.release();
     }
 
     this.logger.log(`Processo de emissão finalizado para o pedido ${orderId}.`);

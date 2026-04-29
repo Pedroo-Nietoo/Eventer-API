@@ -34,4 +34,4 @@ import { LogoutUseCase } from './use-cases/logout.usecase';
   providers: [LocalStrategy, ValidateUserUseCase, LoginUseCase, LogoutUseCase],
   exports: [JwtModule],
 })
-export class AuthModule { }
+export class AuthModule {}

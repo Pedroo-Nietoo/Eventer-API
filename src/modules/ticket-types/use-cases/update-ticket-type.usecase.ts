@@ -7,6 +7,7 @@ import { TicketTypeResponseDto } from '@ticket-types/dto/ticket-type-response.dt
 import { UpdateTicketTypeDto } from '@ticket-types/dto/update-ticket-type.dto';
 import { TicketTypesRepository } from '@ticket-types/repository/ticket-type.repository';
 import { TicketTypeMapper } from '@ticket-types/mappers/ticket-type.mapper';
+import { TicketType } from '@ticket-types/entities/ticket-type.entity';
 
 @Injectable()
 export class UpdateTicketTypeUseCase {
@@ -16,41 +17,43 @@ export class UpdateTicketTypeUseCase {
     id: string,
     dto: UpdateTicketTypeDto,
   ): Promise<TicketTypeResponseDto> {
-    const ticketType = await this.ticketTypesRepository.findById(id);
+    return await this.ticketTypesRepository.manager.transaction(
+      async (manager) => {
+        const ticketType = await manager.findOne(TicketType, {
+          where: { id },
+          lock: { mode: 'pessimistic_write' },
+        });
 
-    if (!ticketType) {
-      throw new NotFoundException(
-        'Tipo de ingresso não encontrado para atualização.',
-      );
-    }
+        if (!ticketType) {
+          throw new NotFoundException('Tipo de ingresso não encontrado.');
+        }
 
-    if (
-      dto.totalQuantity !== undefined &&
-      dto.totalQuantity !== ticketType.totalQuantity
-    ) {
-      const ticketsSold =
-        ticketType.totalQuantity - ticketType.availableQuantity;
+        if (
+          dto.totalQuantity !== undefined &&
+          dto.totalQuantity !== ticketType.totalQuantity
+        ) {
+          const ticketsSold =
+            ticketType.totalQuantity - ticketType.availableQuantity;
 
-      if (dto.totalQuantity < ticketsSold) {
-        throw new BadRequestException(
-          `A nova quantidade total não pode ser menor do que o número de ingressos já vendidos (${ticketsSold}).`,
-        );
-      }
+          if (dto.totalQuantity < ticketsSold) {
+            throw new BadRequestException(
+              `A nova quantidade total não pode ser menor do que o número de ingressos já vendidos (${ticketsSold}).`,
+            );
+          }
 
-      const difference = dto.totalQuantity - ticketType.totalQuantity;
-      ticketType.availableQuantity += difference;
-    }
+          const difference = dto.totalQuantity - ticketType.totalQuantity;
+          ticketType.availableQuantity += difference;
+          ticketType.totalQuantity = dto.totalQuantity;
+        }
 
-    const { totalQuantity, ...updateData } = dto;
+        const updateData = { ...dto };
+        delete updateData.totalQuantity;
 
-    if (totalQuantity !== undefined) {
-      ticketType.totalQuantity = totalQuantity;
-    }
+        Object.assign(ticketType, updateData);
 
-    Object.assign(ticketType, updateData);
-
-    const updatedEntity = await this.ticketTypesRepository.save(ticketType);
-
-    return TicketTypeMapper.toResponse(updatedEntity);
+        const updatedEntity = await manager.save(ticketType);
+        return TicketTypeMapper.toResponse(updatedEntity);
+      },
+    );
   }
 }

@@ -26,7 +26,7 @@ export class MailService {
     eventName: string,
     ticketType: string,
     qrCodeBuffer: Buffer,
-  ) {
+  ): Promise<boolean> {
     try {
       const ticketTemplatePath = path.join(
         __dirname,
@@ -62,18 +62,22 @@ export class MailService {
         headless: true,
         args: ['--no-sandbox', '--disable-setuid-sandbox'],
       });
-      const page = await browser.newPage();
 
-      await page.setContent(pdfHtml, { waitUntil: 'networkidle0' });
+      let pdfBuffer: Buffer;
 
-      const pdfUint8Array = await page.pdf({
-        format: 'A4',
-        printBackground: true,
-      });
+      try {
+        const page = await browser.newPage();
+        await page.setContent(pdfHtml, { waitUntil: 'networkidle0' });
 
-      const pdfBuffer = Buffer.from(pdfUint8Array);
+        const pdfUint8Array = await page.pdf({
+          format: 'A4',
+          printBackground: true,
+        });
 
-      await browser.close();
+        pdfBuffer = Buffer.from(pdfUint8Array);
+      } finally {
+        await browser.close();
+      }
 
       const { data, error } = await this.resend.emails.send({
         from: 'Ingressos API <onboarding@resend.dev>',
@@ -109,6 +113,7 @@ export class MailService {
       this.logger.error(
         `Falha ao enviar e-mail com PDF para ${to}: ${message}`,
       );
+
       throw new InternalServerErrorException(
         'Não foi possível enviar o ingresso.',
       );

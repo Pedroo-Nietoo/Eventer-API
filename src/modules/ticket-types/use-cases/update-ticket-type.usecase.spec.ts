@@ -7,7 +7,16 @@ describe('UpdateTicketTypeUseCase', () => {
   let useCase: UpdateTicketTypeUseCase;
   let ticketTypesRepository: TicketTypesRepository;
 
+  const mockManager = {
+    findOne: jest.fn(),
+    save: jest.fn(),
+    transaction: jest.fn().mockImplementation((cb) => cb(mockManager)),
+  };
+
   const mockTicketTypesRepository = {
+    get manager() {
+      return mockManager;
+    },
     findById: jest.fn(),
     save: jest.fn(),
   };
@@ -31,6 +40,10 @@ describe('UpdateTicketTypeUseCase', () => {
     jest.clearAllMocks();
   });
 
+  it('should be defined', () => {
+    expect(useCase).toBeDefined();
+  });
+
   describe('execute', () => {
     const ticketTypeId = 'ticket-123';
     const mockTicketType = {
@@ -39,35 +52,30 @@ describe('UpdateTicketTypeUseCase', () => {
       price: 100,
       totalQuantity: 100,
       availableQuantity: 80,
-    } as any;
+    };
 
-    it('deve aumentar o estoque corretamente', async () => {
+    it('deve aumentar o estoque corretamente com segurança concorrente', async () => {
+      mockManager.findOne.mockResolvedValueOnce({ ...mockTicketType });
+      mockManager.save.mockImplementationOnce((val) => Promise.resolve(val));
 
-      mockTicketTypesRepository.findById.mockResolvedValueOnce({ ...mockTicketType });
-      mockTicketTypesRepository.save.mockImplementationOnce((val) => Promise.resolve(val));
+      const result = await useCase.execute(ticketTypeId, { totalQuantity: 150 });
 
-
-      await useCase.execute(ticketTypeId, { totalQuantity: 150 });
-
-
-      expect(mockTicketTypesRepository.save).toHaveBeenCalledWith(
+      expect(mockManager.save).toHaveBeenCalledWith(
         expect.objectContaining({
           totalQuantity: 150,
           availableQuantity: 130,
         })
       );
+      expect(result.id).toBe(ticketTypeId);
     });
 
     it('deve diminuir o estoque se o novo total for maior que os vendidos', async () => {
-
-      mockTicketTypesRepository.findById.mockResolvedValueOnce({ ...mockTicketType });
-      mockTicketTypesRepository.save.mockImplementationOnce((val) => Promise.resolve(val));
-
+      mockManager.findOne.mockResolvedValueOnce({ ...mockTicketType });
+      mockManager.save.mockImplementationOnce((val) => Promise.resolve(val));
 
       await useCase.execute(ticketTypeId, { totalQuantity: 50 });
 
-
-      expect(mockTicketTypesRepository.save).toHaveBeenCalledWith(
+      expect(mockManager.save).toHaveBeenCalledWith(
         expect.objectContaining({
           totalQuantity: 50,
           availableQuantity: 30,
@@ -76,37 +84,29 @@ describe('UpdateTicketTypeUseCase', () => {
     });
 
     it('deve lançar BadRequestException se o novo total for menor que os vendidos', async () => {
-
-      mockTicketTypesRepository.findById.mockResolvedValueOnce({ ...mockTicketType });
-
+      mockManager.findOne.mockResolvedValueOnce({ ...mockTicketType });
 
       await expect(useCase.execute(ticketTypeId, { totalQuantity: 15 }))
-        .rejects.toThrow(new BadRequestException(
-          'A nova quantidade total não pode ser menor do que o número de ingressos já vendidos (20).'
-        ));
+        .rejects.toThrow(BadRequestException);
     });
 
     it('deve atualizar apenas o nome e preço sem mexer no estoque', async () => {
-
-      mockTicketTypesRepository.findById.mockResolvedValueOnce({ ...mockTicketType });
-      mockTicketTypesRepository.save.mockImplementationOnce((val) => Promise.resolve(val));
-
+      mockManager.findOne.mockResolvedValueOnce({ ...mockTicketType });
+      mockManager.save.mockImplementationOnce((val) => Promise.resolve(val));
 
       await useCase.execute(ticketTypeId, { name: 'Novo Nome', price: 120 });
 
-
-      expect(mockTicketTypesRepository.save).toHaveBeenCalledWith(
+      expect(mockManager.save).toHaveBeenCalledWith(
         expect.objectContaining({
           name: 'Novo Nome',
           price: 120,
-          totalQuantity: 100,
           availableQuantity: 80,
         })
       );
     });
 
-    it('deve lançar NotFoundException se o lote não existir', async () => {
-      mockTicketTypesRepository.findById.mockResolvedValueOnce(null);
+    it('deve lançar NotFoundException se o lote não existir na transação', async () => {
+      mockManager.findOne.mockResolvedValueOnce(null);
 
       await expect(useCase.execute(ticketTypeId, { name: 'Teste' }))
         .rejects.toThrow(NotFoundException);

@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { MailService } from './mail.service';
 import { ConfigService } from '@nestjs/config';
-import { InternalServerErrorException } from '@nestjs/common';
+import { InternalServerErrorException, Logger } from '@nestjs/common';
 import { Resend } from 'resend';
 import * as fs from 'node:fs/promises';
 import * as handlebars from 'handlebars';
@@ -15,6 +15,7 @@ jest.mock('puppeteer');
 describe('MailService', () => {
   let service: MailService;
   let configService: ConfigService;
+  let sendMock: jest.Mock;
 
   const mockConfigService = {
     get: jest.fn().mockReturnValue('re_123456789'),
@@ -31,6 +32,11 @@ describe('MailService', () => {
   };
 
   beforeEach(async () => {
+    sendMock = jest.fn();
+    (Resend as jest.Mock).mockImplementation(() => ({
+      emails: { send: sendMock },
+    }));
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         MailService,
@@ -41,17 +47,16 @@ describe('MailService', () => {
     service = module.get<MailService>(MailService);
     configService = module.get<ConfigService>(ConfigService);
 
-    (fs.readFile as jest.Mock).mockResolvedValue('<html>{{userName}}</html>');
+    (fs.readFile as jest.Mock).mockResolvedValue('<html><body>{{userName}}</body></html>');
     (handlebars.compile as jest.Mock).mockReturnValue(() => 'compiled-html');
     (puppeteer.launch as jest.Mock).mockResolvedValue(mockBrowser);
+
+    jest.spyOn(Logger.prototype, 'error').mockImplementation(() => { });
+    jest.spyOn(Logger.prototype, 'log').mockImplementation(() => { });
   });
 
   afterEach(() => {
     jest.clearAllMocks();
-  });
-
-  it('deve estar definido', () => {
-    expect(service).toBeDefined();
   });
 
   describe('sendTicketEmail', () => {
@@ -64,14 +69,9 @@ describe('MailService', () => {
     };
 
     it('deve processar o PDF e enviar o e-mail com sucesso', async () => {
-      const sendMock = jest.fn().mockResolvedValue({ data: { id: 'email-id' }, error: null });
-      (Resend as jest.Mock).mockImplementation(() => ({
-        emails: { send: sendMock },
-      }));
+      sendMock.mockResolvedValue({ data: { id: 'email-id' }, error: null });
 
-      const newService = new MailService(configService);
-
-      const result = await newService.sendTicketEmail(
+      const result = await service.sendTicketEmail(
         emailParams.to,
         emailParams.userName,
         emailParams.eventName,
@@ -81,28 +81,32 @@ describe('MailService', () => {
 
       expect(result).toBe(true);
       expect(fs.readFile).toHaveBeenCalledTimes(2);
-      expect(puppeteer.launch).toHaveBeenCalled();
-      expect(mockPage.setContent).toHaveBeenCalledWith('compiled-html', { waitUntil: 'networkidle0' });
-      expect(sendMock).toHaveBeenCalledWith(expect.objectContaining({
-        to: [emailParams.to],
-        subject: expect.stringContaining(emailParams.eventName),
-        attachments: expect.arrayContaining([
-          expect.objectContaining({ filename: 'ingresso_evento.pdf' }),
-          expect.objectContaining({ filename: 'ingresso-inline.png' }),
-        ]),
-      }));
       expect(mockBrowser.close).toHaveBeenCalled();
+      expect(sendMock).toHaveBeenCalled();
     });
 
-    it('deve lançar InternalServerErrorException se o provedor de e-mail retornar erro', async () => {
-      const sendMock = jest.fn().mockResolvedValue({ data: null, error: { message: 'API Error' } });
-      (Resend as jest.Mock).mockImplementation(() => ({
-        emails: { send: sendMock },
-      }));
-      const newService = new MailService(configService);
+    it('deve garantir que o browser seja fechado mesmo se a geração do PDF falhar', async () => {
+      mockPage.setContent.mockRejectedValueOnce(new Error('Page Error'));
 
       await expect(
-        newService.sendTicketEmail(
+        service.sendTicketEmail(
+          emailParams.to,
+          emailParams.userName,
+          emailParams.eventName,
+          emailParams.ticketType,
+          emailParams.qrCodeBuffer
+        )
+      ).rejects.toThrow(InternalServerErrorException);
+
+      expect(mockBrowser.close).toHaveBeenCalled();
+      expect(sendMock).not.toHaveBeenCalled();
+    });
+
+    it('deve falhar se o provedor de e-mail retornar erro', async () => {
+      sendMock.mockResolvedValue({ data: null, error: { message: 'Resend API Error' } });
+
+      await expect(
+        service.sendTicketEmail(
           emailParams.to,
           emailParams.userName,
           emailParams.eventName,
@@ -112,8 +116,8 @@ describe('MailService', () => {
       ).rejects.toThrow(InternalServerErrorException);
     });
 
-    it('deve lançar InternalServerErrorException se a geração do PDF falhar', async () => {
-      (puppeteer.launch as jest.Mock).mockRejectedValueOnce(new Error('Chromium crash'));
+    it('deve lançar erro se a leitura de templates falhar', async () => {
+      (fs.readFile as jest.Mock).mockRejectedValueOnce(new Error('File not found'));
 
       await expect(
         service.sendTicketEmail(

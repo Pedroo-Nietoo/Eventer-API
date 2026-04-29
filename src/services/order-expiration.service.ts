@@ -23,22 +23,29 @@ export class OrderExpirationService {
     });
 
     for (const order of expiredOrders) {
-      await this.dataSource.transaction(async (manager) => {
-        const result = await manager.update(
-          Order,
-          { id: order.id, status: OrderStatus.PENDING },
-          { status: OrderStatus.CANCELLED },
-        );
-
-        if (result.affected && result.affected > 0) {
-          await this.ticketTypesRepository.incrementStock(
-            order.ticketTypeId,
-            order.quantity,
-            manager,
+      try {
+        await this.dataSource.transaction(async (manager) => {
+          const result = await manager.update(
+            Order,
+            { id: order.id, status: OrderStatus.PENDING },
+            { status: OrderStatus.CANCELLED },
           );
-          this.logger.log(`Pedido ${order.id} expirado. Estoque devolvido.`);
-        }
-      });
+
+          if (result.affected && result.affected > 0) {
+            await this.ticketTypesRepository.incrementStock(
+              order.ticketTypeId,
+              order.quantity,
+              manager,
+            );
+            this.logger.log(`Pedido ${order.id} expirado. Estoque devolvido.`);
+          }
+        });
+      } catch (error) {
+        this.logger.error(
+          `Falha ao processar expiração do pedido ${order.id}:`,
+          error,
+        );
+      }
     }
   }
 }

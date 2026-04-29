@@ -13,8 +13,6 @@ describe('GenerateQrCodeImageService', () => {
     }).compile();
 
     service = module.get<GenerateQrCodeImageService>(GenerateQrCodeImageService);
-
-    jest.spyOn(console, 'error').mockImplementation(() => { });
   });
 
   afterEach(() => {
@@ -49,15 +47,11 @@ describe('GenerateQrCodeImageService', () => {
       );
     });
 
-    it('deve lançar um erro caso a biblioteca qrcode falhe', async () => {
+    it('deve propagar o erro original caso a biblioteca qrcode falhe', async () => {
       const qrError = new Error('Falha técnica na geração');
       (QRCode.toBuffer as jest.Mock).mockRejectedValue(qrError);
 
-      await expect(service.execute(ticketToken)).rejects.toThrow(
-        'Falha ao gerar a imagem do QR Code para o e-mail'
-      );
-
-      expect(console.error).toHaveBeenCalledWith('Erro ao gerar QR Code:', qrError);
+      await expect(service.execute(ticketToken)).rejects.toThrow(qrError);
     });
   });
 });

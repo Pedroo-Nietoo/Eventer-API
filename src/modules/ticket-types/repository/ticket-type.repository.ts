@@ -13,6 +13,10 @@ export class TicketTypesRepository extends BaseRepository<TicketType> {
     super(ticketTypeRepo);
   }
 
+  get manager(): EntityManager {
+    return this.ticketTypeRepo.manager;
+  }
+
   async findAllWithEvent(
     skip: number,
     take: number,
