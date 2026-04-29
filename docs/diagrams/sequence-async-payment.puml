@@ -1,0 +1,85 @@
+@startuml Sequence_AsyncPayment
+skinparam roundcorner 10
+skinparam maxmessagesize 150
+skinparam sequence {
+    ArrowColor #2c3e50
+    LifeLineBorderColor #34495e
+    LifeLineBackgroundColor White
+    ParticipantBackgroundColor #ecf0f1
+    ParticipantBorderColor #2c3e50
+    BoxBackgroundColor #f9f9fa
+}
+
+title Fluxo de Pagamento e Emissão de Ingressos (Stripe + BullMQ)
+
+actor Usuário as User
+participant "App / Frontend" as Front
+box "API Rest"
+    participant "OrdersController" as Controller
+    participant "CreateOrder\nUseCase" as CreateOrder
+end box
+box "Fila (BullMQ)" #e8f4f8
+    queue "Redis\n(orders-queue)" as Redis
+end box
+box "Worker (Assíncrono)"
+    participant "OrdersProcessor" as Worker
+    participant "CompleteOrder\nUseCase" as CompleteOrder
+    participant "CreateTicket\nUseCase" as CreateTicket
+    participant "MailService" as MailService
+end box
+database "PostgreSQL" as DB
+participant "Stripe API" as Stripe
+participant "Resend API" as Resend
+
+User -> Front: Clicar em "Comprar"
+Front -> Controller: POST /orders
+Controller -> CreateOrder: execute()
+CreateOrder -> DB: check stock
+CreateOrder -> DB: BEGIN TRANSACTION
+CreateOrder -> DB: update available_quantity
+CreateOrder -> DB: insert Order (PENDING)
+CreateOrder -> Stripe: createCheckoutSession()
+Stripe --> CreateOrder: sessionUrl
+CreateOrder -> DB: update session_id
+CreateOrder -> DB: COMMIT TRANSACTION
+CreateOrder --> Controller: { checkoutUrl }
+Controller --> Front: Redirect URL
+Front -> Stripe: Checkout
+
+Stripe -> Controller: POST /orders/webhook (completed)
+Controller -> Redis: BullMQ.add('complete-order-job')
+Controller --> Stripe: HTTP 200 OK
+
+Redis -[#blue]-> Worker: process(job)
+Worker -> CompleteOrder: execute(orderId)
+
+alt Erro na Transição de Status
+    CompleteOrder -> DB: updateOrder(PAID)
+    DB --X CompleteOrder: Database Error
+    CompleteOrder -> CompleteOrder: Logger.error()
+    CompleteOrder --X Worker: throw error
+    Worker -> Worker: Logger.error()
+    Worker --X Redis: relança erro (Retry)
+else Sucesso
+    CompleteOrder -> DB: updateOrder(PAID)
+    loop para cada ingresso
+        alt Falha na Emissão Individual
+            CompleteOrder -> CreateTicket: execute()
+            CreateTicket --X CompleteOrder: Error
+            CompleteOrder -> CompleteOrder: Logger.error() (Continua loop)
+        else Sucesso na Emissão
+            CompleteOrder -> CreateTicket: execute()
+            CreateTicket -> DB: insert Ticket
+            CreateTicket --> CompleteOrder: TicketData
+            CompleteOrder -> MailService: sendTicketEmail()
+            activate MailService
+            MailService -> MailService: puppeteer.launch()
+            MailService -> Resend: send()
+            MailService -> MailService: browser.close() (finally)
+            deactivate MailService
+        end
+    end
+    CompleteOrder --> Worker: finalizado
+    Worker --> Redis: job concluído
+end
+@enduml
