@@ -131,7 +131,7 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
   deploy:
-    name: Deploy application
+    name: 🚀 Deploy application
     needs: [ build, test, security ]
     if: |
       always() &&
@@ -141,10 +141,56 @@ jobs:
       github.event_name == 'workflow_dispatch' && inputs.action == 'Deploy'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "22"
-      - run: |
-          echo "Build, Testes e Segurança validados."
-          echo "Iniciando Deploy para AWS (Ambiente de Dev)..."
+      - name: ⏳ Iniciando e Aguardando Deploy no Render
+        env:
+          RENDER_SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+        run: |
+          echo "Acionando a API do Render para o serviço $RENDER_SERVICE_ID..."
+
+          RESPONSE=$(curl -s -X POST "https://api.render.com/v1/services/$RENDER_SERVICE_ID/deploys" \
+            -H "Authorization: Bearer $RENDER_API_KEY" \
+            -H "Accept: application/json")
+            
+          DEPLOY_ID=$(echo $RESPONSE | jq -r '.id')
+
+          if [ "$DEPLOY_ID" == "null" ] || [ -z "$DEPLOY_ID" ]; then
+            echo "❌ Erro ao acionar deploy: $RESPONSE"
+            exit 1
+          fi
+
+          echo "✅ Deploy acionado (ID: $DEPLOY_ID). Aguardando finalização do servidor do Render..."
+
+          STATUS="created"
+          while [ "$STATUS" == "created" ] || [ "$STATUS" == "build_in_progress" ] || [ "$STATUS" == "update_in_progress" ]; do
+            sleep 15
+            STATUS_RESPONSE=$(curl -s -X GET "https://api.render.com/v1/services/$RENDER_SERVICE_ID/deploys/$DEPLOY_ID" \
+              -H "Authorization: Bearer $RENDER_API_KEY" \
+              -H "Accept: application/json")
+            STATUS=$(echo $STATUS_RESPONSE | jq -r '.status')
+            echo "Status atual no Render: $STATUS"
+          done
+
+          # 3. Verifica o veredito final
+          if [ "$STATUS" == "live" ]; then
+            echo "🎉 Deploy online com sucesso!"
+            exit 0
+          else
+            echo "❌ O deploy falhou no Render com o status: $STATUS"
+            exit 1
+          fi
+
+      - name: ✅ Deploy Summary (Sucesso)
+        if: success()
+        run: |
+          echo "### ✅ Deploy Concluído com Sucesso!" >> $GITHUB_STEP_SUMMARY
+          echo "O Render compilou e subiu a aplicação sem erros." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**🔗 Acessar o Ambiente:** [https://eventer-api-dev.onrender.com](https://eventer-api-dev.onrender.com)" >> $GITHUB_STEP_SUMMARY
+
+      - name: ❌ Deploy Summary (Falha)
+        if: failure()
+        run: |
+          echo "### ❌ Falha no Deploy!" >> $GITHUB_STEP_SUMMARY
+          echo "O Render tentou compilar a aplicação, mas ocorreu um erro." >> $GITHUB_STEP_SUMMARY
+          echo "Acesse o painel do Render para ver os logs do servidor e entender o que quebrou o Build." >> $GITHUB_STEP_SUMMARY
