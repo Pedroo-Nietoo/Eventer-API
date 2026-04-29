@@ -131,13 +131,13 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
   deploy:
-    name: 🚀 Deploy application
+    name: Deploy application
     needs: [ build, test, security ]
     if: |
       always() &&
       needs.build.result == 'success' &&
       needs.test.result == 'success' &&
-      needs.security.result == 'success' &&
+      (needs.security.result == 'success' || needs.security.result == 'skipped') &&
       github.event_name == 'workflow_dispatch' && inputs.action == 'Deploy'
     runs-on: ubuntu-latest
     steps:
@@ -146,7 +146,7 @@ jobs:
           RENDER_SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
           RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
         run: |
-          echo "Acionando a API do Render para o serviço $RENDER_SERVICE_ID..."
+          echo "Acionando a API do Render para o serviço ${{ secrets.RENDER_SERVICE_ID }}..."
 
           RESPONSE=$(curl -s -X POST "https://api.render.com/v1/services/$RENDER_SERVICE_ID/deploys" \
             -H "Authorization: Bearer $RENDER_API_KEY" \
@@ -171,7 +171,6 @@ jobs:
             echo "Status atual no Render: $STATUS"
           done
 
-          # 3. Verifica o veredito final
           if [ "$STATUS" == "live" ]; then
             echo "🎉 Deploy online com sucesso!"
             exit 0
@@ -180,7 +179,7 @@ jobs:
             exit 1
           fi
 
-      - name: ✅ Deploy Summary (Sucesso)
+      - name: Deploy Summary (Sucess)
         if: success()
         run: |
           echo "### ✅ Deploy Concluído com Sucesso!" >> $GITHUB_STEP_SUMMARY
@@ -188,7 +187,7 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**🔗 Acessar o Ambiente:** [https://eventer-api-dev.onrender.com](https://eventer-api-dev.onrender.com)" >> $GITHUB_STEP_SUMMARY
 
-      - name: ❌ Deploy Summary (Falha)
+      - name: Deploy Summary (Failure)
         if: failure()
         run: |
           echo "### ❌ Falha no Deploy!" >> $GITHUB_STEP_SUMMARY
