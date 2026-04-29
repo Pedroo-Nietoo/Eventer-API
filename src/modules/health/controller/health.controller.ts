@@ -9,8 +9,10 @@ import {
 import { Public } from '@common/decorators/public.decorator';
 import { SwaggerHealthController as Doc } from './health.swagger';
 import { RedisHealthIndicator } from '../redis.health';
+import { Throttle } from '@nestjs/throttler';
 
 @Doc.Main()
+@Throttle({ default: { limit: 20, ttl: 60000 } })
 @Public()
 @Controller('health')
 export class HealthController {
@@ -20,7 +22,7 @@ export class HealthController {
     private readonly disk: DiskHealthIndicator,
     private readonly memory: MemoryHealthIndicator,
     private readonly redis: RedisHealthIndicator,
-  ) {}
+  ) { }
 
   @Doc.CheckAll()
   @Get()
