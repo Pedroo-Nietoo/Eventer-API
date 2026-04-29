@@ -19,14 +19,27 @@ import { OrdersProcessor } from './queue/order.processor';
 import { BullBoardModule } from '@bull-board/nestjs';
 import { ExpressAdapter } from '@bull-board/express';
 import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Order]),
-    BullModule.forRoot({
-      connection: {
-        host: 'localhost',
-        port: 6379,
+    BullModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => {
+        const redisUrl =
+          configService.get<string>('REDIS_URL') || 'redis://localhost:6379';
+        const url = new URL(redisUrl);
+
+        return {
+          connection: {
+            host: url.hostname,
+            port: Number(url.port),
+            username: url.username || undefined,
+            password: url.password || undefined,
+          },
+        };
       },
     }),
     BullModule.registerQueue({
