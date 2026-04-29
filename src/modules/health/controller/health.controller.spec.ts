@@ -11,6 +11,10 @@ import { RedisHealthIndicator } from '../redis.health';
 describe('HealthController', () => {
  let controller: HealthController;
  let healthCheckService: HealthCheckService;
+ let typeOrmIndicator: TypeOrmHealthIndicator;
+ let diskIndicator: DiskHealthIndicator;
+ let memoryIndicator: MemoryHealthIndicator;
+ let redisIndicator: RedisHealthIndicator;
 
  const mockHealthCheckService = {
   check: jest.fn(),
@@ -35,6 +39,10 @@ describe('HealthController', () => {
 
   controller = module.get<HealthController>(HealthController);
   healthCheckService = module.get<HealthCheckService>(HealthCheckService);
+  typeOrmIndicator = module.get<TypeOrmHealthIndicator>(TypeOrmHealthIndicator);
+  diskIndicator = module.get<DiskHealthIndicator>(DiskHealthIndicator);
+  memoryIndicator = module.get<MemoryHealthIndicator>(MemoryHealthIndicator);
+  redisIndicator = module.get<RedisHealthIndicator>(RedisHealthIndicator);
  });
 
  afterEach(() => {
@@ -46,7 +54,7 @@ describe('HealthController', () => {
  });
 
  describe('checkAll', () => {
-  it('deve chamar HealthCheckService.check e retornar o status', async () => {
+  it('deve chamar os indicadores de saúde corretamente dentro do HealthCheckService.check', async () => {
    const expectedResult: any = {
     status: 'ok',
     info: {
@@ -60,11 +68,25 @@ describe('HealthController', () => {
     },
    };
 
-   mockHealthCheckService.check.mockResolvedValue(expectedResult);
+   mockHealthCheckService.check.mockImplementation(async (indicators: any[]) => {
+    for (const indicator of indicators) {
+     await indicator();
+    }
+    return expectedResult;
+   });
 
    const result = await controller.checkAll();
 
    expect(healthCheckService.check).toHaveBeenCalled();
+
+   expect(typeOrmIndicator.pingCheck).toHaveBeenCalledWith('database', { timeout: 1500 });
+   expect(redisIndicator.isHealthy).toHaveBeenCalledWith('redis');
+   expect(memoryIndicator.checkHeap).toHaveBeenCalledWith('memory_heap', 250 * 1024 * 1024);
+   expect(diskIndicator.checkStorage).toHaveBeenCalledWith('disk', {
+    path: '/',
+    thresholdPercent: 0.9,
+   });
+
    expect(result).toEqual(expectedResult);
   });
  });

@@ -22,8 +22,10 @@
   "!**/*.decorator.ts",
   "!**/*.config.ts",
   "!**/*.mock.ts",
+  "!**/*.swagger.ts",
+  "!**/seed.ts",
   "!**/main.ts",
-  "!**/infra/database/migration/**"
+  "!**/infra/database/migrations/**"
  ],
  "coverageDirectory": "../coverage",
  "testEnvironment": "node",

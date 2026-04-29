@@ -13,7 +13,10 @@
     "target": "ES2023",
     "sourceMap": true,
     "outDir": "./dist",
-    "baseUrl": "./",
+    "types": [
+      "node",
+      "jest"
+    ],
     "incremental": true,
     "skipLibCheck": true,
     "strictNullChecks": true,
@@ -23,64 +26,64 @@
     "noFallthroughCasesInSwitch": false,
     "paths": {
       "@services": [
-        "src/services"
+        "./src/services"
       ],
       "@services/*": [
-        "src/services/*"
+        "./src/services/*"
       ],
       "@infra": [
-        "src/infra"
+        "./src/infra"
       ],
       "@infra/*": [
-        "src/infra/*"
+        "./src/infra/*"
       ],
       "@config": [
-        "src/config"
+        "./src/config"
       ],
       "@config/*": [
-        "src/config/*"
+        "./src/config/*"
       ],
       "@common": [
-        "src/common"
+        "./src/common"
       ],
       "@common/*": [
-        "src/common/*"
+        "./src/common/*"
       ],
       "@auth": [
-        "src/modules/auth"
+        "./src/modules/auth"
       ],
       "@auth/*": [
-        "src/modules/auth/*"
+        "./src/modules/auth/*"
       ],
       "@events": [
-        "src/modules/events"
+        "./src/modules/events"
       ],
       "@events/*": [
-        "src/modules/events/*"
+        "./src/modules/events/*"
       ],
       "@orders": [
-        "src/modules/orders"
+        "./src/modules/orders"
       ],
       "@orders/*": [
-        "src/modules/orders/*"
+        "./src/modules/orders/*"
       ],
       "@ticket-types": [
-        "src/modules/ticket-types"
+        "./src/modules/ticket-types"
       ],
       "@ticket-types/*": [
-        "src/modules/ticket-types/*"
+        "./src/modules/ticket-types/*"
       ],
       "@tickets": [
-        "src/modules/tickets"
+        "./src/modules/tickets"
       ],
       "@tickets/*": [
-        "src/modules/tickets/*"
+        "./src/modules/tickets/*"
       ],
       "@users": [
-        "src/modules/users"
+        "./src/modules/users"
       ],
       "@users/*": [
-        "src/modules/users/*"
+        "./src/modules/users/*"
       ]
     }
   }
