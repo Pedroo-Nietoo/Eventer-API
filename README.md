@@ -95,7 +95,7 @@ The project has two different documentations:
 ### Demo
 You can access the demo of the API on [this link](https://eventer-api.fly.dev/api/docs). The credentials for the admin user are:
 - Email: `admin@eventer.com`
-- Password: `Admin123!`
+- Password: `Senha123!`
 
 > [!NOTE]  
 > The demo is running on a free-tier hosting service, so it may take a few seconds to wake up the server if it has been idle for a while.
