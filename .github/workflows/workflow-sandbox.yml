@@ -141,7 +141,7 @@ jobs:
       github.event_name == 'workflow_dispatch' && inputs.action == 'Deploy'
     runs-on: ubuntu-latest
     steps:
-      - name: ⏳ Iniciando e Aguardando Deploy no Render
+      - name: Start and wait for Deploy
         env:
           RENDER_SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
           RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
