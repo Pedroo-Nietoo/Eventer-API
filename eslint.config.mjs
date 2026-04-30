@@ -9,6 +9,7 @@ export default tseslint.config(
     ignores: [
       'eslint.config.mjs',
       '.puppeteerrc.cjs',
+      '.cache/**',
       'dist/**',
       'node_modules/**',
       '**/*.spec.ts',
