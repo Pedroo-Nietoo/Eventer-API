@@ -17,6 +17,7 @@ import { StorageModule } from '@infra/aws/s3/storage.module';
 import { WinstonModule } from 'nest-winston';
 import { loggerConfigAsync } from '@config/logger.config';
 import { HealthModule } from './modules/health/health.module';
+import { AppController } from './app.controller';
 
 @Module({
   imports: [
@@ -52,5 +53,6 @@ import { HealthModule } from './modules/health/health.module';
       useClass: JwtAuthGuard,
     },
   ],
+  controllers: [AppController],
 })
-export class AppModule {}
+export class AppModule { }
