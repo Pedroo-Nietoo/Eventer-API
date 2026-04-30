@@ -1,7 +1,14 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AppController } from './app.controller';
+import { readFileSync } from 'fs';
+import { join } from 'path';
 
-const packageJson = require(process.cwd() + '/package.json');
+const packageJsonPath = join(process.cwd(), 'package.json');
+const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf8')) as {
+  name: string;
+  description: string;
+  version: string;
+};
 
 describe('AppController', () => {
   let controller: AppController;
