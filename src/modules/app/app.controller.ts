@@ -1,7 +1,7 @@
 import { Public } from '@common/decorators/public.decorator';
 import { Controller, Get } from '@nestjs/common';
-import { readFileSync } from 'fs';
-import { join } from 'path';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { SwaggerAppController as Doc } from './app.swagger';
 
 const packageJsonPath = join(process.cwd(), 'package.json');
