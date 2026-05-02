@@ -93,7 +93,7 @@ The project has two different documentations:
 - The **project diagrams** can be found in the `docs/diagrams` folder.
 
 ### Demo
-You can access the demo of the API on [this link](https://eventer-api.fly.dev/api/docs). The credentials for the admin user are:
+You can access the demo of the API on [this link](https://eventer-api-dev.onrender.com/api/docs). The credentials for the admin user are:
 - Email: `admin@eventer.com`
 - Password: `Senha123!`
 
