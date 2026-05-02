@@ -121,8 +121,8 @@ jobs:
             github.event.repository.name }} -Dsonar.organization=pedroo-nietoo
             -Dsonar.sources=src -Dsonar.tests=src
             -Dsonar.test.inclusions=src/**/*.spec.ts
-            -Dsonar.exclusions=src/**/*.spec.ts,src/infra/database/migration/**
-            -Dsonar.coverage.exclusions=src/**/*.module.ts,src/**/*.config.ts,src/**/*.dto.ts,src/**/*.entity.ts,src/**/*.enum.ts,src/**/*.decorator.ts,src/**/*.mock.ts,src/**/main.ts
+            -Dsonar.exclusions=src/**/*.spec.ts
+            -Dsonar.coverage.exclusions=src/**/*.module.ts,src/**/*.config.ts,src/**/*.dto.ts,src/**/*.entity.ts,src/**/*.enum.ts,src/**/*.decorator.ts,src/**/*.mock.ts,src/**/*.swagger.ts,src/**/seed.ts,src/**/main.ts,src/infra/database/migrations/**
             -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
       - name: SonarQube Quality Gate Check
         id: sonarqube-quality-gate-check
