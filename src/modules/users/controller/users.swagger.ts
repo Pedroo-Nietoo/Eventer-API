@@ -25,7 +25,7 @@ export const SwaggerUserController = {
       ApiOperation({
         summary: 'Cria um novo usuário (Público)',
         description:
-          'Permite o registro de novos usuários. Rota pública que não exige token JWT. Por padrão, o papel (role) atribuído é USER.',
+          'Permite o registro de novos usuários no sistema. Rota pública.',
       }),
       ApiCreatedResponse({
         description: 'Usuário criado com sucesso.',
@@ -48,7 +48,7 @@ export const SwaggerUserController = {
       ApiOperation({
         summary: 'Lista usuários paginados',
         description:
-          'Retorna uma lista de usuários e metadados de paginação. Requer token JWT.',
+          'Retorna uma lista de usuários e metadados de paginação.',
       }),
       ApiOkResponse({
         description: 'Lista recuperada com sucesso.',
@@ -129,7 +129,7 @@ export const SwaggerUserController = {
   Delete: () =>
     applyDecorators(
       ApiOperation({
-        summary: 'Remove um usuário (Soft Delete)',
+        summary: 'Remove um usuário ',
         description:
           'Marca o usuário como removido no banco de dados sem deletar o registro fisicamente.',
       }),

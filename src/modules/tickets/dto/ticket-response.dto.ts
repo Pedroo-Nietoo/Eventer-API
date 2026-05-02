@@ -5,7 +5,7 @@ export class TicketResponseDto {
   @ApiProperty({ example: 'f39b6f84-7e5d-4a1e-9b3b-1f0e5a6d7c8b' })
   id: string;
 
-  @ApiProperty({ description: 'Token JWT que compõe o QR Code' })
+  @ApiProperty({ description: 'Token que compõe o QR Code' })
   qrCode: string;
 
   @ApiProperty({ enum: TicketStatus, example: TicketStatus.VALID })

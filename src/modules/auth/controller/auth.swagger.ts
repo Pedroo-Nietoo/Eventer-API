@@ -7,6 +7,9 @@ import {
   ApiUnauthorizedResponse,
   ApiTags,
   ApiBody,
+  ApiBearerAuth,
+  ApiNoContentResponse,
+  ApiInternalServerErrorResponse,
 } from '@nestjs/swagger';
 
 export const SwaggerAuthController = {
@@ -16,7 +19,7 @@ export const SwaggerAuthController = {
     applyDecorators(
       ApiOperation({
         summary: 'Realiza o login do usuário',
-        description: 'Gera um token JWT após validar e-mail e senha.',
+        description: 'Gera um token após validar e-mail e senha.',
       }),
       ApiBody({ type: LoginDto }),
       ApiOkResponse({
@@ -25,6 +28,25 @@ export const SwaggerAuthController = {
       }),
       ApiUnauthorizedResponse({
         description: 'E-mail ou senha incorretos.',
+      }),
+    ),
+
+  Logout: () =>
+    applyDecorators(
+      ApiBearerAuth(),
+      ApiOperation({
+        summary: 'Encerra a sessão atual',
+        description:
+          'Recebe o token do usuário via cabeçalho Authorization e o remove da lista de sessões ativas, invalidando-o para requisições futuras.',
+      }),
+      ApiNoContentResponse({
+        description: 'Logout efetuado com sucesso (token invalidado/removido).',
+      }),
+      ApiUnauthorizedResponse({
+        description: 'Acesso negado. Token ausente ou inválido.',
+      }),
+      ApiInternalServerErrorResponse({
+        description: 'Erro interno do servidor ao tentar remover a sessão.',
       }),
     ),
 };

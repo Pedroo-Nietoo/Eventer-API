@@ -24,7 +24,7 @@ export const SwaggerEventController = {
   Create: () =>
     applyDecorators(
       ApiOperation({
-        summary: 'Cria um novo evento (ADMIN)',
+        summary: 'Cria um novo evento',
         description:
           'Cria um evento com geolocalização. O slug é gerado automaticamente se não for enviado.',
       }),

@@ -4,7 +4,7 @@ import { IsString, IsNotEmpty } from 'class-validator';
 export class ValidateTicketDto {
   @ApiProperty({
     example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
-    description: 'Token JWT contido no QR Code do ingresso',
+    description: 'Token contido no QR Code do ingresso',
   })
   @IsString()
   @IsNotEmpty()

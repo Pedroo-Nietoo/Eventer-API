@@ -20,7 +20,7 @@ export class AuthController {
   constructor(
     private readonly loginUseCase: LoginUseCase,
     private readonly logoutUseCase: LogoutUseCase,
-  ) {}
+  ) { }
 
   @Doc.Login()
   @UseGuards(AuthGuard('local'))
@@ -31,6 +31,7 @@ export class AuthController {
     return this.loginUseCase.execute(req.user as AuthenticatedUser);
   }
 
+  @Doc.Logout()
   @Post('logout')
   @HttpCode(HttpStatus.NO_CONTENT)
   async logout(@Request() req: ExpressRequest) {

@@ -21,7 +21,7 @@ export const SwaggerTicketTypeController = {
   Create: () =>
     applyDecorators(
       ApiOperation({
-        summary: 'Cria um novo tipo de ingresso (lote)',
+        summary: 'Cria um novo tipo de ingresso/lote',
         description:
           'Define nome, preço e quantidade total para um evento específico.',
       }),
@@ -121,7 +121,7 @@ export const SwaggerTicketTypeController = {
       ApiOperation({
         summary: 'Remove um lote de ingressos',
         description:
-          'Realiza soft delete. Bloqueia a exclusão se houver ingressos vendidos no lote.',
+          'Marca um tipo de ingresso como removido. Bloqueia a exclusão se houver ingressos vendidos no lote.',
       }),
       ApiOkResponse({ description: 'Lote removido com sucesso.' }),
       ApiBadRequestResponse({

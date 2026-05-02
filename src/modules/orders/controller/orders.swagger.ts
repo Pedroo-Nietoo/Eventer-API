@@ -80,7 +80,7 @@ export const SwaggerOrderController = {
       ApiOperation({
         summary: 'Lista pedidos paginados',
         description:
-          'Retorna uma lista de pedidos e metadados de paginação. Requer token JWT.',
+          'Retorna uma lista de pedidos e metadados de paginação.',
       }),
       ApiOkResponse({
         description: 'Lista recuperada com sucesso.',
@@ -158,7 +158,7 @@ export const SwaggerOrderController = {
   Delete: () =>
     applyDecorators(
       ApiOperation({
-        summary: 'Remove um pedido (Soft Delete)',
+        summary: 'Remove um pedido',
         description:
           'Marca o pedido como removido no banco de dados sem deletar o registro fisicamente.',
       }),
