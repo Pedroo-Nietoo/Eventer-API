@@ -11,7 +11,7 @@ export class OrderExpirationService {
   constructor(
     private readonly dataSource: DataSource,
     private readonly ticketTypesRepository: TicketTypesRepository,
-  ) {}
+  ) { }
 
   async execute(): Promise<void> {
     const limit = new Date();
@@ -28,7 +28,7 @@ export class OrderExpirationService {
           const result = await manager.update(
             Order,
             { id: order.id, status: OrderStatus.PENDING },
-            { status: OrderStatus.CANCELLED },
+            { status: OrderStatus.EXPIRED },
           );
 
           if (result.affected && result.affected > 0) {
