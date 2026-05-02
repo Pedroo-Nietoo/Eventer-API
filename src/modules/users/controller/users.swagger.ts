@@ -47,8 +47,7 @@ export const SwaggerUserController = {
       ApiExtraModels(UserResponseDto),
       ApiOperation({
         summary: 'Lista usuários paginados',
-        description:
-          'Retorna uma lista de usuários e metadados de paginação.',
+        description: 'Retorna uma lista de usuários e metadados de paginação.',
       }),
       ApiOkResponse({
         description: 'Lista recuperada com sucesso.',

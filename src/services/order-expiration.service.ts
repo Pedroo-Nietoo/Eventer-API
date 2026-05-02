@@ -11,7 +11,7 @@ export class OrderExpirationService {
   constructor(
     private readonly dataSource: DataSource,
     private readonly ticketTypesRepository: TicketTypesRepository,
-  ) { }
+  ) {}
 
   async execute(): Promise<void> {
     const limit = new Date();

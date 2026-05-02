@@ -20,7 +20,7 @@ export class AuthController {
   constructor(
     private readonly loginUseCase: LoginUseCase,
     private readonly logoutUseCase: LogoutUseCase,
-  ) { }
+  ) {}
 
   @Doc.Login()
   @UseGuards(AuthGuard('local'))

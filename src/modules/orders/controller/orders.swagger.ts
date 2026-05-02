@@ -79,8 +79,7 @@ export const SwaggerOrderController = {
       ApiExtraModels(OrderResponseDto),
       ApiOperation({
         summary: 'Lista pedidos paginados',
-        description:
-          'Retorna uma lista de pedidos e metadados de paginação.',
+        description: 'Retorna uma lista de pedidos e metadados de paginação.',
       }),
       ApiOkResponse({
         description: 'Lista recuperada com sucesso.',

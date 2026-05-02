@@ -20,7 +20,7 @@ export class CreateOrderUseCase {
     private readonly ticketTypesRepository: TicketTypesRepository,
     private readonly stripeService: StripeService,
     private readonly dataSource: DataSource,
-  ) { }
+  ) {}
 
   async execute(userId: string, dto: CreateOrderDto) {
     const { ticketTypeId, quantity } = dto;
@@ -68,7 +68,6 @@ export class CreateOrderUseCase {
         orderId: savedOrder.id,
         checkoutUrl: session.url,
       };
-
     } catch (error) {
       this.logger.error('Erro no Stripe. Iniciando compensação...', error);
 
@@ -81,7 +80,7 @@ export class CreateOrderUseCase {
       await this.ordersRepository.updateStatus(
         savedOrder.id,
         OrderStatus.FAILED,
-        this.dataSource.manager
+        this.dataSource.manager,
       );
 
       throw new InternalServerErrorException(

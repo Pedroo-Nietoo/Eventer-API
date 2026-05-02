@@ -12,6 +12,7 @@ import { TicketTypesRepository } from '@ticket-types/repository/ticket-type.repo
 import { OrderMapper } from '@orders/mappers/order.mapper';
 import { OrderResponseDto } from '@orders/dto/order-response.dto';
 import { OrderStatus } from '@common/enums/order-status.enum';
+import { Order } from '@orders/entities/order.entity'; // <-- Importação adicionada
 
 @Injectable()
 export class UpdateOrderUseCase {
@@ -21,7 +22,7 @@ export class UpdateOrderUseCase {
     private readonly ordersRepository: OrdersRepository,
     private readonly ticketTypesRepository: TicketTypesRepository,
     private readonly dataSource: DataSource,
-  ) { }
+  ) {}
 
   async execute(id: string, dto: UpdateOrderDto): Promise<OrderResponseDto> {
     const order = await this.ordersRepository.findById(id);
@@ -55,9 +56,14 @@ export class UpdateOrderUseCase {
 
       const needsToReturnStock =
         [OrderStatus.PENDING, OrderStatus.PAID].includes(oldStatus) &&
-        [OrderStatus.CANCELLED, OrderStatus.EXPIRED, OrderStatus.FAILED, OrderStatus.REFUNDED].includes(newStatus);
+        [
+          OrderStatus.CANCELLED,
+          OrderStatus.EXPIRED,
+          OrderStatus.FAILED,
+          OrderStatus.REFUNDED,
+        ].includes(newStatus);
 
-      let savedOrder;
+      let savedOrder: Order;
 
       if (needsToReturnStock) {
         savedOrder = await this.dataSource.transaction(async (manager) => {
@@ -76,7 +82,6 @@ export class UpdateOrderUseCase {
       }
 
       return OrderMapper.toResponse(savedOrder);
-
     } catch (error: unknown) {
       if (
         error instanceof NotFoundException ||

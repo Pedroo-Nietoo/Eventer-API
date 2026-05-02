@@ -55,4 +55,4 @@ import { AppController } from './modules/app/app.controller';
   ],
   controllers: [AppController],
 })
-export class AppModule { }
+export class AppModule {}
