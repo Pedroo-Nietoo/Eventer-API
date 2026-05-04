@@ -3,7 +3,7 @@ import { ExecutionContext, UnauthorizedException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import { JwtAuthGuard } from './jwt-auth.guard';
-import { SessionService } from '@infra/redis/session.service';
+import { SessionService } from '@infra/redis/services/session.service';
 
 describe('JwtAuthGuard', () => {
  let guard: JwtAuthGuard;

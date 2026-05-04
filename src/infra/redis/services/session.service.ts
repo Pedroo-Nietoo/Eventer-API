@@ -8,13 +8,13 @@ export class SessionService {
   constructor(@Inject('REDIS') private readonly redis: Redis) {}
 
   async createSession(token: string, payload: string) {
-    const key = `token:${token}`;
+    const key = `auth:token:${token}`;
 
     await this.redis.set(key, payload, 'EX', this.TTL);
   }
 
   async getSession(token: string): Promise<string | null> {
-    const key = `token:${token}`;
+    const key = `auth:token:${token}`;
 
     const result = await this.redis
       .multi()
@@ -32,7 +32,7 @@ export class SessionService {
   }
 
   async deleteSession(token: string): Promise<boolean> {
-    const deleted = await this.redis.del(`token:${token}`);
+    const deleted = await this.redis.del(`auth:token:${token}`);
     return deleted > 0;
   }
 }

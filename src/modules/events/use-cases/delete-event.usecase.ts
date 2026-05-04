@@ -5,10 +5,14 @@ import {
 } from '@nestjs/common';
 import { UserRole } from '@common/enums/role.enum';
 import { EventsRepository } from '@events/repository/events.repository';
+import { CacheService } from '@infra/redis/services/cache.service';
 
 @Injectable()
 export class DeleteEventUseCase {
-  constructor(private readonly eventsRepository: EventsRepository) {}
+  constructor(
+    private readonly eventsRepository: EventsRepository,
+    private readonly cacheService: CacheService,
+  ) {}
 
   async execute(id: string, userId: string, userRole: UserRole): Promise<void> {
     const event = await this.eventsRepository.findById(id);
@@ -24,5 +28,11 @@ export class DeleteEventUseCase {
     }
 
     await this.eventsRepository.softDelete(id);
+
+    await Promise.all([
+      this.cacheService.del(`events:id:${id}`),
+      this.cacheService.del(`events:slug:${event.slug}`),
+      this.cacheService.delByPattern('events:list:*'),
+    ]);
   }
 }

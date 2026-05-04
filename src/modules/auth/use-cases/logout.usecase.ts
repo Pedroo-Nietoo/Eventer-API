@@ -1,4 +1,4 @@
-import { SessionService } from '@infra/redis/session.service';
+import { SessionService } from '@infra/redis/services/session.service';
 import { Injectable, Logger } from '@nestjs/common';
 
 @Injectable()

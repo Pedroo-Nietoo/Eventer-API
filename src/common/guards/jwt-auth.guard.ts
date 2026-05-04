@@ -7,7 +7,7 @@ import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
 import { IS_PUBLIC_KEY } from '@common/decorators/public.decorator';
-import { SessionService } from '@infra/redis/session.service';
+import { SessionService } from '@infra/redis/services/session.service';
 
 interface AuthenticatedRequest extends Request {
   user?: {

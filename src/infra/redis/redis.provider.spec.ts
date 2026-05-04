@@ -25,7 +25,7 @@ describe('RedisProvider', () => {
 
  describe('useFactory', () => {
   it('deve instanciar o Redis usando a REDIS_URL do ConfigService', () => {
-   const customRedisUrl = 'redis://meu-redis-remoto:6380';
+   const customRedisUrl = 'redis://meu-redis-remoto:6379';
 
    (mockConfigService.get as jest.Mock).mockReturnValue(customRedisUrl);
 

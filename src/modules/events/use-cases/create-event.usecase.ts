@@ -11,12 +11,16 @@ import { EventResponseDto } from '@events/dto/event-response.dto';
 import { CreateEventDto } from '@events/dto/create-event.dto';
 import { EventMapper } from '@events/mappers/event.mapper';
 import { DatabaseError } from '@common/interfaces/database-error.interface';
+import { CacheService } from '@infra/redis/services/cache.service';
 
 @Injectable()
 export class CreateEventUseCase {
   private readonly logger = new Logger(CreateEventUseCase.name);
 
-  constructor(private readonly eventsRepository: EventsRepository) {}
+  constructor(
+    private readonly eventsRepository: EventsRepository,
+    private readonly cacheService: CacheService,
+  ) {}
 
   async execute(
     dto: CreateEventDto,
@@ -36,6 +40,8 @@ export class CreateEventUseCase {
       });
 
       const savedEvent = await this.eventsRepository.save(event);
+
+      await this.cacheService.delByPattern('events:list:*');
 
       return EventMapper.toResponse(savedEvent);
     } catch (error: unknown) {

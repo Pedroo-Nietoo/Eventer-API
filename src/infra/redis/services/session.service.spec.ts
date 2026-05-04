@@ -43,7 +43,7 @@ describe('SessionService', () => {
    await service.createSession(token, payload);
 
    expect(mockRedis.set).toHaveBeenCalledWith(
-    `token:${token}`,
+    `auth:token:${token}`,
     payload,
     'EX',
     900,
@@ -64,7 +64,7 @@ describe('SessionService', () => {
 
  describe('getSession', () => {
   const token = 'xyz-123';
-  const key = `token:${token}`;
+  const key = `auth:token:${token}`;
 
   it('deve retornar o payload e renovar o TTL se a sessão existir', async () => {
    const mockPayload = 'payload_data';
@@ -129,7 +129,7 @@ describe('SessionService', () => {
    const result = await service.deleteSession('xyz-123');
 
    expect(result).toBe(true);
-   expect(mockRedis.del).toHaveBeenCalledWith('token:xyz-123');
+   expect(mockRedis.del).toHaveBeenCalledWith('auth:token:xyz-123');
   });
 
   it('deve retornar false se a sessão não existir para ser deletada', async () => {
@@ -138,7 +138,7 @@ describe('SessionService', () => {
    const result = await service.deleteSession('xyz-123');
 
    expect(result).toBe(false);
-   expect(mockRedis.del).toHaveBeenCalledWith('token:xyz-123');
+   expect(mockRedis.del).toHaveBeenCalledWith('auth:token:xyz-123');
   });
  });
 

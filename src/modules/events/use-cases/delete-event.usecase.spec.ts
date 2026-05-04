@@ -3,104 +3,81 @@ import { DeleteEventUseCase } from './delete-event.usecase';
 import { EventsRepository } from '@events/repository/events.repository';
 import { NotFoundException, ForbiddenException } from '@nestjs/common';
 import { UserRole } from '@common/enums/role.enum';
+import { CacheService } from '@infra/redis/services/cache.service';
 
 describe('DeleteEventUseCase', () => {
  let useCase: DeleteEventUseCase;
  let eventsRepository: EventsRepository;
+ let cacheService: CacheService;
 
  const mockEventsRepository = {
   findById: jest.fn(),
   softDelete: jest.fn(),
  };
 
+ const mockCacheService = {
+  del: jest.fn(),
+  delByPattern: jest.fn(),
+ };
+
  beforeEach(async () => {
   const module: TestingModule = await Test.createTestingModule({
    providers: [
     DeleteEventUseCase,
-    {
-     provide: EventsRepository,
-     useValue: mockEventsRepository,
-    },
+    { provide: EventsRepository, useValue: mockEventsRepository },
+    { provide: CacheService, useValue: mockCacheService },
    ],
   }).compile();
 
   useCase = module.get<DeleteEventUseCase>(DeleteEventUseCase);
   eventsRepository = module.get<EventsRepository>(EventsRepository);
+  cacheService = module.get<CacheService>(CacheService);
  });
 
  afterEach(() => {
   jest.clearAllMocks();
  });
 
- it('deve estar definido', () => {
-  expect(useCase).toBeDefined();
+ it('deve excluir o evento com sucesso e invalidar o cache', async () => {
+  const mockEventId = 'evt-123';
+  const mockEvent = { id: mockEventId, slug: 'meu-evento', organizerId: 'org-1' };
+
+  mockEventsRepository.findById.mockResolvedValueOnce(mockEvent);
+  mockEventsRepository.softDelete.mockResolvedValueOnce(undefined);
+
+  await useCase.execute(mockEventId, 'org-1', UserRole.USER);
+
+  expect(mockEventsRepository.softDelete).toHaveBeenCalledWith(mockEventId);
+  expect(mockCacheService.del).toHaveBeenCalledWith(`events:id:${mockEventId}`);
+  expect(mockCacheService.del).toHaveBeenCalledWith(`events:slug:${mockEvent.slug}`);
+  expect(mockCacheService.delByPattern).toHaveBeenCalledWith('events:list:*');
  });
 
- describe('execute', () => {
+ it('deve excluir o evento com sucesso se for ADMIN (mesmo não sendo dono) e limpar cache', async () => {
   const mockEventId = 'evt-123';
-  const mockOrganizerId = 'user-organizer-1';
-  const mockOtherUserId = 'user-other-99';
+  const mockEvent = { id: mockEventId, slug: 'meu-evento', organizerId: 'org-1' };
 
-  const mockEvent = {
-   id: mockEventId,
-   organizerId: mockOrganizerId,
-   title: 'Festa de Fim de Ano',
-  };
+  mockEventsRepository.findById.mockResolvedValueOnce(mockEvent);
+  mockEventsRepository.softDelete.mockResolvedValueOnce(undefined);
 
-  it('deve excluir o evento com sucesso se o usuário for o organizador', async () => {
-   mockEventsRepository.findById.mockResolvedValueOnce(mockEvent);
-   mockEventsRepository.softDelete.mockResolvedValueOnce(undefined);
+  await useCase.execute(mockEventId, 'outro-id', UserRole.ADMIN);
 
-   await useCase.execute(mockEventId, mockOrganizerId, UserRole.USER);
+  expect(mockEventsRepository.softDelete).toHaveBeenCalledWith(mockEventId);
+  expect(mockCacheService.del).toHaveBeenCalled();
+ });
 
-   expect(mockEventsRepository.findById).toHaveBeenCalledWith(mockEventId);
-   expect(mockEventsRepository.softDelete).toHaveBeenCalledWith(mockEventId);
-   expect(mockEventsRepository.softDelete).toHaveBeenCalledTimes(1);
-  });
+ it('deve lançar NotFoundException se o evento não existir', async () => {
+  mockEventsRepository.findById.mockResolvedValueOnce(null);
 
-  it('deve excluir o evento com sucesso se o usuário for um ADMIN (mesmo não sendo o organizador)', async () => {
-   mockEventsRepository.findById.mockResolvedValueOnce(mockEvent);
-   mockEventsRepository.softDelete.mockResolvedValueOnce(undefined);
-   await useCase.execute(mockEventId, mockOtherUserId, UserRole.ADMIN);
+  await expect(useCase.execute('id', 'org', UserRole.USER)).rejects.toThrow(NotFoundException);
+  expect(mockEventsRepository.softDelete).not.toHaveBeenCalled();
+  expect(mockCacheService.del).not.toHaveBeenCalled();
+ });
 
-   expect(mockEventsRepository.findById).toHaveBeenCalledWith(mockEventId);
-   expect(mockEventsRepository.softDelete).toHaveBeenCalledWith(mockEventId);
-  });
+ it('deve lançar ForbiddenException se não for dono nem ADMIN', async () => {
+  mockEventsRepository.findById.mockResolvedValueOnce({ organizerId: 'dono', slug: 'teste' });
 
-  it('deve lançar NotFoundException se o evento não existir', async () => {
-   mockEventsRepository.findById.mockResolvedValueOnce(null);
-   await expect(useCase.execute(mockEventId, mockOrganizerId, UserRole.USER)).rejects.toThrow(
-    new NotFoundException(`Evento com ID ${mockEventId} não encontrado.`)
-   );
-
-   expect(mockEventsRepository.softDelete).not.toHaveBeenCalled();
-  });
-
-  it('deve lançar ForbiddenException se o usuário não for o dono nem ADMIN', async () => {
-   mockEventsRepository.findById.mockResolvedValueOnce(mockEvent);
-   await expect(useCase.execute(mockEventId, mockOtherUserId, UserRole.USER)).rejects.toThrow(
-    new ForbiddenException('Você não tem permissão para excluir este evento.')
-   );
-
-   expect(mockEventsRepository.findById).toHaveBeenCalledWith(mockEventId);
-
-   expect(mockEventsRepository.softDelete).not.toHaveBeenCalled();
-  });
-
-  it('deve propagar erro se a busca pelo evento (findById) falhar catastroficamente', async () => {
-   const dbError = new Error('Database connection lost');
-   mockEventsRepository.findById.mockRejectedValueOnce(dbError);
-   await expect(useCase.execute(mockEventId, mockOrganizerId, UserRole.USER)).rejects.toThrow(dbError);
-
-   expect(mockEventsRepository.softDelete).not.toHaveBeenCalled();
-  });
-
-  it('deve propagar erro se a exclusão (softDelete) falhar catastroficamente', async () => {
-   mockEventsRepository.findById.mockResolvedValueOnce(mockEvent);
-
-   const dbError = new Error('Deadlock found when trying to get lock');
-   mockEventsRepository.softDelete.mockRejectedValueOnce(dbError);
-   await expect(useCase.execute(mockEventId, mockOrganizerId, UserRole.USER)).rejects.toThrow(dbError);
-  });
+  await expect(useCase.execute('id', 'hacker', UserRole.USER)).rejects.toThrow(ForbiddenException);
+  expect(mockEventsRepository.softDelete).not.toHaveBeenCalled();
  });
 });

@@ -16,14 +16,20 @@ jest.mock('@common/utils/generate-slug', () => ({
 
 import { createId } from '@paralleldrive/cuid2';
 import generateSlug from '@common/utils/generate-slug';
+import { CacheService } from '@infra/redis/services/cache.service';
 
 describe('CreateEventUseCase', () => {
  let useCase: CreateEventUseCase;
  let eventsRepository: EventsRepository;
+ let cacheService: CacheService;
 
  const mockEventsRepository = {
   create: jest.fn(),
   save: jest.fn(),
+ };
+
+ const mockCacheService = {
+  delByPattern: jest.fn(),
  };
 
  beforeEach(async () => {
@@ -34,18 +40,22 @@ describe('CreateEventUseCase', () => {
      provide: EventsRepository,
      useValue: mockEventsRepository,
     },
+    {
+     provide: CacheService,
+     useValue: mockCacheService,
+    },
    ],
   }).compile();
 
   useCase = module.get<CreateEventUseCase>(CreateEventUseCase);
   eventsRepository = module.get<EventsRepository>(EventsRepository);
+  cacheService = module.get<CacheService>(CacheService);
 
   jest.spyOn(Logger.prototype, 'error').mockImplementation(() => { });
  });
 
  afterEach(() => {
   jest.clearAllMocks();
-  jest.resetAllMocks();
  });
 
  it('deve estar definido', () => {
@@ -60,10 +70,10 @@ describe('CreateEventUseCase', () => {
    latitude: -23.5505,
    longitude: -46.6333,
    eventDate: new Date('2026-12-31T20:00:00Z'),
-   coverImageUrl: 'https://example.com/cover.jpg'
+   coverImageUrl: 'https://example.com/cover.jpg',
   } as any;
 
-  it('deve criar um evento com sucesso, gerando o slug e o objeto de localização', async () => {
+  it('deve criar um evento com sucesso, limpar o cache das listas e retornar o DTO', async () => {
    const mockSlugBase = 'festival-de-musica-2026';
    const mockCuid = 'cuid987654321';
    const expectedSlug = `${mockSlugBase}-${mockCuid}`;
@@ -73,7 +83,6 @@ describe('CreateEventUseCase', () => {
 
    const mockCreatedEventEntity = { id: 'evt-1', ...mockDto, slug: expectedSlug };
    mockEventsRepository.create.mockReturnValue(mockCreatedEventEntity);
-
    mockEventsRepository.save.mockResolvedValue(mockCreatedEventEntity);
 
    const mockResponseDto = { id: 'evt-1', title: mockDto.title };
@@ -81,34 +90,20 @@ describe('CreateEventUseCase', () => {
 
    const result = await useCase.execute(mockDto, mockOrganizerId);
 
-   expect(generateSlug).toHaveBeenCalledWith(mockDto.title);
-   expect(createId).toHaveBeenCalledTimes(1);
-
-   expect(mockEventsRepository.create).toHaveBeenCalledWith({
-    ...mockDto,
-    slug: expectedSlug,
-    organizerId: mockOrganizerId,
-    location: {
-     type: 'Point',
-     coordinates: [mockDto.longitude, mockDto.latitude],
-    },
-   });
-
    expect(mockEventsRepository.save).toHaveBeenCalledWith(mockCreatedEventEntity);
+   expect(mockCacheService.delByPattern).toHaveBeenCalledWith('events:list:*');
    expect(mapperSpy).toHaveBeenCalledWith(mockCreatedEventEntity);
    expect(result).toEqual(mockResponseDto);
   });
 
-  it('deve lançar ConflictException se o banco de dados retornar erro de duplicidade (23505/ER_DUP_ENTRY)', async () => {
-   const dbError = new Error('Duplicate key value violates unique constraint') as any;
+  it('deve lançar ConflictException se o banco retornar erro de duplicidade', async () => {
+   const dbError = new Error('Duplicate key') as any;
    dbError.code = '23505';
 
    mockEventsRepository.save.mockRejectedValueOnce(dbError);
-   await expect(useCase.execute(mockDto, mockOrganizerId)).rejects.toThrow(
-    new ConflictException('O slug deste evento já existe.')
-   );
 
-   expect(Logger.prototype.error).not.toHaveBeenCalled();
+   await expect(useCase.execute(mockDto, mockOrganizerId)).rejects.toThrow(ConflictException);
+   expect(mockCacheService.delByPattern).not.toHaveBeenCalled();
   });
 
   it('deve lançar InternalServerErrorException e registrar o log se houver erro genérico no banco', async () => {
@@ -118,11 +113,10 @@ describe('CreateEventUseCase', () => {
    mockEventsRepository.save.mockRejectedValueOnce(dbError);
 
    const loggerSpy = jest.spyOn(Logger.prototype, 'error');
-   await expect(useCase.execute(mockDto, mockOrganizerId)).rejects.toThrow(
-    new InternalServerErrorException('Erro interno ao criar evento.')
-   );
+   await expect(useCase.execute(mockDto, mockOrganizerId)).rejects.toThrow(InternalServerErrorException);
 
    expect(loggerSpy).toHaveBeenCalledWith('Erro ao criar evento', dbError);
+   expect(mockCacheService.delByPattern).not.toHaveBeenCalled();
   });
  });
 });

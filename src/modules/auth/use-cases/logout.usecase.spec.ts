@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { Logger } from '@nestjs/common';
 import { LogoutUseCase } from './logout.usecase';
-import { SessionService } from '@infra/redis/session.service';
+import { SessionService } from '@infra/redis/services/session.service';
 
 describe('LogoutUseCase', () => {
  let useCase: LogoutUseCase;

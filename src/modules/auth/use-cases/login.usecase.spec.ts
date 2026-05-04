@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { SessionService } from '@infra/redis/session.service';
+import { SessionService } from '@infra/redis/services/session.service';
 import { JwtService } from '@nestjs/jwt';
 import { LoginUseCase } from './login.usecase';
 
