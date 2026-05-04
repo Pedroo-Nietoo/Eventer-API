@@ -1,3 +1,4 @@
+import { CacheService } from '@infra/redis/services/cache.service';
 import {
   BadRequestException,
   Injectable,
@@ -7,7 +8,10 @@ import { TicketTypesRepository } from '@ticket-types/repository/ticket-type.repo
 
 @Injectable()
 export class DeleteTicketTypeUseCase {
-  constructor(private readonly ticketTypesRepository: TicketTypesRepository) {}
+  constructor(
+    private readonly ticketTypesRepository: TicketTypesRepository,
+    private readonly cacheService: CacheService,
+  ) { }
 
   async execute(id: string): Promise<void> {
     const ticketType = await this.ticketTypesRepository.findById(id);
@@ -23,7 +27,7 @@ export class DeleteTicketTypeUseCase {
     if (ticketsSold > 0) {
       throw new BadRequestException(
         `Não é possível excluir este lote pois já existem(m) ${ticketsSold} ingresso(s) vendido(s). ` +
-          `Para interromper as vendas, sugerimos editar a quantidade para zero.`,
+        `Para interromper as vendas, sugerimos editar a quantidade para zero.`,
       );
     }
 
@@ -34,5 +38,10 @@ export class DeleteTicketTypeUseCase {
         'Erro ao tentar processar a exclusão do lote.',
       );
     }
+
+    await Promise.all([
+      this.cacheService.del(`ticket-types:id:${id}`),
+      this.cacheService.delByPattern('ticket-types:list:*'),
+    ]);
   }
 }

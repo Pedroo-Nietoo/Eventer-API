@@ -8,16 +8,20 @@ import { UpdateTicketTypeDto } from '@ticket-types/dto/update-ticket-type.dto';
 import { TicketTypesRepository } from '@ticket-types/repository/ticket-type.repository';
 import { TicketTypeMapper } from '@ticket-types/mappers/ticket-type.mapper';
 import { TicketType } from '@ticket-types/entities/ticket-type.entity';
+import { CacheService } from '@infra/redis/services/cache.service';
 
 @Injectable()
 export class UpdateTicketTypeUseCase {
-  constructor(private readonly ticketTypesRepository: TicketTypesRepository) {}
+  constructor(
+    private readonly ticketTypesRepository: TicketTypesRepository,
+    private readonly cacheService: CacheService,
+  ) { }
 
   async execute(
     id: string,
     dto: UpdateTicketTypeDto,
   ): Promise<TicketTypeResponseDto> {
-    return await this.ticketTypesRepository.manager.transaction(
+    const response = await this.ticketTypesRepository.manager.transaction(
       async (manager) => {
         const ticketType = await manager.findOne(TicketType, {
           where: { id },
@@ -55,5 +59,12 @@ export class UpdateTicketTypeUseCase {
         return TicketTypeMapper.toResponse(updatedEntity);
       },
     );
+
+    await Promise.all([
+      this.cacheService.del(`ticket-types:id:${id}`),
+      this.cacheService.delByPattern('ticket-types:list:*'),
+    ]);
+
+    return response;
   }
 }

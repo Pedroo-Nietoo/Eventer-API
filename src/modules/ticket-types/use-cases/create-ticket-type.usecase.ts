@@ -9,12 +9,16 @@ import { TicketTypeResponseDto } from '@ticket-types/dto/ticket-type-response.dt
 import { CreateTicketTypeDto } from '@ticket-types/dto/create-ticket-type.dto';
 import { TicketTypesRepository } from '@ticket-types/repository/ticket-type.repository';
 import { DatabaseError } from '@common/interfaces/database-error.interface';
+import { CacheService } from '@infra/redis/services/cache.service';
 
 @Injectable()
 export class CreateTicketTypeUseCase {
   private readonly logger = new Logger(CreateTicketTypeUseCase.name);
 
-  constructor(private readonly ticketTypesRepository: TicketTypesRepository) {}
+  constructor(
+    private readonly ticketTypesRepository: TicketTypesRepository,
+    private readonly cacheService: CacheService,
+  ) { }
 
   async execute(dto: CreateTicketTypeDto): Promise<TicketTypeResponseDto> {
     const ticketType = this.ticketTypesRepository.create({
@@ -25,6 +29,9 @@ export class CreateTicketTypeUseCase {
 
     try {
       const saved = await this.ticketTypesRepository.save(ticketType);
+
+      await this.cacheService.delByPattern('ticket-types:list:*');
+
       return TicketTypeMapper.toResponse(saved);
     } catch (error: unknown) {
       const dbError = error as DatabaseError;
