@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { UsersModule } from '@users/users.module';
 import { AuthModule } from '@auth/auth.module';
 import { EventsModule } from '@events/events.module';
@@ -18,6 +18,9 @@ import { WinstonModule } from 'nest-winston';
 import { loggerConfigAsync } from '@config/logger.config';
 import { HealthModule } from './modules/health/health.module';
 import { AppController } from './modules/app/app.controller';
+import { BullModule } from '@nestjs/bullmq';
+import { BullBoardModule } from '@bull-board/nestjs';
+import { ExpressAdapter } from '@bull-board/express';
 
 @Module({
   imports: [
@@ -33,6 +36,29 @@ import { AppController } from './modules/app/app.controller';
     ]),
     WinstonModule.forRootAsync(loggerConfigAsync),
     TypeOrmModule.forRootAsync(databaseConfig),
+    BullModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => {
+        const redisUrl =
+          configService.get<string>('REDIS_URL') || 'redis://localhost:6379';
+        const url = new URL(redisUrl);
+
+        return {
+          connection: {
+            host: url.hostname,
+            port: Number(url.port),
+            username: url.username || undefined,
+            password: url.password || undefined,
+          },
+        };
+      },
+    }),
+
+    BullBoardModule.forRoot({
+      route: '/queues',
+      adapter: ExpressAdapter,
+    }),
     UsersModule,
     AuthModule,
     EventsModule,
