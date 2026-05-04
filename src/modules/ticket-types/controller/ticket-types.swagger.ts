@@ -12,6 +12,7 @@ import {
   ApiInternalServerErrorResponse,
   ApiExtraModels,
   getSchemaPath,
+  ApiQuery,
 } from '@nestjs/swagger';
 import { TicketTypeResponseDto } from '@ticket-types/dto/ticket-type-response.dto';
 
@@ -44,6 +45,20 @@ export const SwaggerTicketTypeController = {
     applyDecorators(
       ApiExtraModels(TicketTypeResponseDto),
       ApiOperation({ summary: 'Lista lotes de ingressos paginados' }),
+      ApiQuery({
+        name: 'page',
+        type: Number,
+        required: false,
+        description: 'Número da página (padrão: 1)',
+        example: 1,
+      }),
+      ApiQuery({
+        name: 'limit',
+        type: Number,
+        required: false,
+        description: 'Itens por página (padrão: 20)',
+        example: 20,
+      }),
       ApiOkResponse({
         description: 'Lista recuperada com sucesso.',
         schema: {

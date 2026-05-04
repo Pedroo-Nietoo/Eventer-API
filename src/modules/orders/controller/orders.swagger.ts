@@ -13,6 +13,7 @@ import {
   getSchemaPath,
   ApiForbiddenResponse,
   ApiInternalServerErrorResponse,
+  ApiQuery,
 } from '@nestjs/swagger';
 import { OrderResponseDto } from '@orders/dto/order-response.dto';
 
@@ -80,6 +81,20 @@ export const SwaggerOrderController = {
       ApiOperation({
         summary: 'Lista pedidos paginados',
         description: 'Retorna uma lista de pedidos e metadados de paginação.',
+      }),
+      ApiQuery({
+        name: 'page',
+        type: Number,
+        required: false,
+        description: 'Número da página (padrão: 1)',
+        example: 1,
+      }),
+      ApiQuery({
+        name: 'limit',
+        type: Number,
+        required: false,
+        description: 'Itens por página (padrão: 20)',
+        example: 20,
       }),
       ApiOkResponse({
         description: 'Lista recuperada com sucesso.',

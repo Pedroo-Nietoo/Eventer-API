@@ -14,6 +14,7 @@ import {
   getSchemaPath,
   ApiForbiddenResponse,
   ApiInternalServerErrorResponse,
+  ApiQuery,
 } from '@nestjs/swagger';
 import { UserResponseDto } from '@users/dto/user-response.dto';
 
@@ -48,6 +49,20 @@ export const SwaggerUserController = {
       ApiOperation({
         summary: 'Lista usuários paginados',
         description: 'Retorna uma lista de usuários e metadados de paginação.',
+      }),
+      ApiQuery({
+        name: 'page',
+        type: Number,
+        required: false,
+        description: 'Número da página (padrão: 1)',
+        example: 1,
+      }),
+      ApiQuery({
+        name: 'limit',
+        type: Number,
+        required: false,
+        description: 'Itens por página (padrão: 20)',
+        example: 20,
       }),
       ApiOkResponse({
         description: 'Lista recuperada com sucesso.',
