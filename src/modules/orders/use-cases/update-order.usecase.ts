@@ -12,7 +12,7 @@ import { TicketTypesRepository } from '@ticket-types/repository/ticket-type.repo
 import { OrderMapper } from '@orders/mappers/order.mapper';
 import { OrderResponseDto } from '@orders/dto/order-response.dto';
 import { OrderStatus } from '@common/enums/order-status.enum';
-import { Order } from '@orders/entities/order.entity'; // <-- Importação adicionada
+import { Order } from '@orders/entities/order.entity';
 
 @Injectable()
 export class UpdateOrderUseCase {
@@ -22,7 +22,7 @@ export class UpdateOrderUseCase {
     private readonly ordersRepository: OrdersRepository,
     private readonly ticketTypesRepository: TicketTypesRepository,
     private readonly dataSource: DataSource,
-  ) {}
+  ) { }
 
   async execute(id: string, dto: UpdateOrderDto): Promise<OrderResponseDto> {
     const order = await this.ordersRepository.findById(id);

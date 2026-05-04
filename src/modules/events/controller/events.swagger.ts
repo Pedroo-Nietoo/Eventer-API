@@ -93,6 +93,20 @@ export const SwaggerEventController = {
         summary: 'Lista todos os eventos',
         description: 'Retorna uma lista paginada de eventos.',
       }),
+      ApiQuery({
+        name: 'page',
+        type: Number,
+        required: false,
+        description: 'Número da página para listagem (padrão: 1)',
+        example: 1,
+      }),
+      ApiQuery({
+        name: 'limit',
+        type: Number,
+        required: false,
+        description: 'Quantidade de itens retornados por página (padrão: 20)',
+        example: 20,
+      }),
       ApiOkResponse({
         description: 'Lista de eventos recuperada com sucesso.',
         schema: {
