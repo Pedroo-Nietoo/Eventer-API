@@ -18,7 +18,7 @@ export class CreateTicketTypeUseCase {
   constructor(
     private readonly ticketTypesRepository: TicketTypesRepository,
     private readonly cacheService: CacheService,
-  ) { }
+  ) {}
 
   async execute(dto: CreateTicketTypeDto): Promise<TicketTypeResponseDto> {
     const ticketType = this.ticketTypesRepository.create({

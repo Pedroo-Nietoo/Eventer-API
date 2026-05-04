@@ -11,7 +11,7 @@ export class DeleteTicketTypeUseCase {
   constructor(
     private readonly ticketTypesRepository: TicketTypesRepository,
     private readonly cacheService: CacheService,
-  ) { }
+  ) {}
 
   async execute(id: string): Promise<void> {
     const ticketType = await this.ticketTypesRepository.findById(id);
@@ -27,7 +27,7 @@ export class DeleteTicketTypeUseCase {
     if (ticketsSold > 0) {
       throw new BadRequestException(
         `Não é possível excluir este lote pois já existem(m) ${ticketsSold} ingresso(s) vendido(s). ` +
-        `Para interromper as vendas, sugerimos editar a quantidade para zero.`,
+          `Para interromper as vendas, sugerimos editar a quantidade para zero.`,
       );
     }
 

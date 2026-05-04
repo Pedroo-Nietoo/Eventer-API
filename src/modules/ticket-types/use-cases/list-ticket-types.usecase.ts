@@ -13,7 +13,7 @@ export class ListTicketTypesUseCase {
     private readonly ticketTypesRepository: TicketTypesRepository,
     private readonly cacheService: CacheService,
     private readonly configService: ConfigService,
-  ) { }
+  ) {}
 
   async execute(
     paginationDto: PaginationDto,
@@ -21,7 +21,10 @@ export class ListTicketTypesUseCase {
     const { page = 1, limit = 20 } = paginationDto;
 
     const cacheKey = `ticket-types:list:${page}:${limit}`;
-    const cachedData = await this.cacheService.get<PaginatedResponse<TicketTypeResponseDto>>(cacheKey);
+    const cachedData =
+      await this.cacheService.get<PaginatedResponse<TicketTypeResponseDto>>(
+        cacheKey,
+      );
 
     if (cachedData) {
       return cachedData;
@@ -29,7 +32,8 @@ export class ListTicketTypesUseCase {
 
     const skip = (page - 1) * limit;
 
-    const [ticketTypes, total] = await this.ticketTypesRepository.findAllWithEvent(skip, limit);
+    const [ticketTypes, total] =
+      await this.ticketTypesRepository.findAllWithEvent(skip, limit);
 
     const response = {
       data: TicketTypeMapper.toResponseList(ticketTypes),

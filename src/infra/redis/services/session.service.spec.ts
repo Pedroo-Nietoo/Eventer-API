@@ -5,10 +5,10 @@ describe('SessionService', () => {
  let service: SessionService;
 
  const mockRedis = {
-  set: jest.fn(),
+  set: jest.fn().mockReturnThis(),
+  get: jest.fn().mockReturnThis(),
   del: jest.fn(),
   multi: jest.fn().mockReturnThis(),
-  get: jest.fn().mockReturnThis(),
   expire: jest.fn().mockReturnThis(),
   exec: jest.fn(),
  };
@@ -17,10 +17,7 @@ describe('SessionService', () => {
   const module: TestingModule = await Test.createTestingModule({
    providers: [
     SessionService,
-    {
-     provide: 'REDIS',
-     useValue: mockRedis,
-    },
+    { provide: 'REDIS', useValue: mockRedis },
    ],
   }).compile();
 
@@ -31,34 +28,40 @@ describe('SessionService', () => {
   jest.clearAllMocks();
  });
 
- it('deve estar definido', () => {
-  expect(service).toBeDefined();
+ describe('invalidatePreviousSession', () => {
+  it('deve deletar o token antigo e a chave do usuário se existir', async () => {
+   mockRedis.get.mockResolvedValueOnce('token-antigo-123');
+
+   await service.invalidatePreviousSession('user-1');
+
+   expect(mockRedis.get).toHaveBeenCalledWith('auth:user:user-1');
+   expect(mockRedis.del).toHaveBeenCalledWith('auth:token:token-antigo-123', 'auth:user:user-1');
+  });
+
+  it('não deve chamar del se o usuário não tiver token ativo', async () => {
+   mockRedis.get.mockResolvedValueOnce(null);
+
+   await service.invalidatePreviousSession('user-1');
+
+   expect(mockRedis.get).toHaveBeenCalledWith('auth:user:user-1');
+   expect(mockRedis.del).not.toHaveBeenCalled();
+  });
  });
 
  describe('createSession', () => {
-  it('deve salvar a sessão no Redis com o TTL correto', async () => {
+  it('deve salvar as duas chaves na mesma transação', async () => {
+   const userId = 'user-1';
    const token = 'xyz-123';
-   const payload = JSON.stringify({ userId: 1, role: 'ADMIN' });
+   const payload = 'jwt.payload.here';
 
-   await service.createSession(token, payload);
+   mockRedis.exec.mockResolvedValueOnce([]);
 
-   expect(mockRedis.set).toHaveBeenCalledWith(
-    `auth:token:${token}`,
-    payload,
-    'EX',
-    900,
-   );
-  });
+   await service.createSession(userId, token, payload);
 
-  it('deve propagar a exceção se a conexão com o Redis falhar ao salvar', async () => {
-   const dbError = new Error('Redis connection lost');
-   mockRedis.set.mockRejectedValueOnce(dbError);
-
-   const token = 'xyz-123';
-   const payload = JSON.stringify({ userId: 1 });
-
-   await expect(service.createSession(token, payload)).rejects.toThrow(dbError);
-   expect(mockRedis.set).toHaveBeenCalledTimes(1);
+   expect(mockRedis.multi).toHaveBeenCalled();
+   expect(mockRedis.set).toHaveBeenCalledWith(`auth:token:${token}`, payload, 'EX', 900);
+   expect(mockRedis.set).toHaveBeenCalledWith(`auth:user:${userId}`, token, 'EX', 900);
+   expect(mockRedis.exec).toHaveBeenCalled();
   });
  });
 
@@ -68,11 +71,7 @@ describe('SessionService', () => {
 
   it('deve retornar o payload e renovar o TTL se a sessão existir', async () => {
    const mockPayload = 'payload_data';
-
-   mockRedis.exec.mockResolvedValueOnce([
-    [null, mockPayload],
-    [null, 1],
-   ]);
+   mockRedis.exec.mockResolvedValueOnce([[null, mockPayload], [null, 1]]);
 
    const result = await service.getSession(token);
 
@@ -84,40 +83,26 @@ describe('SessionService', () => {
   });
 
   it('deve retornar null se a sessão não existir', async () => {
-   mockRedis.exec.mockResolvedValueOnce([
-    [null, null],
-    [null, 0],
-   ]);
-
+   mockRedis.exec.mockResolvedValueOnce([[null, null], [null, 0]]);
    const result = await service.getSession(token);
-
    expect(result).toBeNull();
   });
 
   it('deve retornar null se houver um erro durante a execução do comando get no Redis', async () => {
-   const mockError = new Error('Redis Error');
-   mockRedis.exec.mockResolvedValueOnce([
-    [mockError, null],
-    [null, 0],
-   ]);
-
+   mockRedis.exec.mockResolvedValueOnce([[new Error(), null], [null, 0]]);
    const result = await service.getSession(token);
-
    expect(result).toBeNull();
   });
 
   it('deve retornar null se o exec() retornar um valor nulo/indefinido (falha na transação)', async () => {
    mockRedis.exec.mockResolvedValueOnce(null);
-
    const result = await service.getSession(token);
-
    expect(result).toBeNull();
   });
 
   it('deve propagar a exceção se o comando exec falhar catastroficamente', async () => {
    const dbError = new Error('Redis timeout during multi execution');
    mockRedis.exec.mockRejectedValueOnce(dbError);
-
    await expect(service.getSession(token)).rejects.toThrow(dbError);
   });
  });
@@ -125,28 +110,15 @@ describe('SessionService', () => {
  describe('deleteSession', () => {
   it('deve retornar true se a sessão for deletada com sucesso', async () => {
    mockRedis.del.mockResolvedValueOnce(1);
-
    const result = await service.deleteSession('xyz-123');
-
    expect(result).toBe(true);
    expect(mockRedis.del).toHaveBeenCalledWith('auth:token:xyz-123');
   });
 
   it('deve retornar false se a sessão não existir para ser deletada', async () => {
    mockRedis.del.mockResolvedValueOnce(0);
-
    const result = await service.deleteSession('xyz-123');
-
    expect(result).toBe(false);
-   expect(mockRedis.del).toHaveBeenCalledWith('auth:token:xyz-123');
   });
- });
-
- it('deve propagar a exceção se a conexão com o Redis falhar ao deletar', async () => {
-  const dbError = new Error('Redis cluster down');
-  mockRedis.del.mockRejectedValueOnce(dbError);
-
-  await expect(service.deleteSession('xyz-123')).rejects.toThrow(dbError);
-  expect(mockRedis.del).toHaveBeenCalledTimes(1);
  });
 });

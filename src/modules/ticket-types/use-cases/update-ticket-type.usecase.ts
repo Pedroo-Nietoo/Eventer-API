@@ -15,7 +15,7 @@ export class UpdateTicketTypeUseCase {
   constructor(
     private readonly ticketTypesRepository: TicketTypesRepository,
     private readonly cacheService: CacheService,
-  ) { }
+  ) {}
 
   async execute(
     id: string,

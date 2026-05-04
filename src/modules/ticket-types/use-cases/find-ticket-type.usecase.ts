@@ -11,12 +11,13 @@ export class FindTicketTypeUseCase {
     private readonly ticketTypesRepository: TicketTypesRepository,
     private readonly cacheService: CacheService,
     private readonly configService: ConfigService,
-  ) { }
+  ) {}
 
   async execute(id: string): Promise<TicketTypeResponseDto> {
     const cacheKey = `ticket-types:id:${id}`;
 
-    const cachedData = await this.cacheService.get<TicketTypeResponseDto>(cacheKey);
+    const cachedData =
+      await this.cacheService.get<TicketTypeResponseDto>(cacheKey);
 
     if (cachedData) {
       return cachedData;

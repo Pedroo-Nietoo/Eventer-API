@@ -22,7 +22,7 @@ export class UpdateOrderUseCase {
     private readonly ordersRepository: OrdersRepository,
     private readonly ticketTypesRepository: TicketTypesRepository,
     private readonly dataSource: DataSource,
-  ) { }
+  ) {}
 
   async execute(id: string, dto: UpdateOrderDto): Promise<OrderResponseDto> {
     const order = await this.ordersRepository.findById(id);

@@ -12,13 +12,13 @@ export class LoginUseCase {
   ) {}
 
   async execute(user: AuthenticatedUser) {
+    await this.sessionService.invalidatePreviousSession(user.id);
+
     const payload = { sub: user.id, role: user.role };
-
     const jwtToken = await this.jwtService.signAsync(payload);
-
     const opaqueToken = randomBytes(32).toString('hex');
 
-    await this.sessionService.createSession(opaqueToken, jwtToken);
+    await this.sessionService.createSession(user.id, opaqueToken, jwtToken);
 
     return { access_token: opaqueToken };
   }

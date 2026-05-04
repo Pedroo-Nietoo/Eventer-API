@@ -7,10 +7,24 @@ export class SessionService {
 
   constructor(@Inject('REDIS') private readonly redis: Redis) {}
 
-  async createSession(token: string, payload: string) {
-    const key = `auth:token:${token}`;
+  async invalidatePreviousSession(userId: string): Promise<void> {
+    const userKey = `auth:user:${userId}`;
+    const oldToken = await this.redis.get(userKey);
 
-    await this.redis.set(key, payload, 'EX', this.TTL);
+    if (oldToken) {
+      await this.redis.del(`auth:token:${oldToken}`, userKey);
+    }
+  }
+
+  async createSession(userId: string, token: string, payload: string) {
+    const tokenKey = `auth:token:${token}`;
+    const userKey = `auth:user:${userId}`;
+
+    await this.redis
+      .multi()
+      .set(tokenKey, payload, 'EX', this.TTL)
+      .set(userKey, token, 'EX', this.TTL)
+      .exec();
   }
 
   async getSession(token: string): Promise<string | null> {

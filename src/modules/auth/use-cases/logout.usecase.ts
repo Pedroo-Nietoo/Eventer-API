@@ -7,13 +7,10 @@ export class LogoutUseCase {
 
   constructor(private readonly sessionService: SessionService) {}
 
-  async execute(token: string): Promise<void> {
-    const deleted = await this.sessionService.deleteSession(token);
-
-    if (deleted) {
-      this.logger.log(`Token removido com sucesso: ${token}`);
-    } else {
-      this.logger.warn(`Token não encontrado ou já expirado: ${token}`);
-    }
+  async execute(userId: string): Promise<void> {
+    await this.sessionService.invalidatePreviousSession(userId);
+    this.logger.log(
+      `Sessão e índices removidos com sucesso para o usuário: ${userId}`,
+    );
   }
 }
