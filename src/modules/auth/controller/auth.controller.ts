@@ -13,6 +13,7 @@ import { Public } from '@common/decorators/public.decorator';
 import { LoginUseCase } from '@auth/use-cases/login.usecase';
 import { LogoutUseCase } from '@auth/use-cases/logout.usecase';
 import { type AuthenticatedUser } from '@common/decorators/current-user.decorator';
+import { JwtAuthGuard } from '@common/guards/jwt-auth.guard';
 
 @Doc.Main()
 @Controller('auth')
@@ -32,12 +33,11 @@ export class AuthController {
   }
 
   @Doc.Logout()
+  @UseGuards(JwtAuthGuard)
   @Post('logout')
   @HttpCode(HttpStatus.NO_CONTENT)
   async logout(@Request() req: ExpressRequest) {
-    const authHeader = req.headers.authorization;
-    const token = authHeader?.split(' ')[1] || '';
-
-    await this.logoutUseCase.execute(token);
+    const user = req.user as AuthenticatedUser;
+    await this.logoutUseCase.execute(user.id);
   }
 }

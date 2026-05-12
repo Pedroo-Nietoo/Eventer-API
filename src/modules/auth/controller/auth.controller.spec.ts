@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { AuthController } from './auth.controller';
 import { LoginUseCase } from '@auth/use-cases/login.usecase';
 import { LogoutUseCase } from '@auth/use-cases/logout.usecase';
+import { JwtAuthGuard } from '@common/guards/jwt-auth.guard';
 
 describe('AuthController', () => {
   let controller: AuthController;
@@ -24,7 +25,10 @@ describe('AuthController', () => {
           useValue: mockLogoutUseCase,
         },
       ],
-    }).compile();
+    })
+      .overrideGuard(JwtAuthGuard)
+      .useValue({ canActivate: jest.fn().mockReturnValue(true) })
+      .compile();
 
     controller = module.get<AuthController>(AuthController);
     loginUseCase = module.get<LoginUseCase>(LoginUseCase);
@@ -54,26 +58,16 @@ describe('AuthController', () => {
   });
 
   describe('logout', () => {
-    it('deve extrair o token do header de autorização e chamar LogoutUseCase.execute', async () => {
+    it('deve chamar LogoutUseCase.execute com o ID do usuário injetado pelo Guard', async () => {
       const req: any = {
-        headers: { authorization: 'Bearer token-valido-123' },
+        user: { id: 'uuid-123', role: 'USER' }
       };
 
       mockLogoutUseCase.execute.mockResolvedValue(undefined);
 
       await controller.logout(req);
 
-      expect(logoutUseCase.execute).toHaveBeenCalledWith('token-valido-123');
-    });
-
-    it('deve chamar LogoutUseCase.execute com string vazia caso o header não seja enviado', async () => {
-      const req: any = { headers: {} };
-
-      mockLogoutUseCase.execute.mockResolvedValue(undefined);
-
-      await controller.logout(req);
-
-      expect(logoutUseCase.execute).toHaveBeenCalledWith('');
+      expect(logoutUseCase.execute).toHaveBeenCalledWith('uuid-123');
     });
   });
 });

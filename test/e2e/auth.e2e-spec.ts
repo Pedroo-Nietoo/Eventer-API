@@ -8,10 +8,12 @@ import { StorageModule } from '@infra/aws/s3/storage.module';
 import { ThrottlerGuard } from '@nestjs/throttler';
 import { UserRole } from '@common/enums/role.enum';
 import * as bcrypt from 'bcrypt';
+import Redis from 'ioredis';
 
 describe('AuthController (e2e)', () => {
   let app: INestApplication;
   let dataSource: DataSource;
+  let redisClient: Redis;
 
   const testUser = {
     username: 'Usuário de Autenticação',
@@ -36,8 +38,10 @@ describe('AuthController (e2e)', () => {
     await app.init();
 
     dataSource = app.get<DataSource>(getDataSourceToken());
+    redisClient = app.get<Redis>('REDIS');
 
     await dataSource.query('TRUNCATE TABLE "users" CASCADE;');
+    await redisClient.flushdb();
 
     const hashedPassword = await bcrypt.hash(testUser.password, 10);
     await dataSource.query(
@@ -48,6 +52,7 @@ describe('AuthController (e2e)', () => {
 
   afterAll(async () => {
     await app.close();
+    await redisClient.quit();
   });
 
   describe('POST /auth/login', () => {
