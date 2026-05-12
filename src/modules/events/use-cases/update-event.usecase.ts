@@ -23,7 +23,7 @@ export class UpdateEventUseCase {
   constructor(
     private readonly eventsRepository: EventsRepository,
     private readonly cacheService: CacheService,
-  ) { }
+  ) {}
 
   async execute(
     id: string,
@@ -80,7 +80,7 @@ export class UpdateEventUseCase {
         this.cacheService.del(`events:slug:${oldSlug}`),
         this.cacheService.del(`events:slug:${savedEvent.slug}`),
         this.cacheService.delByPattern('events:list:*'),
-        this.cacheService.delByPattern('events:organizer:*')
+        this.cacheService.delByPattern('events:organizer:*'),
       ]);
 
       return EventMapper.toResponse(savedEvent);

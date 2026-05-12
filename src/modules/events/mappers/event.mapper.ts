@@ -8,6 +8,7 @@ export interface NearbyEventRaw {
   title: string;
   description: string;
   coverImageUrl: string;
+  isAgeRestricted: boolean;
   eventDate: Date;
   createdAt: Date;
   latitude: string | number;
@@ -24,6 +25,7 @@ export class EventMapper {
       title: entity.title,
       description: entity.description,
       coverImageUrl: entity.coverImageUrl,
+      isAgeRestricted: entity.isAgeRestricted,
       eventDate: entity.eventDate,
       location: entity.location
         ? {
@@ -47,6 +49,7 @@ export class EventMapper {
       title: raw.title,
       description: raw.description,
       coverImageUrl: raw.coverImageUrl,
+      isAgeRestricted: raw.isAgeRestricted,
       eventDate: raw.eventDate,
       createdAt: raw.createdAt,
       location: {

@@ -84,6 +84,7 @@ describe('EventsController (e2e)', () => {
         latitude: -23.5614,
         longitude: -46.6562,
         coverImageUrl: 'https://exemplo.com/imagem.jpg',
+        isAgeRestricted: false,
       };
 
       const response = await request(app.getHttpServer())
@@ -130,6 +131,7 @@ describe('EventsController (e2e)', () => {
           latitude: -22.9068,
           longitude: -43.1729,
           coverImageUrl: 'https://exemplo.com/imagem.jpg',
+          isAgeRestricted: false,
         });
 
       expect(createRes.status).toBe(201);
@@ -199,6 +201,7 @@ describe('EventsController (e2e)', () => {
           latitude: -23.5,
           longitude: -46.6,
           coverImageUrl: 'https://exemplo.com/imagem.jpg',
+          isAgeRestricted: false
         });
 
       expect(createRes.status).toBe(201);

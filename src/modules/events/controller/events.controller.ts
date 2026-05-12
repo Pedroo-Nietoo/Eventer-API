@@ -43,7 +43,7 @@ export class EventsController {
     private readonly listOrganizerEventsUseCase: ListOrganizerEventsUseCase,
     private readonly updateEventUseCase: UpdateEventUseCase,
     private readonly deleteEventUseCase: DeleteEventUseCase,
-  ) { }
+  ) {}
 
   @Doc.Create()
   @Roles({ deny: [UserRole.USER] })

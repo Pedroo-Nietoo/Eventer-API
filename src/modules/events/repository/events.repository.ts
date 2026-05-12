@@ -26,6 +26,7 @@ export class EventsRepository extends BaseRepository<Event> {
         'event.title AS title',
         'event.description AS description',
         'event.coverImageUrl AS "coverImageUrl"',
+        'event.isAgeRestricted AS "isAgeRestricted"',
         'event.eventDate AS "eventDate"',
         'event.createdAt AS "createdAt"',
       ])
@@ -48,7 +49,11 @@ export class EventsRepository extends BaseRepository<Event> {
     return this.eventsRepo.findOne({ where: { slug } });
   }
 
-  async findByOrganizer(organizerId: string, skip: number, limit: number): Promise<[Event[], number]> {
+  async findByOrganizer(
+    organizerId: string,
+    skip: number,
+    limit: number,
+  ): Promise<[Event[], number]> {
     return this.eventsRepo.findAndCount({
       where: { organizerId },
       order: { eventDate: 'ASC' },

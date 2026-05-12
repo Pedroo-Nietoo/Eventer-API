@@ -20,7 +20,7 @@ export class CreateEventUseCase {
   constructor(
     private readonly eventsRepository: EventsRepository,
     private readonly cacheService: CacheService,
-  ) { }
+  ) {}
 
   async execute(
     dto: CreateEventDto,

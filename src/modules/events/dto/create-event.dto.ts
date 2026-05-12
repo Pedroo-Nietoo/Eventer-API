@@ -6,12 +6,13 @@ import {
   IsDateString,
   Min,
   Max,
+  IsBoolean,
 } from 'class-validator';
 
 export class CreateEventDto {
   @ApiProperty({ example: 'Show da Virada 2026' })
   @IsString()
-  title: string;
+  title!: string;
 
   @ApiPropertyOptional({ example: 'show-da-virada' })
   @IsString()
@@ -20,26 +21,33 @@ export class CreateEventDto {
 
   @ApiProperty({ example: 'O maior evento do ano!' })
   @IsString()
-  description: string;
+  description!: string;
 
   @ApiProperty({ example: 'https://imagem.com/capa.png' })
   @IsString()
-  coverImageUrl: string;
+  coverImageUrl!: string;
+
+  @ApiProperty({
+    example: false,
+    description: 'Se true, o evento é restrito por idade',
+  })
+  @IsBoolean()
+  isAgeRestricted!: boolean;
 
   @ApiProperty({ example: '2026-12-31T21:00:00Z' })
   @IsString()
   @IsDateString()
-  eventDate: Date;
+  eventDate!: Date;
 
   @ApiProperty({ example: -23.55052 })
   @IsNumber()
   @Min(-90)
   @Max(90)
-  latitude: number;
+  latitude!: number;
 
   @ApiProperty({ example: -46.633308 })
   @IsNumber()
   @Min(-180)
   @Max(180)
-  longitude: number;
+  longitude!: number;
 }

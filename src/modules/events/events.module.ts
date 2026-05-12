@@ -28,4 +28,4 @@ import { ListOrganizerEventsUseCase } from './use-cases/list-organizer-events.us
   ],
   exports: [EventsRepository, FindEventUseCase],
 })
-export class EventsModule { }
+export class EventsModule {}

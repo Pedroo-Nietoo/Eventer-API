@@ -69,6 +69,7 @@ async function runSeed() {
       slug: 'eventer-tech-summit-2026',
       description: 'O maior evento de tecnologia e startups da região.',
       coverImageUrl: 'https://exemplo.com/imagem-evento.jpg',
+      isAgeRestricted: false,
       eventDate: new Date(new Date().setMonth(new Date().getMonth() + 2)),
       organizer: organizerUser,
       location: {

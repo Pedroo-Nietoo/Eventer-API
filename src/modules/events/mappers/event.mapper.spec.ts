@@ -13,6 +13,7 @@ describe('EventMapper', () => {
     title: 'Meu Evento Top',
     description: 'Descrição do evento',
     coverImageUrl: 'https://img.com/capa.jpg',
+    isAgeRestricted: false,
     eventDate: baseDate,
     createdAt: baseDate,
     location: {
@@ -30,6 +31,7 @@ describe('EventMapper', () => {
     title: 'Meu Evento Top',
     description: 'Descrição do evento',
     coverImageUrl: 'https://img.com/capa.jpg',
+    isAgeRestricted: false,
     eventDate: baseDate,
     createdAt: baseDate,
     location: {
@@ -81,6 +83,7 @@ describe('EventMapper', () => {
     title: 'Evento Próximo',
     description: 'Perto de você',
     coverImageUrl: 'img.jpg',
+    isAgeRestricted: false,
     eventDate: baseDate,
     createdAt: baseDate,
     latitude: '-27.595',
@@ -97,6 +100,7 @@ describe('EventMapper', () => {
     title: 'Evento Próximo',
     description: 'Perto de você',
     coverImageUrl: 'img.jpg',
+    isAgeRestricted: false,
     eventDate: baseDate,
     createdAt: baseDate,
     location: {

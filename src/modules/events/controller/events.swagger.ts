@@ -181,7 +181,8 @@ export const SwaggerEventController = {
       ApiExtraModels(EventResponseDto),
       ApiOperation({
         summary: 'Lista eventos de um organizador específico',
-        description: 'Retorna uma lista paginada de eventos criados por um organizador.',
+        description:
+          'Retorna uma lista paginada de eventos criados por um organizador.',
       }),
       ApiQuery({
         name: 'page',
@@ -219,7 +220,9 @@ export const SwaggerEventController = {
         },
       }),
       ApiNotFoundResponse({ description: 'Organizador não encontrado.' }),
-      ApiInternalServerErrorResponse({ description: 'Erro interno do servidor.' }),
+      ApiInternalServerErrorResponse({
+        description: 'Erro interno do servidor.',
+      }),
     ),
 
   Update: () =>

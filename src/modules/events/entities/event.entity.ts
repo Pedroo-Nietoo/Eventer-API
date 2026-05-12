@@ -17,22 +17,25 @@ import { User } from '@users/entities/user.entity';
 @Entity('events')
 export class Event {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  id!: string;
 
   @Column({ unique: true })
   slug?: string;
 
   @Column()
-  title: string;
+  title!: string;
 
   @Column({ type: 'text', nullable: true })
-  description: string;
+  description!: string;
 
   @Column({ nullable: true })
-  coverImageUrl: string;
+  coverImageUrl!: string;
+
+  @Column({ name: 'is_age_restricted', type: 'boolean', default: false })
+  isAgeRestricted!: boolean;
 
   @Column({ type: 'timestamp' })
-  eventDate: Date;
+  eventDate!: Date;
 
   @Index({ spatial: true })
   @Column({
@@ -40,27 +43,27 @@ export class Event {
     spatialFeatureType: 'Point',
     srid: 4326,
   })
-  location: Point;
+  location!: Point;
 
   @OneToMany(() => TicketType, (ticketType) => ticketType.event)
-  ticketTypes: TicketType[];
+  ticketTypes!: TicketType[];
 
   @ManyToOne(() => User, (user) => user.organizedEvents, {
     nullable: false,
   })
   @JoinColumn({ name: 'organizer_id' })
-  organizer: User;
+  organizer!: User;
 
   @Column({ name: 'organizer_id' })
-  organizerId: string;
+  organizerId!: string;
 
   @Index()
   @CreateDateColumn({ name: 'created_at' })
-  createdAt: Date;
+  createdAt!: Date;
 
   @UpdateDateColumn({ name: 'updated_at' })
-  updatedAt: Date;
+  updatedAt!: Date;
 
   @DeleteDateColumn({ name: 'deleted_at' })
-  deletedAt: Date;
+  deletedAt!: Date;
 }
