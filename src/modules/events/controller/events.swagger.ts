@@ -176,6 +176,52 @@ export const SwaggerEventController = {
       }),
     ),
 
+  FindByOrganizer: () =>
+    applyDecorators(
+      ApiExtraModels(EventResponseDto),
+      ApiOperation({
+        summary: 'Lista eventos de um organizador específico',
+        description: 'Retorna uma lista paginada de eventos criados por um organizador.',
+      }),
+      ApiQuery({
+        name: 'page',
+        type: Number,
+        required: false,
+        description: 'Número da página (padrão: 1)',
+        example: 1,
+      }),
+      ApiQuery({
+        name: 'limit',
+        type: Number,
+        required: false,
+        description: 'Itens por página (padrão: 20)',
+        example: 20,
+      }),
+      ApiOkResponse({
+        description: 'Lista de eventos do organizador recuperada com sucesso.',
+        schema: {
+          properties: {
+            data: {
+              type: 'array',
+              items: { $ref: getSchemaPath(EventResponseDto) },
+            },
+            meta: {
+              type: 'object',
+              properties: {
+                totalItems: { type: 'number' },
+                itemCount: { type: 'number' },
+                itemsPerPage: { type: 'number' },
+                totalPages: { type: 'number' },
+                currentPage: { type: 'number' },
+              },
+            },
+          },
+        },
+      }),
+      ApiNotFoundResponse({ description: 'Organizador não encontrado.' }),
+      ApiInternalServerErrorResponse({ description: 'Erro interno do servidor.' }),
+    ),
+
   Update: () =>
     applyDecorators(
       ApiOperation({ summary: 'Atualiza um evento' }),

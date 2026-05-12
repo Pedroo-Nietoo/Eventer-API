@@ -12,7 +12,7 @@ export class DeleteEventUseCase {
   constructor(
     private readonly eventsRepository: EventsRepository,
     private readonly cacheService: CacheService,
-  ) {}
+  ) { }
 
   async execute(id: string, userId: string, userRole: UserRole): Promise<void> {
     const event = await this.eventsRepository.findById(id);
@@ -33,6 +33,7 @@ export class DeleteEventUseCase {
       this.cacheService.del(`events:id:${id}`),
       this.cacheService.del(`events:slug:${event.slug}`),
       this.cacheService.delByPattern('events:list:*'),
+      this.cacheService.delByPattern('events:organizer:*')
     ]);
   }
 }

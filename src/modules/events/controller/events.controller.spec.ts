@@ -7,6 +7,7 @@ import { FindEventUseCase } from '@events/use-cases/find-event.usecase';
 import { FindEventBySlugUseCase } from '@events/use-cases/find-event-by-slug.usecase';
 import { UpdateEventUseCase } from '@events/use-cases/update-event.usecase';
 import { DeleteEventUseCase } from '@events/use-cases/delete-event.usecase';
+import { ListOrganizerEventsUseCase } from '@events/use-cases/list-organizer-events.usecase';
 import { UserRole } from '@common/enums/role.enum';
 
 describe('EventsController', () => {
@@ -18,6 +19,7 @@ describe('EventsController', () => {
   let findEventBySlugUseCase: FindEventBySlugUseCase;
   let updateEventUseCase: UpdateEventUseCase;
   let deleteEventUseCase: DeleteEventUseCase;
+  let listOrganizerEventsUseCase: ListOrganizerEventsUseCase;
 
   const mockCreateEventUseCase = { execute: jest.fn() };
   const mockFindNearbyEventsUseCase = { execute: jest.fn() };
@@ -26,6 +28,7 @@ describe('EventsController', () => {
   const mockFindEventBySlugUseCase = { execute: jest.fn() };
   const mockUpdateEventUseCase = { execute: jest.fn() };
   const mockDeleteEventUseCase = { execute: jest.fn() };
+  const mockListOrganizerEventsUseCase = { execute: jest.fn() };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -38,6 +41,7 @@ describe('EventsController', () => {
         { provide: FindEventBySlugUseCase, useValue: mockFindEventBySlugUseCase },
         { provide: UpdateEventUseCase, useValue: mockUpdateEventUseCase },
         { provide: DeleteEventUseCase, useValue: mockDeleteEventUseCase },
+        { provide: ListOrganizerEventsUseCase, useValue: mockListOrganizerEventsUseCase },
       ],
     }).compile();
 
@@ -49,6 +53,7 @@ describe('EventsController', () => {
     findEventBySlugUseCase = module.get<FindEventBySlugUseCase>(FindEventBySlugUseCase);
     updateEventUseCase = module.get<UpdateEventUseCase>(UpdateEventUseCase);
     deleteEventUseCase = module.get<DeleteEventUseCase>(DeleteEventUseCase);
+    listOrganizerEventsUseCase = module.get<ListOrganizerEventsUseCase>(ListOrganizerEventsUseCase);
   });
 
   afterEach(() => {
@@ -60,118 +65,85 @@ describe('EventsController', () => {
   });
 
   describe('create', () => {
-    it('deve chamar CreateEventUseCase.execute com o DTO e o userId', async () => {
-      const dto: any = { title: 'Novo Evento', latitude: -23.5, longitude: -46.6 };
-      const userId = 'user-uuid-123';
-      const expectedResult: any = { id: 'evt-uuid', title: 'Novo Evento' };
-
-      mockCreateEventUseCase.execute.mockResolvedValue(expectedResult);
-
+    it('deve chamar o CreateEventUseCase.execute', async () => {
+      const dto: any = { title: 'Event' };
+      const userId = 'user-1';
+      mockCreateEventUseCase.execute.mockResolvedValue({ id: '1' });
       const result = await controller.create(dto, userId);
-
       expect(createEventUseCase.execute).toHaveBeenCalledWith(dto, userId);
-      expect(result).toEqual(expectedResult);
+      expect(result).toEqual({ id: '1' });
     });
   });
 
   describe('getNearby', () => {
-    it('deve converter as queries para number e chamar FindNearbyEventsUseCase.execute', async () => {
-      const lat = '-23.5614';
-      const lng = '-46.6562';
-      const radius = '15';
-      const expectedResult: any = [{ id: 'evt-uuid', title: 'Evento Próximo' }];
-
-      mockFindNearbyEventsUseCase.execute.mockResolvedValue(expectedResult);
-
-      const result = await controller.getNearby(lat, lng, radius);
-
-      expect(findNearbyEventsUseCase.execute).toHaveBeenCalledWith(
-        -23.5614,
-        -46.6562,
-        15,
-      );
-      expect(result).toEqual(expectedResult);
+    it('deve chamar o FindNearbyEventsUseCase.execute', async () => {
+      mockFindNearbyEventsUseCase.execute.mockResolvedValue([]);
+      const result = await controller.getNearby('-23', '-46', '10');
+      expect(findNearbyEventsUseCase.execute).toHaveBeenCalledWith(-23, -46, 10);
+      expect(result).toEqual([]);
     });
   });
 
   describe('findAll', () => {
-    it('deve chamar ListEventsUseCase.execute com a paginação', async () => {
-      const paginationDto: any = { page: 2, limit: 10 };
-      const expectedResult: any = { data: [], meta: { currentPage: 2 } };
-
-      mockListEventsUseCase.execute.mockResolvedValue(expectedResult);
-
+    it('deve chamar o ListEventsUseCase.execute', async () => {
+      const paginationDto: any = { page: 1 };
+      mockListEventsUseCase.execute.mockResolvedValue({ data: [] });
       const result = await controller.findAll(paginationDto);
-
       expect(listEventsUseCase.execute).toHaveBeenCalledWith(paginationDto);
-      expect(result).toEqual(expectedResult);
+      expect(result).toEqual({ data: [] });
+    });
+  });
+
+  describe('findByOrganizer', () => {
+    it('deve chamar o ListOrganizerEventsUseCase.execute', async () => {
+      const id = 'org-1';
+      const pagination: any = { page: 1 };
+      mockListOrganizerEventsUseCase.execute.mockResolvedValue({ data: [] });
+      const result = await controller.findByOrganizer(id, pagination);
+      expect(listOrganizerEventsUseCase.execute).toHaveBeenCalledWith(id, pagination);
+      expect(result).toEqual({ data: [] });
     });
   });
 
   describe('findOne', () => {
-    it('deve chamar FindEventUseCase.execute com o ID do evento', async () => {
-      const id = 'evt-uuid-123';
-      const expectedResult: any = { id, title: 'Meu Evento' };
-
-      mockFindEventUseCase.execute.mockResolvedValue(expectedResult);
-
+    it('deve chamar o FindEventUseCase.execute', async () => {
+      const id = 'uuid';
+      mockFindEventUseCase.execute.mockResolvedValue({ id });
       const result = await controller.findOne(id);
-
       expect(findEventUseCase.execute).toHaveBeenCalledWith(id);
-      expect(result).toEqual(expectedResult);
+      expect(result).toEqual({ id });
     });
   });
 
   describe('findBySlug', () => {
-    it('deve chamar FindEventBySlugUseCase.execute com o slug', async () => {
-      const slug = 'meu-evento-tecnologia';
-      const expectedResult: any = { id: 'evt-uuid', slug };
-
-      mockFindEventBySlugUseCase.execute.mockResolvedValue(expectedResult);
-
+    it('deve chamar o FindEventBySlugUseCase.execute', async () => {
+      const slug = 'slug';
+      mockFindEventBySlugUseCase.execute.mockResolvedValue({ slug });
       const result = await controller.findBySlug(slug);
-
       expect(findEventBySlugUseCase.execute).toHaveBeenCalledWith(slug);
-      expect(result).toEqual(expectedResult);
+      expect(result).toEqual({ slug });
     });
   });
 
   describe('update', () => {
-    it('deve desestruturar o user e chamar UpdateEventUseCase.execute', async () => {
-      const id = 'evt-uuid-123';
-      const dto: any = { title: 'Evento Atualizado' };
-      const user: any = { id: 'user-uuid', role: UserRole.EVENT_CREATOR };
-      const expectedResult: any = { id, title: 'Evento Atualizado' };
-
-      mockUpdateEventUseCase.execute.mockResolvedValue(expectedResult);
-
+    it('deve chamar o UpdateEventUseCase.execute', async () => {
+      const id = 'id';
+      const dto: any = {};
+      const user: any = { id: 'u1', role: UserRole.ADMIN };
+      mockUpdateEventUseCase.execute.mockResolvedValue({ id });
       const result = await controller.update(id, dto, user);
-
-      expect(updateEventUseCase.execute).toHaveBeenCalledWith(
-        id,
-        dto,
-        user.id,
-        user.role,
-      );
-      expect(result).toEqual(expectedResult);
+      expect(updateEventUseCase.execute).toHaveBeenCalledWith(id, dto, user.id, user.role);
+      expect(result).toEqual({ id });
     });
   });
 
   describe('remove', () => {
-    it('deve desestruturar o user e chamar DeleteEventUseCase.execute', async () => {
-      const id = 'evt-uuid-123';
-      const user: any = { id: 'admin-uuid', role: UserRole.ADMIN };
-
+    it('deve chamar o DeleteEventUseCase.execute', async () => {
+      const id = 'id';
+      const user: any = { id: 'u1', role: UserRole.ADMIN };
       mockDeleteEventUseCase.execute.mockResolvedValue(undefined);
-
-      const result = await controller.remove(id, user);
-
-      expect(deleteEventUseCase.execute).toHaveBeenCalledWith(
-        id,
-        user.id,
-        user.role,
-      );
-      expect(result).toBeUndefined();
+      await controller.remove(id, user);
+      expect(deleteEventUseCase.execute).toHaveBeenCalledWith(id, user.id, user.role);
     });
   });
 });

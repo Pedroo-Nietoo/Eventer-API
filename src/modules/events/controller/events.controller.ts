@@ -28,6 +28,7 @@ import { UpdateEventUseCase } from '@events/use-cases/update-event.usecase';
 import { DeleteEventUseCase } from '@events/use-cases/delete-event.usecase';
 import { CreateEventDto } from '@events/dto/create-event.dto';
 import { UpdateEventDto } from '@events/dto/update-event.dto';
+import { ListOrganizerEventsUseCase } from '@events/use-cases/list-organizer-events.usecase';
 
 @Doc.Main()
 @UseGuards(RolesGuard)
@@ -39,9 +40,10 @@ export class EventsController {
     private readonly listEventsUseCase: ListEventsUseCase,
     private readonly findEventUseCase: FindEventUseCase,
     private readonly findEventBySlugUseCase: FindEventBySlugUseCase,
+    private readonly listOrganizerEventsUseCase: ListOrganizerEventsUseCase,
     private readonly updateEventUseCase: UpdateEventUseCase,
     private readonly deleteEventUseCase: DeleteEventUseCase,
-  ) {}
+  ) { }
 
   @Doc.Create()
   @Roles({ deny: [UserRole.USER] })
@@ -79,6 +81,15 @@ export class EventsController {
   @Get('list/:slug')
   findBySlug(@Param('slug') slug: string) {
     return this.findEventBySlugUseCase.execute(slug);
+  }
+
+  @Doc.FindByOrganizer()
+  @Get('organizer/:organizerId')
+  findByOrganizer(
+    @Param('organizerId', ParseUUIDPipe) organizerId: string,
+    @Query() paginationDto: PaginationDto,
+  ) {
+    return this.listOrganizerEventsUseCase.execute(organizerId, paginationDto);
   }
 
   @Doc.Update()

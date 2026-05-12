@@ -10,6 +10,7 @@ import { DeleteEventUseCase } from './use-cases/delete-event.usecase';
 import { EventsController } from './controller/events.controller';
 import { FindEventBySlugUseCase } from './use-cases/find-event-by-slug.usecase';
 import { EventsRepository } from './repository/events.repository';
+import { ListOrganizerEventsUseCase } from './use-cases/list-organizer-events.usecase';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Event])],
@@ -21,9 +22,10 @@ import { EventsRepository } from './repository/events.repository';
     ListEventsUseCase,
     FindEventUseCase,
     FindEventBySlugUseCase,
+    ListOrganizerEventsUseCase,
     UpdateEventUseCase,
     DeleteEventUseCase,
   ],
   exports: [EventsRepository, FindEventUseCase],
 })
-export class EventsModule {}
+export class EventsModule { }

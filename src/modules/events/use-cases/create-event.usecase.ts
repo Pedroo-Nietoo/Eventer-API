@@ -20,7 +20,7 @@ export class CreateEventUseCase {
   constructor(
     private readonly eventsRepository: EventsRepository,
     private readonly cacheService: CacheService,
-  ) {}
+  ) { }
 
   async execute(
     dto: CreateEventDto,
@@ -42,6 +42,7 @@ export class CreateEventUseCase {
       const savedEvent = await this.eventsRepository.save(event);
 
       await this.cacheService.delByPattern('events:list:*');
+      await this.cacheService.delByPattern('events:organizer:*');
 
       return EventMapper.toResponse(savedEvent);
     } catch (error: unknown) {
