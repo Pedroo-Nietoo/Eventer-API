@@ -1,51 +1,37 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { TicketsRepository } from '@tickets/repository/ticket.repository';
-import { MailService } from '@services/mail/mail.service';
-import { GenerateQrCodeImageService } from '@services/generate-qrcode-image.service';
+import { InjectQueue } from '@nestjs/bullmq';
+import { Queue } from 'bullmq';
 
 @Injectable()
 export class DispatchTicketEmailUseCase {
   private readonly logger = new Logger(DispatchTicketEmailUseCase.name);
 
-  constructor(
-    private readonly ticketsRepository: TicketsRepository,
-    private readonly generateQrCodeImageService: GenerateQrCodeImageService,
-    private readonly mailService: MailService,
-  ) {}
+  constructor(@InjectQueue('mail-queue') private readonly mailQueue: Queue) {}
 
   async execute(ticketId: string, qrCodeToken: string): Promise<void> {
     try {
-      const ticket =
-        await this.ticketsRepository.findByIdWithRelations(ticketId);
-
-      if (!ticket || !ticket.user?.email) {
-        this.logger.warn(
-          `Tentativa de enviar e-mail para ticket inexistente ou sem e-mail: ${ticketId}`,
-        );
-        return;
-      }
-
-      const qrCodeBuffer =
-        await this.generateQrCodeImageService.execute(qrCodeToken);
-
-      await this.mailService.sendTicketEmail(
-        ticket.user.email,
-        ticket.user.username,
-        ticket.ticketType.event.title,
-        ticket.ticketType.name,
-        qrCodeBuffer,
+      await this.mailQueue.add(
+        'send-ticket-email',
+        { ticketId, qrCodeToken },
+        {
+          attempts: 3,
+          backoff: {
+            type: 'exponential',
+          },
+          // removeOnComplete: true,
+        },
       );
 
       this.logger.log(
-        `E-mail de confirmação enviado para: ${ticket.user.email}`,
+        `Job de e-mail enfileirado com sucesso para o ticket: ${ticketId}`,
       );
     } catch (error: unknown) {
       const message =
         error instanceof Error
           ? error.message
-          : 'Erro desconhecido ao disparar e-mail';
+          : 'Erro desconhecido ao enfileirar e-mail';
       this.logger.error(
-        `Falha ao disparar e-mail do ticket ${ticketId}: ${message}`,
+        `Falha ao colocar o e-mail do ticket ${ticketId} na fila: ${message}`,
       );
     }
   }

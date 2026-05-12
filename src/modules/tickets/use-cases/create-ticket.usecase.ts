@@ -109,13 +109,7 @@ export class CreateTicketUseCase {
       await queryRunner.release();
     }
 
-    this.dispatchTicketEmailUseCase
-      .execute(savedTicket.id, token)
-      .catch((err: unknown) => {
-        const message =
-          err instanceof Error ? err.message : 'Erro desconhecido';
-        this.logger.error(`Erro no processamento do e-mail: ${message}`);
-      });
+    await this.dispatchTicketEmailUseCase.execute(savedTicket.id, token);
 
     return TicketMapper.toResponse(savedTicket);
   }

@@ -15,9 +15,24 @@ import { EventsModule } from '@events/events.module';
 import { GenerateTicketTokenService } from '@services/generate-ticket-token.service';
 import { GenerateQrCodeImageService } from '@services/generate-qrcode-image.service';
 import { MailService } from '@services/mail/mail.service';
+import { BullModule } from '@nestjs/bullmq';
+import { BullBoardModule } from '@bull-board/nestjs';
+import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
+import { TicketEmailProcessor } from './queue/ticket-email.processor';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Ticket]), ConfigModule, EventsModule],
+  imports: [
+    TypeOrmModule.forFeature([Ticket]),
+    ConfigModule,
+    EventsModule,
+    BullModule.registerQueue({
+      name: 'mail-queue',
+    }),
+    BullBoardModule.forFeature({
+      name: 'mail-queue',
+      adapter: BullMQAdapter,
+    }),
+  ],
   controllers: [TicketsController],
   providers: [
     TicketsRepository,
@@ -31,6 +46,7 @@ import { MailService } from '@services/mail/mail.service';
     FindTicketUseCase,
     UpdateTicketUseCase,
     DeleteTicketUseCase,
+    TicketEmailProcessor,
   ],
   exports: [TicketsRepository, CreateTicketUseCase],
 })

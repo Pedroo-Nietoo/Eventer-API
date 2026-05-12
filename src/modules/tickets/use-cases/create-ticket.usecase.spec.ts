@@ -12,7 +12,6 @@ describe('CreateTicketUseCase', () => {
  let generateTicketTokenService: GenerateTicketTokenService;
  let dispatchTicketEmailUseCase: DispatchTicketEmailUseCase;
 
-
  const mockQueryRunner = {
   connect: jest.fn(),
   startTransaction: jest.fn(),
@@ -66,13 +65,12 @@ describe('CreateTicketUseCase', () => {
   const mockTicketType = {
    id: 'type-1',
    price: 100,
-   event: { id: 'event-1' }
+   event: { id: 'event-1' },
   };
   const mockTokenData = { ticketId: 't-123', token: 'token-abc' };
   const mockSavedTicket = { id: 't-123', qrCode: 'token-abc' };
 
   it('deve emitir um ingresso com sucesso e disparar e-mail', async () => {
-
    mockQueryRunner.manager.findOne.mockResolvedValueOnce(mockTicketType);
    mockGenerateTicketTokenService.execute.mockReturnValueOnce(mockTokenData);
    mockQueryRunner.manager.create.mockReturnValueOnce(mockSavedTicket);
@@ -81,9 +79,7 @@ describe('CreateTicketUseCase', () => {
 
    const mapperSpy = jest.spyOn(TicketMapper, 'toResponse').mockReturnValueOnce({ id: 't-123' } as any);
 
-
    const result = await useCase.execute(dto, userId);
-
 
    expect(mockQueryRunner.connect).toHaveBeenCalled();
    expect(mockQueryRunner.startTransaction).toHaveBeenCalled();
@@ -96,10 +92,8 @@ describe('CreateTicketUseCase', () => {
   });
 
   it('deve lançar BadRequestException se o evento do DTO não for o do lote', async () => {
-
    mockQueryRunner.manager.findOne.mockResolvedValueOnce(mockTicketType);
    const invalidDto = { ...dto, eventId: 'event-errado' };
-
 
    await expect(useCase.execute(invalidDto, userId)).rejects.toThrow(BadRequestException);
    expect(mockQueryRunner.rollbackTransaction).toHaveBeenCalled();
@@ -113,25 +107,6 @@ describe('CreateTicketUseCase', () => {
    expect(mockQueryRunner.rollbackTransaction).toHaveBeenCalled();
   });
 
-  it('deve lidar com falha no e-mail sem interromper o retorno do ticket', async () => {
-
-   mockQueryRunner.manager.findOne.mockResolvedValueOnce(mockTicketType);
-   mockGenerateTicketTokenService.execute.mockReturnValueOnce(mockTokenData);
-   mockQueryRunner.manager.save.mockResolvedValueOnce(mockSavedTicket);
-
-
-   mockDispatchTicketEmailUseCase.execute.mockRejectedValueOnce(new Error('SMTP Error'));
-   const loggerSpy = jest.spyOn(Logger.prototype, 'error');
-
-
-   const result = await useCase.execute(dto, userId);
-
-
-   expect(result).toBeDefined();
-   expect(mockQueryRunner.commitTransaction).toHaveBeenCalled();
-   expect(loggerSpy).toHaveBeenCalledWith(expect.stringContaining('Erro no processamento do e-mail'));
-  });
-
   it('deve tratar erro de Unique Constraint (23505) como BadRequest', async () => {
    mockQueryRunner.manager.findOne.mockResolvedValueOnce(mockTicketType);
    mockGenerateTicketTokenService.execute.mockReturnValueOnce(mockTokenData);
@@ -140,6 +115,17 @@ describe('CreateTicketUseCase', () => {
    mockQueryRunner.manager.save.mockRejectedValueOnce(dbError);
 
    await expect(useCase.execute(dto, userId)).rejects.toThrow(BadRequestException);
+   expect(mockQueryRunner.rollbackTransaction).toHaveBeenCalled();
+  });
+
+  it('deve tratar erro de Foreign Key (23503) como NotFoundException de usuário inválido', async () => {
+   mockQueryRunner.manager.findOne.mockResolvedValueOnce(mockTicketType);
+   mockGenerateTicketTokenService.execute.mockReturnValueOnce(mockTokenData);
+
+   const dbError = { code: '23503' };
+   mockQueryRunner.manager.save.mockRejectedValueOnce(dbError);
+
+   await expect(useCase.execute(dto, userId)).rejects.toThrow(NotFoundException);
    expect(mockQueryRunner.rollbackTransaction).toHaveBeenCalled();
   });
 
