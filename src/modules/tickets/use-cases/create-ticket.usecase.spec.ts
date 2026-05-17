@@ -67,28 +67,46 @@ describe('CreateTicketUseCase', () => {
    price: 100,
    event: { id: 'event-1' },
   };
-  const mockTokenData = { ticketId: 't-123', token: 'token-abc' };
-  const mockSavedTicket = { id: 't-123', qrCode: 'token-abc' };
 
-  it('deve emitir um ingresso com sucesso e disparar e-mail', async () => {
+  it('deve emitir ingressos em lote com sucesso e disparar e-mails', async () => {
+   const quantity = 2;
    mockQueryRunner.manager.findOne.mockResolvedValueOnce(mockTicketType);
-   mockGenerateTicketTokenService.execute.mockReturnValueOnce(mockTokenData);
-   mockQueryRunner.manager.create.mockReturnValueOnce(mockSavedTicket);
-   mockQueryRunner.manager.save.mockResolvedValueOnce(mockSavedTicket);
-   mockDispatchTicketEmailUseCase.execute.mockResolvedValueOnce(undefined);
 
-   const mapperSpy = jest.spyOn(TicketMapper, 'toResponse').mockReturnValueOnce({ id: 't-123' } as any);
+   mockGenerateTicketTokenService.execute
+    .mockReturnValueOnce({ ticketId: 't-1', token: 'token-1' })
+    .mockReturnValueOnce({ ticketId: 't-2', token: 'token-2' });
 
-   const result = await useCase.execute(dto, userId);
+   mockQueryRunner.manager.create.mockImplementation((entity, data) => data);
+
+   const mockSavedTickets = [
+    { id: 't-1', qrCode: 'token-1' },
+    { id: 't-2', qrCode: 'token-2' },
+   ];
+   mockQueryRunner.manager.save.mockResolvedValueOnce(mockSavedTickets);
+   mockDispatchTicketEmailUseCase.execute.mockResolvedValue(undefined);
+
+   const mapperSpy = jest
+    .spyOn(TicketMapper, 'toResponse')
+    .mockImplementation((ticket: any) => ({ id: ticket.id } as any));
+
+   const result = await useCase.execute(dto, userId, quantity);
 
    expect(mockQueryRunner.connect).toHaveBeenCalled();
    expect(mockQueryRunner.startTransaction).toHaveBeenCalled();
+
+   expect(mockQueryRunner.manager.save).toHaveBeenCalledTimes(1);
+   expect(mockQueryRunner.manager.save).toHaveBeenCalledWith(expect.any(Array));
+
    expect(mockQueryRunner.commitTransaction).toHaveBeenCalled();
    expect(mockQueryRunner.release).toHaveBeenCalled();
 
-   expect(mockDispatchTicketEmailUseCase.execute).toHaveBeenCalledWith('t-123', 'token-abc');
-   expect(mapperSpy).toHaveBeenCalled();
-   expect(result).toHaveProperty('id', 't-123');
+   expect(mockDispatchTicketEmailUseCase.execute).toHaveBeenCalledTimes(2);
+   expect(mockDispatchTicketEmailUseCase.execute).toHaveBeenCalledWith('t-1', 'token-1');
+   expect(mockDispatchTicketEmailUseCase.execute).toHaveBeenCalledWith('t-2', 'token-2');
+
+   expect(mapperSpy).toHaveBeenCalledTimes(2);
+   expect(result).toHaveLength(2);
+   expect(result).toEqual([{ id: 't-1' }, { id: 't-2' }]);
   });
 
   it('deve lançar BadRequestException se o evento do DTO não for o do lote', async () => {
@@ -109,7 +127,7 @@ describe('CreateTicketUseCase', () => {
 
   it('deve tratar erro de Unique Constraint (23505) como BadRequest', async () => {
    mockQueryRunner.manager.findOne.mockResolvedValueOnce(mockTicketType);
-   mockGenerateTicketTokenService.execute.mockReturnValueOnce(mockTokenData);
+   mockGenerateTicketTokenService.execute.mockReturnValueOnce({ ticketId: 't-1', token: 'token-1' });
 
    const dbError = { code: '23505' };
    mockQueryRunner.manager.save.mockRejectedValueOnce(dbError);
@@ -120,7 +138,7 @@ describe('CreateTicketUseCase', () => {
 
   it('deve tratar erro de Foreign Key (23503) como NotFoundException de usuário inválido', async () => {
    mockQueryRunner.manager.findOne.mockResolvedValueOnce(mockTicketType);
-   mockGenerateTicketTokenService.execute.mockReturnValueOnce(mockTokenData);
+   mockGenerateTicketTokenService.execute.mockReturnValueOnce({ ticketId: 't-1', token: 'token-1' });
 
    const dbError = { code: '23503' };
    mockQueryRunner.manager.save.mockRejectedValueOnce(dbError);
@@ -131,6 +149,7 @@ describe('CreateTicketUseCase', () => {
 
   it('deve lançar InternalServerErrorException para erros genéricos', async () => {
    mockQueryRunner.manager.findOne.mockResolvedValueOnce(mockTicketType);
+   mockGenerateTicketTokenService.execute.mockReturnValueOnce({ ticketId: 't-1', token: 'token-1' });
    mockQueryRunner.manager.save.mockRejectedValueOnce(new Error('Fatal Error'));
 
    await expect(useCase.execute(dto, userId)).rejects.toThrow(InternalServerErrorException);

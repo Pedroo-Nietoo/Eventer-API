@@ -3,6 +3,7 @@ import {
   Logger,
   InternalServerErrorException,
   NotFoundException,
+  BadRequestException,
 } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import { OrdersRepository } from '@orders/repository/orders.repository';
@@ -20,7 +21,7 @@ export class CreateOrderUseCase {
     private readonly ticketTypesRepository: TicketTypesRepository,
     private readonly stripeService: StripeService,
     private readonly dataSource: DataSource,
-  ) {}
+  ) { }
 
   async execute(userId: string, dto: CreateOrderDto) {
     const { ticketTypeId, quantity } = dto;
@@ -28,6 +29,12 @@ export class CreateOrderUseCase {
     const ticketType = await this.ticketTypesRepository.findById(ticketTypeId);
     if (!ticketType) {
       throw new NotFoundException('Lote de ingressos não encontrado.');
+    }
+
+    if (ticketType.availableQuantity < quantity) {
+      throw new BadRequestException(
+        `Quantidade indisponível. Restam apenas ${ticketType.availableQuantity} ingressos neste lote.`,
+      );
     }
 
     const savedOrder = await this.dataSource.transaction(async (manager) => {

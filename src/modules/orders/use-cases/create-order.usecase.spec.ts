@@ -5,7 +5,7 @@ import { TicketTypesRepository } from '@ticket-types/repository/ticket-type.repo
 import { StripeService } from '@infra/stripe/stripe.service';
 import { DataSource, EntityManager } from 'typeorm';
 import { OrderStatus } from '@common/enums/order-status.enum';
-import { Logger, NotFoundException, InternalServerErrorException } from '@nestjs/common';
+import { Logger, NotFoundException, InternalServerErrorException, BadRequestException } from '@nestjs/common';
 
 describe('CreateOrderUseCase', () => {
  let useCase: CreateOrderUseCase;
@@ -64,14 +64,14 @@ describe('CreateOrderUseCase', () => {
  describe('execute', () => {
   const userId = 'user-123';
   const dto = { ticketTypeId: 'ticket-1', quantity: 2 };
-  const mockTicketType = { id: 'ticket-1', name: 'VIP', price: 150 };
+  const mockTicketType = { id: 'ticket-1', name: 'VIP', price: 150, availableQuantity: 10 };
 
   it('deve criar um pedido e retornar a URL de checkout com sucesso', async () => {
    mockTicketTypesRepository.findById.mockResolvedValueOnce(mockTicketType);
    mockOrdersRepository.createOrder.mockResolvedValueOnce({ id: 'order-1' });
    mockStripeService.createCheckoutSession.mockResolvedValueOnce({
     id: 'sess_1',
-    url: 'https://stripe.com/pay'
+    url: 'https://stripe.com/pay',
    });
 
    const result = await useCase.execute(userId, dto);
@@ -79,28 +79,31 @@ describe('CreateOrderUseCase', () => {
    expect(mockTicketTypesRepository.decrementStock).toHaveBeenCalledWith(
     dto.ticketTypeId,
     dto.quantity,
-    mockManager
+    mockManager,
    );
 
-   expect(mockOrdersRepository.createOrder).toHaveBeenCalledWith({
-    userId,
-    ticketTypeId: dto.ticketTypeId,
-    quantity: dto.quantity,
-    unitPrice: 150,
-    totalPrice: 300,
-    status: OrderStatus.PENDING
-   }, mockManager);
+   expect(mockOrdersRepository.createOrder).toHaveBeenCalledWith(
+    {
+     userId,
+     ticketTypeId: dto.ticketTypeId,
+     quantity: dto.quantity,
+     unitPrice: 150,
+     totalPrice: 300,
+     status: OrderStatus.PENDING,
+    },
+    mockManager,
+   );
 
    expect(mockStripeService.createCheckoutSession).toHaveBeenCalled();
    expect(mockOrdersRepository.updateSessionId).toHaveBeenCalledWith(
     'order-1',
     'sess_1',
-    mockDataSource.manager
+    mockDataSource.manager,
    );
 
    expect(result).toEqual({
     orderId: 'order-1',
-    checkoutUrl: 'https://stripe.com/pay'
+    checkoutUrl: 'https://stripe.com/pay',
    });
   });
 
@@ -111,7 +114,15 @@ describe('CreateOrderUseCase', () => {
    expect(mockDataSource.transaction).not.toHaveBeenCalled();
   });
 
-  it('deve propagar erro se o decrementStock falhar (ex: sem estoque)', async () => {
+  it('deve lançar BadRequestException se a quantidade solicitada for maior que o estoque', async () => {
+   const lowStockType = { ...mockTicketType, availableQuantity: 1 };
+   mockTicketTypesRepository.findById.mockResolvedValueOnce(lowStockType);
+
+   await expect(useCase.execute(userId, dto)).rejects.toThrow(BadRequestException);
+   expect(mockDataSource.transaction).not.toHaveBeenCalled();
+  });
+
+  it('deve propagar erro se o decrementStock falhar no repositório', async () => {
    mockTicketTypesRepository.findById.mockResolvedValueOnce(mockTicketType);
    const stockError = new Error('Out of stock');
    mockTicketTypesRepository.decrementStock.mockRejectedValueOnce(stockError);
@@ -120,14 +131,13 @@ describe('CreateOrderUseCase', () => {
    expect(mockOrdersRepository.createOrder).not.toHaveBeenCalled();
   });
 
-  it('deve propagar erro se a criação do pedido (createOrder) falhar dentro da transação', async () => {
+  it('deve propagar erro se a criação do pedido falhar dentro da transação', async () => {
    mockTicketTypesRepository.findById.mockResolvedValueOnce(mockTicketType);
 
    const dbError = new Error('Database Insert Failed');
    mockOrdersRepository.createOrder.mockRejectedValueOnce(dbError);
 
    await expect(useCase.execute(userId, dto)).rejects.toThrow(dbError);
-
    expect(mockStripeService.createCheckoutSession).not.toHaveBeenCalled();
   });
 
@@ -140,25 +150,20 @@ describe('CreateOrderUseCase', () => {
 
    const errorSpy = jest.spyOn(Logger.prototype, 'error');
 
-   await expect(useCase.execute(userId, dto)).rejects.toThrow(
-    new InternalServerErrorException('Falha ao iniciar processo de pagamento. Seu ingresso não foi reservado.')
-   );
+   await expect(useCase.execute(userId, dto)).rejects.toThrow(InternalServerErrorException);
 
-   expect(errorSpy).toHaveBeenCalledWith(
-    'Erro no Stripe. Iniciando compensação...',
-    stripeError
-   );
+   expect(errorSpy).toHaveBeenCalledWith('Erro no Stripe. Iniciando compensação...', stripeError);
 
    expect(mockTicketTypesRepository.incrementStock).toHaveBeenCalledWith(
     dto.ticketTypeId,
     dto.quantity,
-    mockDataSource.manager
+    mockDataSource.manager,
    );
 
    expect(mockOrdersRepository.updateStatus).toHaveBeenCalledWith(
     'order-1',
     OrderStatus.FAILED,
-    mockDataSource.manager
+    mockDataSource.manager,
    );
   });
 
@@ -168,26 +173,24 @@ describe('CreateOrderUseCase', () => {
 
    mockStripeService.createCheckoutSession.mockResolvedValueOnce({
     id: 'sess_1',
-    url: 'https://stripe.com/pay'
+    url: 'https://stripe.com/pay',
    });
 
    const updateError = new Error('Update Session Failed');
    mockOrdersRepository.updateSessionId.mockRejectedValueOnce(updateError);
 
-   await expect(useCase.execute(userId, dto)).rejects.toThrow(
-    new InternalServerErrorException('Falha ao iniciar processo de pagamento. Seu ingresso não foi reservado.')
-   );
+   await expect(useCase.execute(userId, dto)).rejects.toThrow(InternalServerErrorException);
 
    expect(mockTicketTypesRepository.incrementStock).toHaveBeenCalledWith(
     dto.ticketTypeId,
     dto.quantity,
-    mockDataSource.manager
+    mockDataSource.manager,
    );
 
    expect(mockOrdersRepository.updateStatus).toHaveBeenCalledWith(
     'order-1',
     OrderStatus.FAILED,
-    mockDataSource.manager
+    mockDataSource.manager,
    );
   });
  });

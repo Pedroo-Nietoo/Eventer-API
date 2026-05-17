@@ -23,18 +23,19 @@ export class CreateTicketUseCase {
     private readonly dataSource: DataSource,
     private readonly generateTicketTokenService: GenerateTicketTokenService,
     private readonly dispatchTicketEmailUseCase: DispatchTicketEmailUseCase,
-  ) {}
+  ) { }
 
   async execute(
     dto: CreateTicketDto,
     userId: string,
-  ): Promise<TicketResponseDto> {
-    let savedTicket: Ticket;
-    let token: string;
-
+    quantity: number = 1,
+  ): Promise<TicketResponseDto[]> {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
+
+    let savedTickets: Ticket[] = [];
+    const tokensMapping: { ticketId: string; token: string }[] = [];
 
     try {
       const ticketType = await queryRunner.manager.findOne(TicketType, {
@@ -48,9 +49,7 @@ export class CreateTicketUseCase {
       });
 
       if (!ticketType) {
-        throw new NotFoundException(
-          'O lote de ingressos informado não existe.',
-        );
+        throw new NotFoundException('O lote de ingressos informado não existe.');
       }
 
       if (dto.eventId !== ticketType.event.id) {
@@ -59,20 +58,26 @@ export class CreateTicketUseCase {
         );
       }
 
-      const generated = this.generateTicketTokenService.execute();
-      const ticketId = generated.ticketId;
-      token = generated.token;
+      const ticketsToCreate: Ticket[] = [];
 
-      const ticket = queryRunner.manager.create(Ticket, {
-        id: ticketId,
-        qrCode: token,
-        status: TicketStatus.VALID,
-        purchasePrice: ticketType.price,
-        user: { id: userId },
-        ticketType: { id: dto.ticketTypeId },
-      });
+      for (let i = 0; i < quantity; i++) {
+        const generated = this.generateTicketTokenService.execute();
+        tokensMapping.push(generated);
 
-      savedTicket = await queryRunner.manager.save(ticket);
+        ticketsToCreate.push(
+          queryRunner.manager.create(Ticket, {
+            id: generated.ticketId,
+            qrCode: generated.token,
+            status: TicketStatus.VALID,
+            purchasePrice: ticketType.price,
+            user: { id: userId },
+            ticketType: { id: dto.ticketTypeId },
+          }),
+        );
+      }
+
+      // Salva tudo no banco em uma única transação
+      savedTickets = await queryRunner.manager.save(ticketsToCreate);
 
       await queryRunner.commitTransaction();
     } catch (error: unknown) {
@@ -87,19 +92,17 @@ export class CreateTicketUseCase {
 
       const dbError = error as DatabaseError;
 
-      if (dbError.code === '23503') {
+      if (dbError?.code === '23503') {
         throw new NotFoundException('A conta de usuário informada é inválida.');
       }
 
-      if (dbError.code === '23505') {
-        throw new BadRequestException(
-          'Já existe um registro com este QR Code.',
-        );
+      if (dbError?.code === '23505') {
+        throw new BadRequestException('Já existe um registro com este QR Code.');
       }
 
       this.logger.error(
-        `Falha inesperada ao criar ingresso: ${dbError.message}`,
-        dbError.stack,
+        `Falha inesperada ao criar lote de ingressos: ${dbError?.message}`,
+        dbError?.stack,
       );
 
       throw new InternalServerErrorException(
@@ -109,8 +112,10 @@ export class CreateTicketUseCase {
       await queryRunner.release();
     }
 
-    await this.dispatchTicketEmailUseCase.execute(savedTicket.id, token);
+    for (const mapping of tokensMapping) {
+      await this.dispatchTicketEmailUseCase.execute(mapping.ticketId, mapping.token);
+    }
 
-    return TicketMapper.toResponse(savedTicket);
+    return savedTickets.map((ticket) => TicketMapper.toResponse(ticket));
   }
 }

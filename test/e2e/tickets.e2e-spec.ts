@@ -91,16 +91,18 @@ describe('TicketsController (e2e)', () => {
   });
 
   describe('POST /tickets', () => {
-    it('Deve criar um ingresso com sucesso', async () => {
+    it('Deve criar um ingresso com sucesso e retornar um array', async () => {
       const response = await request(app.getHttpServer())
         .post('/tickets')
         .set('Authorization', `Bearer ${accessToken}`)
         .send({ eventId, ticketTypeId })
         .expect(201);
 
-      expect(response.body).toHaveProperty('id');
-      expect(response.body.status).toBe('VALID');
-      expect(response.body.purchasePrice).toBe(100);
+      expect(Array.isArray(response.body)).toBe(true);
+      expect(response.body.length).toBe(1);
+      expect(response.body[0]).toHaveProperty('id');
+      expect(response.body[0].status).toBe('VALID');
+      expect(response.body[0].purchasePrice).toBe(100);
     });
 
     it('Deve retornar 400 se o evento e lote não baterem', async () => {
@@ -134,7 +136,7 @@ describe('TicketsController (e2e)', () => {
         .set('Authorization', `Bearer ${accessToken}`)
         .send({ eventId, ticketTypeId });
 
-      const ticketId = createRes.body.id;
+      const ticketId = createRes.body[0].id;
 
       const response = await request(app.getHttpServer())
         .get(`/tickets/${ticketId}`)
@@ -155,7 +157,7 @@ describe('TicketsController (e2e)', () => {
       const response = await request(app.getHttpServer())
         .post('/tickets/validate')
         .set('Authorization', `Bearer ${accessToken}`)
-        .send({ qrCode: createRes.body.qrCode })
+        .send({ qrCode: createRes.body[0].qrCode })
         .expect(200);
 
       expect(response.body.success).toBe(true);
@@ -169,7 +171,7 @@ describe('TicketsController (e2e)', () => {
         .set('Authorization', `Bearer ${accessToken}`)
         .send({ eventId, ticketTypeId });
 
-      const ticketId = createRes.body.id;
+      const ticketId = createRes.body[0].id;
 
       const response = await request(app.getHttpServer())
         .patch(`/tickets/${ticketId}`)
@@ -188,7 +190,7 @@ describe('TicketsController (e2e)', () => {
         .set('Authorization', `Bearer ${accessToken}`)
         .send({ eventId, ticketTypeId });
 
-      const ticketId = createRes.body.id;
+      const ticketId = createRes.body[0].id;
 
       await request(app.getHttpServer())
         .delete(`/tickets/${ticketId}`)

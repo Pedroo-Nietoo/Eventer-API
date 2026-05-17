@@ -107,6 +107,14 @@ describe('OrdersController (e2e)', () => {
       const tt = await dataSource.getRepository(TicketType).findOneBy({ id: ticketTypeId });
       expect(tt?.availableQuantity).toBe(98);
     });
+
+    it('Deve retornar erro 400 se a quantidade pedida for maior que o estoque disponível', async () => {
+      await request(app.getHttpServer())
+        .post('/orders')
+        .set('Authorization', `Bearer ${accessToken}`)
+        .send({ ticketTypeId, quantity: 150 })
+        .expect(400);
+    });
   });
 
   describe('GET /orders', () => {

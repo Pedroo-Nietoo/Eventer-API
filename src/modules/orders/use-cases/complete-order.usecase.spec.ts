@@ -68,10 +68,10 @@ describe('CompleteOrderUseCase', () => {
    quantity: 2,
   };
 
-  it('deve completar o pedido e emitir os ingressos com sucesso', async () => {
+  it('deve completar o pedido e emitir os ingressos em lote com sucesso', async () => {
    mockOrdersRepository.findById.mockResolvedValueOnce(mockOrder);
    mockQueryRunner.manager.findOne.mockResolvedValueOnce({
-    event: { id: 'event-1' }
+    event: { id: 'event-1' },
    });
 
    await useCase.execute(orderId);
@@ -79,7 +79,13 @@ describe('CompleteOrderUseCase', () => {
    expect(mockOrdersRepository.updateStatus).toHaveBeenCalledWith(orderId, OrderStatus.PAID);
    expect(mockQueryRunner.connect).toHaveBeenCalled();
    expect(mockQueryRunner.release).toHaveBeenCalled();
-   expect(mockCreateTicketUseCase.execute).toHaveBeenCalledTimes(2);
+
+   expect(mockCreateTicketUseCase.execute).toHaveBeenCalledTimes(1);
+   expect(mockCreateTicketUseCase.execute).toHaveBeenCalledWith(
+    { ticketTypeId: 'type-1', eventId: 'event-1' },
+    'user-1',
+    2,
+   );
   });
 
   it('deve lançar erro e logar se falhar ao atualizar status para PAID', async () => {
@@ -91,7 +97,7 @@ describe('CompleteOrderUseCase', () => {
 
    expect(loggerErrorSpy).toHaveBeenCalledWith(
     expect.stringContaining(`Falha crítica ao atualizar status do pedido ${orderId} para PAID:`),
-    dbError
+    dbError,
    );
    expect(mockDataSource.createQueryRunner).not.toHaveBeenCalled();
   });
@@ -100,9 +106,10 @@ describe('CompleteOrderUseCase', () => {
    mockOrdersRepository.findById.mockResolvedValueOnce(mockOrder);
    mockQueryRunner.manager.findOne.mockResolvedValueOnce({ event: { id: 'evt-1' } });
 
-   mockCreateTicketUseCase.execute.mockRejectedValue(new Error('Falha catastrófica'));
+   const catastrophicError = new Error('Falha catastrófica');
+   mockCreateTicketUseCase.execute.mockRejectedValue(catastrophicError);
 
-   await useCase.execute(orderId);
+   await expect(useCase.execute(orderId)).rejects.toThrow(catastrophicError);
 
    expect(mockQueryRunner.release).toHaveBeenCalled();
    expect(loggerErrorSpy).toHaveBeenCalled();
@@ -117,7 +124,7 @@ describe('CompleteOrderUseCase', () => {
 
    expect(loggerErrorSpy).toHaveBeenCalledWith(
     expect.stringContaining(`Erro durante a fase de emissão de bilhetes do pedido ${orderId}:`),
-    connError
+    connError,
    );
    expect(mockQueryRunner.release).toHaveBeenCalled();
   });

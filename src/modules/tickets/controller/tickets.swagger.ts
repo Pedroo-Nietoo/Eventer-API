@@ -24,13 +24,13 @@ export const SwaggerTicketController = {
   Create: () =>
     applyDecorators(
       ApiOperation({
-        summary: 'Emite um novo ingresso',
+        summary: 'Emite um ou mais ingressos',
         description:
-          'Cria o ingresso, abate do estoque e envia e-mail com QR Code.',
+          'Cria o(s) ingresso(s) em lote, abate do estoque e envia e-mail com o(s) QR Code(s).',
       }),
       ApiCreatedResponse({
-        description: 'Ingresso emitido.',
-        type: TicketResponseDto,
+        description: 'Ingresso(s) emitido(s) com sucesso.',
+        type: [TicketResponseDto],
       }),
       ApiBadRequestResponse({
         description: 'Lote esgotado ou dados inválidos.',
